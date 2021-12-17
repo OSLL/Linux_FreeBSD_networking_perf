@@ -5,16 +5,24 @@
 #ifndef LFNP_LINUXDATASOURCE_H
 #define LFNP_LINUXDATASOURCE_H
 
+#include <fstream>
+#include <iostream>
+#include <map>
+#include <optional>
 
 #include "../BaseDataSource.h"
 
+typedef std::map<std::string, std::map<std::string, int>> ProtocolsStats;
+
 class LinuxDataSource: public BaseDataSource {
+
+private:
+
+    std::optional<ProtocolsStats> parseProcNetSNMP();
 
 public:
 
-    LinuxDataSource();
-
-    int getTcpTotalRecv();
+    int getTcpTotalRecv() override;
 
 };
 
