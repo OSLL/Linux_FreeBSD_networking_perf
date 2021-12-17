@@ -7,7 +7,7 @@
 
 int LinuxDataSource::getTcpTotalRecv() {
 
-    auto protocols_stats = this->parseProcNetSNMP();
+    auto protocols_stats = this->parseProtocolsStatsFile("/proc/net/snmp");
     if (protocols_stats) {
         return protocols_stats.value()["Tcp"]["InSegs"];
     }
@@ -15,11 +15,11 @@ int LinuxDataSource::getTcpTotalRecv() {
 
 }
 
-std::optional<ProtocolsStats> LinuxDataSource::parseProcNetSNMP() {
+std::optional<ProtocolsStats> LinuxDataSource::parseProtocolsStatsFile(std::string filename) {
 
     ProtocolsStats stats;
 
-    std::ifstream file("/proc/net/snmp");
+    std::ifstream file(filename);
 
     if (!file) {
         std::cout << "Can't open /proc/net/snmp";

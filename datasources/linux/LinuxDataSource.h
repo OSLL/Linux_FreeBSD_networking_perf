@@ -18,7 +18,7 @@ class LinuxDataSource: public BaseDataSource {
 
 private:
 
-    std::optional<ProtocolsStats> parseProcNetSNMP();
+    std::optional<ProtocolsStats> parseProtocolsStatsFile(std::string filename);
 
 public:
 
