@@ -11,6 +11,7 @@ class BaseDataSource {
 public:
 
     virtual int getTcpTotalRecv()=0;
+    virtual int getTcpConnList()=0;
 
 };
 

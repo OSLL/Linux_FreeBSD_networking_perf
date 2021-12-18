@@ -10,24 +10,25 @@
 #include <netinet/in_systm.h>
 #include <netinet/ip_var.h>
 #include <netinet/tcp.h>
+#include <arpa/inet.h>
+
+#include <sys/socket.h>
+#include <sys/socketvar.h>
+#include <netinet/in_pcb.h>
 #include "netinet/tcp_var.h"
+
 #include "../BaseDataSource.h"
 #include <sys/sysctl.h>
 
+#include <iostream>
+
 class FreeBSDDataSource: public BaseDataSource {
-
-private:
-
-    tcpstat ts;
 
 public:
 
-    FreeBSDDataSource() {
-        size_t size;
-        sysctlbyname("net.inet.tcp.stats", &this->ts, &size, nullptr, 0);
-    }
-
     int getTcpTotalRecv();
+
+    int getTcpConnList();
 
 };
 
