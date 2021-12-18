@@ -5,7 +5,6 @@
 #ifndef LFNP_BASEDATASOURCE_H
 #define LFNP_BASEDATASOURCE_H
 
-
 class BaseDataSource {
 
 public:

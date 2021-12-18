@@ -3,7 +3,7 @@ project(lfnp)
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_executable(lfnp main.cpp datasources/BaseDataSource.h utils/utils.h )
+add_executable(lfnp main.cpp datasources/BaseDataSource.h utils/utils.h utils/utils.cpp)
 
 if (${CMAKE_SYSTEM_NAME} MATCHES Linux)
     target_sources(lfnp PUBLIC datasources/linux/LinuxDataSource.h datasources/linux/LinuxDataSource.cpp)
