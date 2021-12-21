@@ -22,9 +22,16 @@ int FreeBSDDataSource::getTcpTotalRecv() {
 std::vector<SocketInfo> FreeBSDDataSource::getSockets(std::string protocol) {
 
     size_t size;
-    std::vector<SocketInfo> socket_info_list;
+    std::vector<SocketInfo> sockets_info_list;
 
-    auto sysctl_name = FreeBSDDataSource::protocol_sockets_sysctl_names[protocol];
+     auto iter = FreeBSDDataSource::protocol_sockets_sysctl_names.find(protocol);
+
+    if (iter == FreeBSDDataSource::protocol_sockets_sysctl_names.end()) {
+        std::cout << "Unsupported protocol" << std::endl;
+        return sockets_info_list;
+    }
+    auto sysctl_name = iter->second;
+
     sysctlbyname(sysctl_name.c_str(), nullptr, &size, nullptr, 0);
 
     char *buf = new char[size];
@@ -58,7 +65,7 @@ std::vector<SocketInfo> FreeBSDDataSource::getSockets(std::string protocol) {
         char for_addr[INET_ADDRSTRLEN];
         inet_ntop(AF_INET, &inp->inp_faddr.s_addr, for_addr, INET_ADDRSTRLEN);
 
-        socket_info_list.emplace_back(
+        sockets_info_list.emplace_back(
                 std::string(loc_addr), std::string(for_addr),
                 ntohs(inp->inp_lport), ntohs(inp->inp_fport),
                 so->so_rcv.sb_cc, so->so_snd.sb_cc
@@ -67,5 +74,5 @@ std::vector<SocketInfo> FreeBSDDataSource::getSockets(std::string protocol) {
         std::cout << loc_addr << ":" << ntohs(inp->inp_lport) << " -> " << for_addr << ":" << ntohs(inp->inp_fport);
         std::cout << " " << so->so_rcv.sb_cc << " " << so->so_snd.sb_cc << std::endl;
     }
-    return socket_info_list;
+    return sockets_info_list;
 }

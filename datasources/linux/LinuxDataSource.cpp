@@ -31,7 +31,15 @@ std::vector<SocketInfo> LinuxDataSource::getSockets(std::string protocol) {
 
     std::vector<SocketInfo> sockets_info_list;
 
-    auto filename = LinuxDataSource::protocol_sockets_files[protocol];
+    auto iter = LinuxDataSource::protocol_sockets_files.find(protocol);
+
+    if (iter == LinuxDataSource::protocol_sockets_files.end()) {
+        std::cout << "Unsupported protocol" << std::endl;
+        return sockets_info_list;
+    }
+
+    auto filename = iter->second;
+
     auto sockets_list = parseProtocolSocketsListFile(filename);
 
     if (!sockets_list) {
@@ -76,7 +84,7 @@ std::optional<ProtocolsStats> LinuxDataSource::parseProtocolsStatsFile(std::stri
     std::ifstream file(filename);
 
     if (!file) {
-        std::cout << "Can't open /proc/net/snmp";
+        std::cout << "Can't open " << filename << std::endl;
         return std::nullopt;
     }
 
@@ -133,7 +141,7 @@ std::optional<SocketsList> LinuxDataSource::parseProtocolSocketsListFile(std::st
     std::ifstream file(filename);
 
     if (!file) {
-        std::cout << "Can't open /proc/net/snmp";
+        std::cout << "Can't open " << filename << std::endl;
         return std::nullopt;
     }
 
