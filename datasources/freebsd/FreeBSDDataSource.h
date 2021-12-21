@@ -21,14 +21,19 @@
 #include <sys/sysctl.h>
 
 #include <iostream>
+#include <map>
 
 class FreeBSDDataSource: public BaseDataSource {
 
+private:
+
+    static std::map<std::string, std::string> protocol_sockets_sysctl_names;
+
 public:
 
-    int getTcpTotalRecv();
+    int getTcpTotalRecv() override;
 
-    int getTcpConnList();
+    std::vector<SocketInfo> getSockets(std::string protocol) override;
 
 };
 
