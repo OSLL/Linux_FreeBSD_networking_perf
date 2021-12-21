@@ -5,12 +5,17 @@
 #ifndef LFNP_BASEDATASOURCE_H
 #define LFNP_BASEDATASOURCE_H
 
+#include <vector>
+
+#include "../types/SocketInfo.h"
+
 class BaseDataSource {
 
 public:
 
     virtual int getTcpTotalRecv()=0;
-    virtual int getTcpConnList()=0;
+
+    virtual std::vector<SocketInfo> getSockets(std::string protocol)=0;
 
 };
 

@@ -4,6 +4,19 @@
 
 #include "LinuxDataSource.h"
 
+std::map<std::string, std::string> LinuxDataSource::protocol_sockets_files  = {
+        {"tcp",      "/proc/net/tcp"},
+        {"tcp6",     "/proc/net/tcp6"},
+        {"udp",      "/proc/net/udp"},
+        {"udp6",     "/proc/net/tcp6"},
+        {"udplite",  "/proc/net/udplite"},
+        {"udplite6", "/proc/net/udplite6"},
+        {"raw",      "/proc/net/raw"},
+        {"raw6",     "/proc/net/raw6"},
+        {"icmp",     "/proc/net/icmp"},
+        {"icmp6",    "/proc/net/icmp6"}
+};
+
 int LinuxDataSource::getTcpTotalRecv() {
 
     auto protocols_stats = this->parseProtocolsStatsFile("/proc/net/snmp");
@@ -14,37 +27,45 @@ int LinuxDataSource::getTcpTotalRecv() {
 
 }
 
-int LinuxDataSource::getTcpConnList() {
-    auto sockets_list = parseProtocolSocketsListFile("/proc/net/tcp");
+std::vector<SocketInfo> LinuxDataSource::getSockets(std::string protocol) {
+
+    std::vector<SocketInfo> sockets_info_list;
+
+    auto filename = LinuxDataSource::protocol_sockets_files[protocol];
+    auto sockets_list = parseProtocolSocketsListFile(filename);
 
     if (!sockets_list) {
-        return 0;
+        return sockets_info_list;
     }
 
     for (auto &socket: *sockets_list) {
 
-        auto v_src_addr_port = split(socket["local_address"], ':');
-        auto v_dst_addr_port = split(socket["rem_address"], ':');
+        auto v_loc_addr_port = split(socket["local_address"], ':');
+        auto v_for_addr_port = split(socket["rem_address"], ':');
 
-        char src_addr[INET_ADDRSTRLEN];
-        char dst_addr[INET_ADDRSTRLEN];
+        char loc_addr[INET_ADDRSTRLEN];
+        char for_addr[INET_ADDRSTRLEN];
 
-        unsigned int i_src_addr = std::stol(v_src_addr_port[0], nullptr, 16);
-        unsigned int src_port = std::stoi(v_src_addr_port[1], nullptr, 16);
-        inet_ntop(AF_INET, &i_src_addr, src_addr, INET_ADDRSTRLEN);
+        unsigned int i_loc_addr = std::stol(v_loc_addr_port[0], nullptr, 16);
+        unsigned int loc_port = std::stoi(v_loc_addr_port[1], nullptr, 16);
+        inet_ntop(AF_INET, &i_loc_addr, loc_addr, INET_ADDRSTRLEN);
 
-        unsigned int i_dst_addr = std::stol(v_dst_addr_port[0], nullptr, 16);
-        unsigned int dst_port = std::stoi(v_dst_addr_port[1], nullptr, 16);
-        inet_ntop(AF_INET, &i_dst_addr, dst_addr, INET_ADDRSTRLEN);
+        unsigned int i_for_addr = std::stol(v_for_addr_port[0], nullptr, 16);
+        unsigned int for_port = std::stoi(v_for_addr_port[1], nullptr, 16);
+        inet_ntop(AF_INET, &i_for_addr, for_addr, INET_ADDRSTRLEN);
 
         int rx_queue = std::stoi(socket["rx_queue"]);
         int tx_queue = std::stoi(socket["tx_queue"]);
 
-        std::cout << src_addr << ":" << src_port << " -> " << dst_addr << ":" << dst_port << " " << tx_queue;
+        sockets_info_list.emplace_back(
+                std::string(loc_addr), std::string(for_addr), loc_port, for_port, rx_queue, tx_queue
+        );
+
+        std::cout << loc_addr << ":" << loc_port << " -> " << for_addr << ":" << for_port << " " << tx_queue;
         std::cout << " " << rx_queue << std::endl;
     }
 
-    return 0;
+    return sockets_info_list;
 }
 
 

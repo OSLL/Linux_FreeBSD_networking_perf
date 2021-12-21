@@ -28,10 +28,13 @@ private:
     std::optional<ProtocolsStats> parseProtocolsStatsFile(std::string filename);
     std::optional<SocketsList> parseProtocolSocketsListFile(std::string filename);
 
+    static std::map<std::string, std::string> protocol_sockets_files;
+
 public:
 
     int getTcpTotalRecv() override;
-    int getTcpConnList() override;
+
+    std::vector<SocketInfo> getSockets(std::string protocol) override;
 
 
 };
