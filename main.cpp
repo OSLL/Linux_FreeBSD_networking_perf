@@ -4,6 +4,8 @@
 
 #ifdef __linux__
 #include "datasources/linux/LinuxDataSource.h"
+#include "printers/printers.h"
+
 #else
 #include "datasources/freebsd/FreeBSDDataSource.h"
 #endif
@@ -19,7 +21,7 @@ int main(int argc, char *argv[]) {
     if (argc > 1 && std::string(argv[1]) == "list") {
         if (argc > 2 && std::string(argv[2]) == "sockets") {
             if (argc == 4) {
-                ds->getSockets(argv[3]);
+                printSocketsInfoList(ds->getSockets(argv[3]));
             } else {
                 std::cout << "Please, specify protocol" << std::endl;
             }

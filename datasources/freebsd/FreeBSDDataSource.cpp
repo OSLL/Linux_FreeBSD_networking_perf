@@ -70,9 +70,6 @@ std::vector<SocketInfo> FreeBSDDataSource::getSockets(std::string protocol) {
                 ntohs(inp->inp_lport), ntohs(inp->inp_fport),
                 so->so_rcv.sb_cc, so->so_snd.sb_cc
         );
-
-        std::cout << loc_addr << ":" << ntohs(inp->inp_lport) << " -> " << for_addr << ":" << ntohs(inp->inp_fport);
-        std::cout << " " << so->so_rcv.sb_cc << " " << so->so_snd.sb_cc << std::endl;
     }
     return sockets_info_list;
 }

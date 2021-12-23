@@ -69,8 +69,6 @@ std::vector<SocketInfo> LinuxDataSource::getSockets(std::string protocol) {
                 std::string(loc_addr), std::string(for_addr), loc_port, for_port, rx_queue, tx_queue
         );
 
-        std::cout << loc_addr << ":" << loc_port << " -> " << for_addr << ":" << for_port << " " << tx_queue;
-        std::cout << " " << rx_queue << std::endl;
     }
 
     return sockets_info_list;
