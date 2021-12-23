@@ -26,6 +26,8 @@ public:
 
     std::vector<SocketInfo> getSockets(std::string protocol) override;
 
+    InSystemTimeInfo getInSystemTime() override;
+
 
 };
 

@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "../types/SocketInfo.h"
+#include "../types/InSystemTimeInfo.h"
 
 class BaseDataSource {
 
@@ -16,6 +17,8 @@ public:
     virtual int getTcpTotalRecv()=0;
 
     virtual std::vector<SocketInfo> getSockets(std::string protocol)=0;
+
+    virtual InSystemTimeInfo getInSystemTime()=0;
 
 };
 

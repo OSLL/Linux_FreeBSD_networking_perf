@@ -25,6 +25,8 @@ int main(int argc, char *argv[]) {
             } else {
                 std::cout << "Please, specify protocol" << std::endl;
             }
+        } else if (argc > 2 && std::string(argv[2]) == "timings") {
+            ds->getInSystemTime();
         }
     }
 
