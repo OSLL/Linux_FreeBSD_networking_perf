@@ -74,9 +74,9 @@ std::vector<SocketInfo> LinuxDataSource::getSockets(std::string protocol) {
     return sockets_info_list;
 }
 
-InSystemTimeRXInfo LinuxDataSource::getInSystemTimeRX(std::string protocol, unsigned int packets_count) {
+std::optional<InSystemTimeRXInfo> LinuxDataSource::getInSystemTimeRX(std::string protocol, unsigned int packets_count) {
 
-    int sock = socket(AF_INET, SOCK_RAW, IPPROTO_UDP);
+    int sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 
     if (sock < 0) {
         std::cout << "Could not create socket" << std::endl;
@@ -93,7 +93,7 @@ InSystemTimeRXInfo LinuxDataSource::getInSystemTimeRX(std::string protocol, unsi
 
         sockaddr_in addr {
             .sin_family = AF_INET,
-            .sin_port = 7435,
+            .sin_port = htons(7435),
             .sin_addr = {
                     .s_addr = INADDR_ANY
             }
@@ -101,7 +101,10 @@ InSystemTimeRXInfo LinuxDataSource::getInSystemTimeRX(std::string protocol, unsi
 
         if (bind(sock, (sockaddr *)&addr, sizeof(addr)) < 0) {
             std::cout << "Bind failed" << std::endl;
+            return std::nullopt;
         }
+
+        listen(sock, 1);
 
     }
 
@@ -119,10 +122,11 @@ InSystemTimeRXInfo LinuxDataSource::getInSystemTimeRX(std::string protocol, unsi
     InSystemTimeRXInfo res;
 
     scm_timestamping *tmst;
-    timespec user_time, diff_time;
+    timespec user_time;
 
     for (int i=0; i<packets_count; i++) {
 
+        std::cout << "Waiting for data" << std::endl;
         recvmsg(sock, &msg, 0);
         clock_gettime(CLOCK_REALTIME, &user_time);
 
@@ -139,4 +143,71 @@ InSystemTimeRXInfo LinuxDataSource::getInSystemTimeRX(std::string protocol, unsi
     }
 
     return res;
+}
+
+std::optional<InSystemTimeTXInfo> LinuxDataSource::sendTimestamp(std::string protocol, unsigned int packets_count) {
+
+    int sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+
+    unsigned int val = SOF_TIMESTAMPING_TX_HARDWARE |
+                       SOF_TIMESTAMPING_TX_SOFTWARE |
+//                       SOF_TIMESTAMPING_TX_SCHED |
+                       SOF_TIMESTAMPING_SOFTWARE |
+                       SOF_TIMESTAMPING_RAW_HARDWARE;
+
+    setsockopt(sock, SOL_SOCKET, SO_TIMESTAMPING, &val, sizeof(val));
+
+    sockaddr_in addr {
+        .sin_family = AF_INET,
+        .sin_port = htons(7435)
+    };
+    inet_aton("127.0.0.1", &addr.sin_addr);
+
+    if (connect(sock, (sockaddr *)&addr, sizeof(addr)) < 0) {
+        std::cout << "Connect error" << std::endl;
+    }
+
+    char control[1000];
+    msghdr msg{
+            .msg_name = nullptr,
+            .msg_namelen = 0,
+            .msg_iov = nullptr,
+            .msg_iovlen = 0,
+            .msg_control = &control,
+            .msg_controllen = sizeof(control)
+    };
+
+    timespec res = {0, 0};
+
+    for (int i=0; i<packets_count; i++) {
+
+        timespec user_time = {0, 0};
+        clock_gettime(CLOCK_REALTIME, &user_time);
+        if (send(sock, &user_time, sizeof(timespec), 0) < 0) {
+            std::cout << "Send error" << std::endl;
+        };
+
+        recvmsg(sock, &msg, MSG_ERRQUEUE);
+
+        scm_timestamping *tmst;
+        for (cmsghdr *cmsg = CMSG_FIRSTHDR(&msg); cmsg; cmsg = CMSG_NXTHDR(&msg, cmsg)) {
+
+            if (cmsg->cmsg_level == SOL_SOCKET && cmsg->cmsg_type == SCM_TIMESTAMPING) {
+
+                tmst = (scm_timestamping*) &CMSG_DATA(cmsg);
+
+                std::cout << user_time.tv_sec << " " << user_time.tv_nsec << std::endl;
+                for (auto &t : tmst->ts) {
+                    std::cout << t.tv_sec << " " << t.tv_nsec << std::endl;
+                }
+
+                timespec_avg_add(res, user_time, tmst->ts[0], packets_count);
+
+            }
+        }
+    }
+
+    std::cout << res.tv_sec << " " << res.tv_nsec << std::endl;
+
+    return std::nullopt;
 }

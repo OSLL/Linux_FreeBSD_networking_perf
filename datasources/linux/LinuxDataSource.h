@@ -33,9 +33,9 @@ public:
 
     std::vector<SocketInfo> getSockets(std::string protocol) override;
 
-    InSystemTimeRXInfo getInSystemTimeRX(std::string protocol, unsigned int packets_count) override;
+    std::optional<InSystemTimeRXInfo> getInSystemTimeRX(std::string protocol, unsigned int packets_count) override;
 
-
+    std::optional<InSystemTimeTXInfo> sendTimestamp(std::string protocol, unsigned int packets_count) override;
 };
 
 

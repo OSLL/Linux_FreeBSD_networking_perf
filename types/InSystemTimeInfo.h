@@ -17,5 +17,16 @@ public:
     rx_kernel_user_time({0, 0}), rx_hardware_kernel_time({0, 0}){}
 };
 
+class InSystemTimeTXInfo {
+
+public:
+
+    timespec tx_user_scheduler_time;
+    timespec tx_kernel_hardware_time;
+
+    InSystemTimeTXInfo():
+            tx_user_scheduler_time({0, 0}), tx_kernel_hardware_time({0, 0}){}
+
+};
 
 #endif //LFNP_INSYSTEMTIMEINFO_H
