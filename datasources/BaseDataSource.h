@@ -18,7 +18,7 @@ public:
 
     virtual std::vector<SocketInfo> getSockets(std::string protocol)=0;
 
-    virtual InSystemTimeInfo getInSystemTime()=0;
+    virtual InSystemTimeRXInfo getInSystemTimeRX(std::string protocol, unsigned int packets_count)=0;
 
 };
 

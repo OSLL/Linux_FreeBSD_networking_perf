@@ -6,12 +6,15 @@
 #define LFNP_INSYSTEMTIMEINFO_H
 
 
-class InSystemTimeInfo {
+class InSystemTimeRXInfo {
 
 public:
 
-    int rx_kernel_user_time;
+    timespec rx_kernel_user_time;
+    timespec rx_hardware_kernel_time;
 
+    InSystemTimeRXInfo():
+    rx_kernel_user_time({0, 0}), rx_hardware_kernel_time({0, 0}){}
 };
 
 

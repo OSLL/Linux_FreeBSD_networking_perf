@@ -8,6 +8,13 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <sys/time.h>
+
+#include <linux/net_tstamp.h>
+#include <linux/errqueue.h>
+
 #include "../../utils/utils.h"
 #include "parsers/parsers.h"
 
@@ -26,7 +33,7 @@ public:
 
     std::vector<SocketInfo> getSockets(std::string protocol) override;
 
-    InSystemTimeInfo getInSystemTime() override;
+    InSystemTimeRXInfo getInSystemTimeRX(std::string protocol, unsigned int packets_count) override;
 
 
 };

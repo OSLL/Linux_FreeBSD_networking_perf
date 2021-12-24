@@ -23,6 +23,7 @@
 #include <iostream>
 #include <map>
 
+#include "../../utils/utils.h"
 class FreeBSDDataSource: public BaseDataSource {
 
 private:
@@ -32,6 +33,7 @@ private:
 public:
 
     int getTcpTotalRecv() override;
+    InSystemTimeInfo getInSystemTime() override;
 
     std::vector<SocketInfo> getSockets(std::string protocol) override;
 

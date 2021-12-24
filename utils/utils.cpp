@@ -30,3 +30,20 @@ timespec timespecsub(timespec &tsp, timespec &usp) {
 
     return vsp;
 }
+
+bool is_timespec_empty(timespec &tsp) {
+    return (tsp.tv_sec == 0 && tsp.tv_nsec == 0);
+}
+
+void timespec_avg_add(timespec &res, timespec &from, timespec &to, unsigned int total_count) {
+
+    // Так как from и to - время. поулченное от системы и from - от сокета, то они могут быть пустыми (то есть
+    // timestamp не поддерживается системой). В таком случае timespecsub не должно быть вызвано, так как получим
+    // отрицательное время
+    if (!is_timespec_empty(from) && !is_timespec_empty(to)) {
+        auto diff = timespecsub(to, from);
+        res.tv_sec += diff.tv_sec / total_count;
+        res.tv_nsec += diff.tv_nsec / total_count;
+    }
+
+}

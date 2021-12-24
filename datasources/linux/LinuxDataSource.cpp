@@ -74,30 +74,36 @@ std::vector<SocketInfo> LinuxDataSource::getSockets(std::string protocol) {
     return sockets_info_list;
 }
 
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <sys/time.h>
+InSystemTimeRXInfo LinuxDataSource::getInSystemTimeRX(std::string protocol, unsigned int packets_count) {
 
-InSystemTimeInfo LinuxDataSource::getInSystemTime() {
-
-    int sock = socket(AF_INET, SOCK_RAW, IPPROTO_TCP);
+    int sock = socket(AF_INET, SOCK_RAW, IPPROTO_UDP);
 
     if (sock < 0) {
         std::cout << "Could not create socket" << std::endl;
     }
 
-    int val = 1;
-    int res = setsockopt(sock, SOL_SOCKET, SO_TIMESTAMP, &val, sizeof(val));
-//
-//    sockaddr_in addr{};
-//
-//    addr.sin_family = AF_INET;
-//    addr.sin_addr.s_addr = INADDR_ANY;
-//    addr.sin_port = 7435;
-//
-//    if (bind(sock, (sockaddr *)&addr, sizeof(addr)) < 0) {
-//        std::cout << "Bind failed" << std::endl;
-//    }
+    unsigned int val = SOF_TIMESTAMPING_RX_HARDWARE |
+            SOF_TIMESTAMPING_RX_SOFTWARE |
+            SOF_TIMESTAMPING_SOFTWARE |
+            SOF_TIMESTAMPING_RAW_HARDWARE;
+
+    setsockopt(sock, SOL_SOCKET, SO_TIMESTAMPING, &val, sizeof(val));
+
+    if (protocol != "raw") {
+
+        sockaddr_in addr {
+            .sin_family = AF_INET,
+            .sin_port = 7435,
+            .sin_addr = {
+                    .s_addr = INADDR_ANY
+            }
+        };
+
+        if (bind(sock, (sockaddr *)&addr, sizeof(addr)) < 0) {
+            std::cout << "Bind failed" << std::endl;
+        }
+
+    }
 
     char control[1000];
 
@@ -110,22 +116,27 @@ InSystemTimeInfo LinuxDataSource::getInSystemTime() {
             .msg_controllen = sizeof(control)
     };
 
-    recvmsg(sock, &msg, 0);
+    InSystemTimeRXInfo res;
 
+    scm_timestamping *tmst;
     timespec user_time, diff_time;
-    clock_gettime(CLOCK_REALTIME, &user_time);
 
-    for (cmsghdr *cmsg = CMSG_FIRSTHDR(&msg); cmsg; cmsg = CMSG_NXTHDR(&msg, cmsg)) {
+    for (int i=0; i<packets_count; i++) {
 
-        if (cmsg->cmsg_level == SOL_SOCKET && cmsg->cmsg_type == SCM_TIMESTAMP) {
+        recvmsg(sock, &msg, 0);
+        clock_gettime(CLOCK_REALTIME, &user_time);
 
-            auto *kernel_time = (timespec*) &CMSG_DATA(cmsg);
-            diff_time = timespecsub(user_time, *kernel_time);
+        for (cmsghdr *cmsg = CMSG_FIRSTHDR(&msg); cmsg; cmsg = CMSG_NXTHDR(&msg, cmsg)) {
 
+            if (cmsg->cmsg_level == SOL_SOCKET && cmsg->cmsg_type == SCM_TIMESTAMPING) {
+
+                tmst = (scm_timestamping*) &CMSG_DATA(cmsg);
+
+                timespec_avg_add(res.rx_kernel_user_time, tmst->ts[0], user_time, packets_count);
+                timespec_avg_add(res.rx_hardware_kernel_time, tmst->ts[2], user_time, packets_count);
+            }
         }
-
     }
 
-    std::cout << "Seconds: " << diff_time.tv_sec << std::endl << "Nanoseconds: " << diff_time.tv_nsec << std::endl;
-
+    return res;
 }

@@ -4,11 +4,11 @@
 
 #ifdef __linux__
 #include "datasources/linux/LinuxDataSource.h"
-#include "printers/printers.h"
-
 #else
 #include "datasources/freebsd/FreeBSDDataSource.h"
 #endif
+
+#include "printers/printers.h"
 
 int main(int argc, char *argv[]) {
 
@@ -26,7 +26,15 @@ int main(int argc, char *argv[]) {
                 std::cout << "Please, specify protocol" << std::endl;
             }
         } else if (argc > 2 && std::string(argv[2]) == "timings") {
-            ds->getInSystemTime();
+            auto rx_time = ds->getInSystemTimeRX("raw", 1);
+
+            std::cout << "Hardware: "
+            << rx_time.rx_hardware_kernel_time.tv_sec << " sec "
+            << rx_time.rx_hardware_kernel_time.tv_nsec << " ns" << std::endl;
+
+            std::cout << "Sofrware: "
+                      << rx_time.rx_kernel_user_time.tv_sec << " sec "
+                      << rx_time.rx_kernel_user_time.tv_nsec << " ns" << std::endl;
         }
     }
 
