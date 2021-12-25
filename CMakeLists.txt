@@ -3,7 +3,9 @@ project(lfnp)
 
 set(CMAKE_CXX_STANDARD 17)
 
+find_package(Qt5 COMPONENTS Core REQUIRED)
 add_executable(lfnp main.cpp datasources/BaseDataSource.h utils/utils.h utils/utils.cpp types/SocketInfo.h datasources/linux/parsers/parsers.h datasources/linux/parsers/parsers.cpp printers/printers.cpp printers/printers.h types/InSystemTimeInfo.h)
+target_link_libraries(lfnp Qt5::Core)
 
 if (${CMAKE_SYSTEM_NAME} MATCHES Linux)
     target_sources(lfnp PUBLIC datasources/linux/LinuxDataSource.h datasources/linux/LinuxDataSource.cpp)

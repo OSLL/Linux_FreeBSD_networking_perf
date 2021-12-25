@@ -10,7 +10,11 @@
 
 #include "printers/printers.h"
 
+#include <QCommandLineParser>
+
 int main(int argc, char *argv[]) {
+
+    QCommandLineParser parse;
 
 #ifdef __linux__
     BaseDataSource *ds = new LinuxDataSource();
