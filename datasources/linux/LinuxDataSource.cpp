@@ -149,7 +149,7 @@ std::optional<InSystemTimeTXInfo> LinuxDataSource::sendTimestamp(std::string pro
 
     int sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 
-    unsigned int val = SOF_TIMESTAMPING_TX_HARDWARE |
+    unsigned int val =
                        SOF_TIMESTAMPING_TX_SOFTWARE |
 //                       SOF_TIMESTAMPING_TX_SCHED |
                        SOF_TIMESTAMPING_SOFTWARE |
