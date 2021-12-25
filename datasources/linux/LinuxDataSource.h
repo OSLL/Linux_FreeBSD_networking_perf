@@ -14,6 +14,9 @@
 
 #include <linux/net_tstamp.h>
 #include <linux/errqueue.h>
+#include <unistd.h>
+
+#include <QMap>
 
 #include "../../utils/utils.h"
 #include "parsers/parsers.h"
@@ -26,6 +29,7 @@ class LinuxDataSource: public BaseDataSource {
 private:
 
     static std::map<std::string, std::string> protocol_sockets_files;
+    static QMap<QString, std::tuple<int, int, int>> protocol_socket_args;
 
 public:
 

@@ -17,6 +17,12 @@ std::map<std::string, std::string> LinuxDataSource::protocol_sockets_files  = {
         {"icmp6",    "/proc/net/icmp6"}
 };
 
+QMap<QString, std::tuple<int, int, int>> LinuxDataSource::protocol_socket_args = {
+        {"tcp", {AF_INET, SOCK_STREAM, IPPROTO_TCP}},
+        {"udp", {AF_INET, SOCK_DGRAM, IPPROTO_UDP}},
+        {"raw", {AF_INET, SOCK_RAW, IPPROTO_RAW}}
+};
+
 int LinuxDataSource::getTcpTotalRecv() {
 
     auto protocols_stats = parseProtocolsStatsFile("/proc/net/snmp");
@@ -77,10 +83,21 @@ std::vector<SocketInfo> LinuxDataSource::getSockets(std::string protocol) {
 std::optional<InSystemTimeRXInfo>
 LinuxDataSource::getInSystemTimeRX(const QString &protocol, unsigned int port, unsigned int packets_count) {
 
-    int sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+    int sock_domain, sock_type, sock_protocol;
+
+    auto iter = LinuxDataSource::protocol_socket_args.find(protocol);
+
+    if (iter == LinuxDataSource::protocol_socket_args.end()) {
+        std::cout << "Unsupported protocol" << std::endl;
+        return std::nullopt;
+    }
+
+    std::tie(sock_domain, sock_type, sock_protocol) = *iter;
+    int sock = socket(sock_domain, sock_type, sock_protocol);
 
     if (sock < 0) {
         std::cout << "Could not create socket" << std::endl;
+        return std::nullopt;
     }
 
     unsigned int val = SOF_TIMESTAMPING_RX_HARDWARE |
@@ -90,7 +107,7 @@ LinuxDataSource::getInSystemTimeRX(const QString &protocol, unsigned int port, u
 
     setsockopt(sock, SOL_SOCKET, SO_TIMESTAMPING, &val, sizeof(val));
 
-    if (protocol != "raw") {
+    if (sock_type != SOCK_RAW) {
 
         sockaddr_in addr {
             .sin_family = AF_INET,
@@ -127,8 +144,16 @@ LinuxDataSource::getInSystemTimeRX(const QString &protocol, unsigned int port, u
 
     for (int i=0; i<packets_count; i++) {
 
-        std::cout << "Waiting for data" << std::endl;
-        recvmsg(sock, &msg, 0);
+        int recv_sock = sock;
+        if (sock_type == SOCK_STREAM) {
+            recv_sock = accept(sock, NULL, NULL);
+            if (recv_sock < 0) {
+                std::cout << "Accept error" << std::endl;
+                continue;
+            }
+        }
+
+        recvmsg(recv_sock, &msg, 0);
         clock_gettime(CLOCK_REALTIME, &user_time);
 
         for (cmsghdr *cmsg = CMSG_FIRSTHDR(&msg); cmsg; cmsg = CMSG_NXTHDR(&msg, cmsg)) {
@@ -143,12 +168,25 @@ LinuxDataSource::getInSystemTimeRX(const QString &protocol, unsigned int port, u
         }
     }
 
+    close(sock);
+
     return res;
 }
 
-std::optional<InSystemTimeTXInfo> LinuxDataSource::sendTimestamp(const QString &protocol, const QString &ip_addr, unsigned int port, unsigned int packets_count) {
+std::optional<InSystemTimeTXInfo>
+LinuxDataSource::sendTimestamp(const QString &protocol, const QString &ip_addr, unsigned int port, unsigned int packets_count) {
 
-    int sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+    int sock_domain, sock_type, sock_protocol;
+
+    auto iter = LinuxDataSource::protocol_socket_args.find(protocol);
+
+    if (iter == LinuxDataSource::protocol_socket_args.end()) {
+        std::cout << "Unsupported protocol" << std::endl;
+        return std::nullopt;
+    }
+
+    std::tie(sock_domain, sock_type, sock_protocol) = *iter;
+    int sock = socket(sock_domain, sock_type, sock_protocol);
 
     unsigned int val = SOF_TIMESTAMPING_TX_HARDWARE |
                        SOF_TIMESTAMPING_TX_SOFTWARE |
