@@ -3,8 +3,7 @@ project(lfnp)
 
 set(CMAKE_CXX_STANDARD 17)
 
-include_directories( BEFORE libs )
-add_executable(lfnp main.cpp datasources/BaseDataSource.h utils/utils.h utils/utils.cpp types/SocketInfo.h datasources/linux/parsers/parsers.h datasources/linux/parsers/parsers.cpp printers/printers.cpp printers/printers.h types/InSystemTimeInfo.h utils/cli_args.cpp utils/cli_args.h)
+add_executable(lfnp main.cpp datasources/BaseDataSource.h utils/utils.h utils/utils.cpp types/SocketInfo.h datasources/linux/parsers/parsers.h datasources/linux/parsers/parsers.cpp printers/printers.cpp printers/printers.h types/InSystemTimeInfo.h)
 
 if (${CMAKE_SYSTEM_NAME} MATCHES Linux)
     target_sources(lfnp PUBLIC datasources/linux/LinuxDataSource.h datasources/linux/LinuxDataSource.cpp)
