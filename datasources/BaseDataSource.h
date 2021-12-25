@@ -7,6 +7,7 @@
 
 #include <vector>
 #include <optional>
+#include <QtCore/QString>
 
 #include "../types/SocketInfo.h"
 #include "../types/InSystemTimeInfo.h"
@@ -19,9 +20,9 @@ public:
 
     virtual std::vector<SocketInfo> getSockets(std::string protocol)=0;
 
-    virtual std::optional<InSystemTimeRXInfo> getInSystemTimeRX(std::string protocol, unsigned int packets_count)=0;
+    virtual std::optional<InSystemTimeRXInfo> getInSystemTimeRX(const QString &protocol, unsigned int port, unsigned int packets_count)=0;
 
-    virtual std::optional<InSystemTimeTXInfo> sendTimestamp(std::string protocol, unsigned int packets_count)=0;
+    virtual std::optional<InSystemTimeTXInfo> sendTimestamp(const QString &protocol, const QString &addr, unsigned int port, unsigned int packets_count)=0;
 };
 
 

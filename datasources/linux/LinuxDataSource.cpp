@@ -74,7 +74,8 @@ std::vector<SocketInfo> LinuxDataSource::getSockets(std::string protocol) {
     return sockets_info_list;
 }
 
-std::optional<InSystemTimeRXInfo> LinuxDataSource::getInSystemTimeRX(std::string protocol, unsigned int packets_count) {
+std::optional<InSystemTimeRXInfo>
+LinuxDataSource::getInSystemTimeRX(const QString &protocol, unsigned int port, unsigned int packets_count) {
 
     int sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 
@@ -93,7 +94,7 @@ std::optional<InSystemTimeRXInfo> LinuxDataSource::getInSystemTimeRX(std::string
 
         sockaddr_in addr {
             .sin_family = AF_INET,
-            .sin_port = htons(7435),
+            .sin_port = htons(port),
             .sin_addr = {
                     .s_addr = INADDR_ANY
             }
@@ -145,7 +146,7 @@ std::optional<InSystemTimeRXInfo> LinuxDataSource::getInSystemTimeRX(std::string
     return res;
 }
 
-std::optional<InSystemTimeTXInfo> LinuxDataSource::sendTimestamp(std::string protocol, unsigned int packets_count) {
+std::optional<InSystemTimeTXInfo> LinuxDataSource::sendTimestamp(const QString &protocol, const QString &ip_addr, unsigned int port, unsigned int packets_count) {
 
     int sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 
@@ -159,9 +160,9 @@ std::optional<InSystemTimeTXInfo> LinuxDataSource::sendTimestamp(std::string pro
 
     sockaddr_in addr {
         .sin_family = AF_INET,
-        .sin_port = htons(7435)
+        .sin_port = htons(port)
     };
-    inet_aton("127.0.0.1", &addr.sin_addr);
+    inet_aton(ip_addr.toLocal8Bit().data(), &addr.sin_addr);
 
     if (connect(sock, (sockaddr *)&addr, sizeof(addr)) < 0) {
         std::cout << "Connect error" << std::endl;
