@@ -80,6 +80,8 @@ std::vector<SocketInfo> LinuxDataSource::getSockets(std::string protocol) {
     return sockets_info_list;
 }
 
+//TODO: При большом количестве пакетов tcp не приходят сообщения
+//TODO: Проверить hardware timestamps
 std::optional<InSystemTimeRXInfo>
 LinuxDataSource::getInSystemTimeRX(const QString &protocol, unsigned int port, unsigned int packets_count) {
 
@@ -127,12 +129,18 @@ LinuxDataSource::getInSystemTimeRX(const QString &protocol, unsigned int port, u
     }
 
     char control[1000];
+    timespec send_time;
+
+    iovec iov {
+        .iov_base = &send_time,
+        .iov_len = sizeof(timespec)
+    };
 
     msghdr msg{
             .msg_name = nullptr,
             .msg_namelen = 0,
-            .msg_iov = nullptr,
-            .msg_iovlen = 0,
+            .msg_iov = &iov,
+            .msg_iovlen = 1,
             .msg_control = &control,
             .msg_controllen = sizeof(control)
     };
@@ -154,6 +162,7 @@ LinuxDataSource::getInSystemTimeRX(const QString &protocol, unsigned int port, u
         }
 
         recvmsg(recv_sock, &msg, 0);
+
         clock_gettime(CLOCK_REALTIME, &user_time);
 
         for (cmsghdr *cmsg = CMSG_FIRSTHDR(&msg); cmsg; cmsg = CMSG_NXTHDR(&msg, cmsg)) {
@@ -164,6 +173,7 @@ LinuxDataSource::getInSystemTimeRX(const QString &protocol, unsigned int port, u
 
                 timespec_avg_add(res.rx_software_time, tmst->ts[0], user_time, packets_count);
                 timespec_avg_add(res.rx_hardware_time, tmst->ts[2], user_time, packets_count);
+                timespec_avg_add(res.rx_total_time, send_time, user_time, packets_count);
             }
         }
     }

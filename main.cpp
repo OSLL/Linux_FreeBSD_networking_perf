@@ -62,6 +62,10 @@ int main(int argc, char *argv[]) {
                 std::cout << "Software: "
                           << o_rx_time->rx_software_time.tv_sec << " sec "
                           << o_rx_time->rx_software_time.tv_nsec << " ns" << std::endl;
+
+                std::cout << "Total: "
+                          << o_rx_time->rx_total_time.tv_sec << " sec "
+                          << o_rx_time->rx_total_time.tv_nsec << " ns" << std::endl;
             } else {
                 std::cout << "Can't measure rx timings" << std::endl;
             }

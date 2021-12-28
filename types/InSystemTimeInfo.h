@@ -12,9 +12,12 @@ public:
 
     timespec rx_software_time;
     timespec rx_hardware_time;
+    timespec rx_total_time;
 
     InSystemTimeRXInfo():
-            rx_software_time({0, 0}), rx_hardware_time({0, 0}){}
+            rx_software_time({0, 0}),
+            rx_hardware_time({0, 0}),
+            rx_total_time({0, 0}){}
 };
 
 class InSystemTimeTXInfo {
