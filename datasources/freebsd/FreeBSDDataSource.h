@@ -18,6 +18,8 @@
 #include "netinet/tcp_var.h"
 
 #include "../BaseDataSource.h"
+#include "../../utils/sockets.h"
+
 #include <sys/sysctl.h>
 
 #include <iostream>
@@ -39,6 +41,12 @@ public:
     std::optional<InSystemTimeRXInfo> getInSystemTimeRX(
             const QString &protocol, unsigned int port, unsigned int packets_count) override;
 
+    std::optional<InSystemTimeTXInfo> sendTimestamp(
+            const QString &protocol,
+            const QString &addr,
+            unsigned int port,
+            unsigned int packets_count,
+            const QString& measure_type) override;
 };
 
 

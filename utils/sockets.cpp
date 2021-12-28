@@ -2,8 +2,6 @@
 // Created by shenk on 28.12.2021.
 //
 
-#include <iostream>
-#include <libnet.h>
 #include "sockets.h"
 
 QMap<QString, std::tuple<int, int, int>> Socket::protocol_socket_args = {

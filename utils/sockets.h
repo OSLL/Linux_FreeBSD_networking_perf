@@ -12,6 +12,14 @@
 #include <netinet/in.h>
 #include <unistd.h>
 
+#include <iostream>
+
+#ifdef __linux__
+#include <libnet.h>
+#else
+#include <arpa/inet.h>
+#endif
+
 class Socket {
 
 private:
