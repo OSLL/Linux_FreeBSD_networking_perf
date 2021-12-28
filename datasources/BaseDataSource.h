@@ -20,9 +20,15 @@ public:
 
     virtual std::vector<SocketInfo> getSockets(std::string protocol)=0;
 
-    virtual std::optional<InSystemTimeRXInfo> getInSystemTimeRX(const QString &protocol, unsigned int port, unsigned int packets_count)=0;
+    virtual std::optional<InSystemTimeRXInfo> getInSystemTimeRX(
+            const QString &protocol, unsigned int port, unsigned int packets_count)=0;
 
-    virtual std::optional<InSystemTimeTXInfo> sendTimestamp(const QString &protocol, const QString &addr, unsigned int port, unsigned int packets_count)=0;
+    virtual std::optional<InSystemTimeTXInfo> sendTimestamp(
+            const QString &protocol,
+            const QString &addr,
+            unsigned int port,
+            unsigned int packets_count,
+            const QString& measure_type)=0;
 };
 
 

@@ -162,8 +162,8 @@ LinuxDataSource::getInSystemTimeRX(const QString &protocol, unsigned int port, u
 
                 tmst = (scm_timestamping*) &CMSG_DATA(cmsg);
 
-                timespec_avg_add(res.rx_kernel_user_time, tmst->ts[0], user_time, packets_count);
-                timespec_avg_add(res.rx_hardware_kernel_time, tmst->ts[2], user_time, packets_count);
+                timespec_avg_add(res.rx_software_time, tmst->ts[0], user_time, packets_count);
+                timespec_avg_add(res.rx_hardware_time, tmst->ts[2], user_time, packets_count);
             }
         }
     }
@@ -174,7 +174,25 @@ LinuxDataSource::getInSystemTimeRX(const QString &protocol, unsigned int port, u
 }
 
 std::optional<InSystemTimeTXInfo>
-LinuxDataSource::sendTimestamp(const QString &protocol, const QString &ip_addr, unsigned int port, unsigned int packets_count) {
+LinuxDataSource::sendTimestamp(
+        const QString &protocol,
+        const QString &ip_addr,
+        unsigned int port,
+        unsigned int packets_count,
+        const QString& measure_type) {
+
+    unsigned int val = SOF_TIMESTAMPING_TX_HARDWARE |
+                       SOF_TIMESTAMPING_SOFTWARE |
+                       SOF_TIMESTAMPING_RAW_HARDWARE;
+
+    if (measure_type == "software") {
+        val |= SOF_TIMESTAMPING_TX_SOFTWARE;
+    } else if (measure_type == "scheduler") {
+        val |= SOF_TIMESTAMPING_TX_SCHED;
+    } else {
+        std::cout << "Unknown measure type" << std::endl;
+        return std::nullopt;
+    }
 
     int sock_domain, sock_type, sock_protocol;
 
@@ -188,12 +206,6 @@ LinuxDataSource::sendTimestamp(const QString &protocol, const QString &ip_addr, 
     std::tie(sock_domain, sock_type, sock_protocol) = *iter;
     int sock = socket(sock_domain, sock_type, sock_protocol);
 
-    unsigned int val = SOF_TIMESTAMPING_TX_HARDWARE |
-                       SOF_TIMESTAMPING_TX_SOFTWARE |
-//                       SOF_TIMESTAMPING_TX_SCHED |
-                       SOF_TIMESTAMPING_SOFTWARE |
-                       SOF_TIMESTAMPING_RAW_HARDWARE;
-
     setsockopt(sock, SOL_SOCKET, SO_TIMESTAMPING, &val, sizeof(val));
 
     sockaddr_in addr {
@@ -204,6 +216,7 @@ LinuxDataSource::sendTimestamp(const QString &protocol, const QString &ip_addr, 
 
     if (connect(sock, (sockaddr *)&addr, sizeof(addr)) < 0) {
         std::cout << "Connect error" << std::endl;
+        return std::nullopt;
     }
 
     char control[1000];
@@ -216,14 +229,16 @@ LinuxDataSource::sendTimestamp(const QString &protocol, const QString &ip_addr, 
             .msg_controllen = sizeof(control)
     };
 
-    timespec res = {0, 0};
+    InSystemTimeTXInfo res;
 
     for (int i=0; i<packets_count; i++) {
 
         timespec user_time = {0, 0};
         clock_gettime(CLOCK_REALTIME, &user_time);
+
         if (send(sock, &user_time, sizeof(timespec), 0) < 0) {
             std::cout << "Send error" << std::endl;
+            return std::nullopt;
         };
 
         recvmsg(sock, &msg, MSG_ERRQUEUE);
@@ -235,18 +250,12 @@ LinuxDataSource::sendTimestamp(const QString &protocol, const QString &ip_addr, 
 
                 tmst = (scm_timestamping*) &CMSG_DATA(cmsg);
 
-                std::cout << user_time.tv_sec << " " << user_time.tv_nsec << std::endl;
-                for (auto &t : tmst->ts) {
-                    std::cout << t.tv_sec << " " << t.tv_nsec << std::endl;
-                }
-
-                timespec_avg_add(res, user_time, tmst->ts[0], packets_count);
+                timespec_avg_add(res.tx_software_time, user_time, tmst->ts[0], packets_count);
+                timespec_avg_add(res.tx_hardware_time, user_time, tmst->ts[2], packets_count);
 
             }
         }
     }
 
-    std::cout << res.tv_sec << " " << res.tv_nsec << std::endl;
-
-    return std::nullopt;
+    return res;
 }

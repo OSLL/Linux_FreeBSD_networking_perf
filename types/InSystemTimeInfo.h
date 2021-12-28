@@ -10,22 +10,22 @@ class InSystemTimeRXInfo {
 
 public:
 
-    timespec rx_kernel_user_time;
-    timespec rx_hardware_kernel_time;
+    timespec rx_software_time;
+    timespec rx_hardware_time;
 
     InSystemTimeRXInfo():
-    rx_kernel_user_time({0, 0}), rx_hardware_kernel_time({0, 0}){}
+            rx_software_time({0, 0}), rx_hardware_time({0, 0}){}
 };
 
 class InSystemTimeTXInfo {
 
 public:
 
-    timespec tx_user_scheduler_time;
-    timespec tx_kernel_hardware_time;
+    timespec tx_software_time;
+    timespec tx_hardware_time;
 
     InSystemTimeTXInfo():
-            tx_user_scheduler_time({0, 0}), tx_kernel_hardware_time({0, 0}){}
+            tx_software_time({0, 0}), tx_hardware_time({0, 0}){}
 
 };
 
