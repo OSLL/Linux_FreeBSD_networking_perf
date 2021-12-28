@@ -33,9 +33,11 @@ private:
 public:
 
     int getTcpTotalRecv() override;
-    InSystemTimeInfo getInSystemTime() override;
 
     std::vector<SocketInfo> getSockets(std::string protocol) override;
+
+    std::optional<InSystemTimeRXInfo> getInSystemTimeRX(
+            const QString &protocol, unsigned int port, unsigned int packets_count) override;
 
 };
 

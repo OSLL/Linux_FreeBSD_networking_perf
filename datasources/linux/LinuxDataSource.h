@@ -29,7 +29,6 @@ class LinuxDataSource: public BaseDataSource {
 private:
 
     static std::map<std::string, std::string> protocol_sockets_files;
-    static QMap<QString, std::tuple<int, int, int>> protocol_socket_args;
 
 public:
 

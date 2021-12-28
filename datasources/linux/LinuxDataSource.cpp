@@ -3,6 +3,7 @@
 //
 
 #include "LinuxDataSource.h"
+#include "../../utils/sockets.h"
 
 std::map<std::string, std::string> LinuxDataSource::protocol_sockets_files  = {
         {"tcp",      "/proc/net/tcp"},
@@ -15,12 +16,6 @@ std::map<std::string, std::string> LinuxDataSource::protocol_sockets_files  = {
         {"raw6",     "/proc/net/raw6"},
         {"icmp",     "/proc/net/icmp"},
         {"icmp6",    "/proc/net/icmp6"}
-};
-
-QMap<QString, std::tuple<int, int, int>> LinuxDataSource::protocol_socket_args = {
-        {"tcp", {AF_INET, SOCK_STREAM, IPPROTO_TCP}},
-        {"udp", {AF_INET, SOCK_DGRAM, IPPROTO_UDP}},
-        {"raw", {AF_INET, SOCK_RAW, IPPROTO_RAW}}
 };
 
 int LinuxDataSource::getTcpTotalRecv() {
@@ -85,47 +80,23 @@ std::vector<SocketInfo> LinuxDataSource::getSockets(std::string protocol) {
 std::optional<InSystemTimeRXInfo>
 LinuxDataSource::getInSystemTimeRX(const QString &protocol, unsigned int port, unsigned int packets_count) {
 
-    int sock_domain, sock_type, sock_protocol;
-
-    auto iter = LinuxDataSource::protocol_socket_args.find(protocol);
-
-    if (iter == LinuxDataSource::protocol_socket_args.end()) {
-        std::cout << "Unsupported protocol" << std::endl;
-        return std::nullopt;
-    }
-
-    std::tie(sock_domain, sock_type, sock_protocol) = *iter;
-    int sock = socket(sock_domain, sock_type, sock_protocol);
-
-    if (sock < 0) {
-        std::cout << "Could not create socket" << std::endl;
-        return std::nullopt;
-    }
+    Socket sock(protocol);
 
     unsigned int val = SOF_TIMESTAMPING_RX_HARDWARE |
             SOF_TIMESTAMPING_RX_SOFTWARE |
             SOF_TIMESTAMPING_SOFTWARE |
             SOF_TIMESTAMPING_RAW_HARDWARE;
 
-    setsockopt(sock, SOL_SOCKET, SO_TIMESTAMPING, &val, sizeof(val));
+    sock.setOpt(SOL_SOCKET, SO_TIMESTAMPING, &val, sizeof(unsigned int));
 
-    if (sock_type != SOCK_RAW) {
+    if (sock.bindTo(INADDR_ANY, port) < 0) {
+        std::cout << "Bind failed" << std::endl;
+        return std::nullopt;
+    }
 
-        sockaddr_in addr {
-            .sin_family = AF_INET,
-            .sin_port = htons(port),
-            .sin_addr = {
-                    .s_addr = INADDR_ANY
-            }
-        };
-
-        if (bind(sock, (sockaddr *)&addr, sizeof(addr)) < 0) {
-            std::cout << "Bind failed" << std::endl;
-            return std::nullopt;
-        }
-
-        listen(sock, 1);
-
+    if (sock.listenFor(1) < 0) {
+        std::cout << "Listen failed" << std::endl;
+        return std::nullopt;
     }
 
     char control[1000];
@@ -152,16 +123,7 @@ LinuxDataSource::getInSystemTimeRX(const QString &protocol, unsigned int port, u
 
     for (int i=0; i<packets_count; i++) {
 
-        int recv_sock = sock;
-        if (sock_type == SOCK_STREAM) {
-            recv_sock = accept(sock, NULL, NULL);
-            if (recv_sock < 0) {
-                std::cout << "Accept error" << std::endl;
-                continue;
-            }
-        }
-
-        recvmsg(recv_sock, &msg, 0);
+        sock.receiveMsg(msg, 0);
 
         clock_gettime(CLOCK_REALTIME, &user_time);
 
@@ -177,8 +139,6 @@ LinuxDataSource::getInSystemTimeRX(const QString &protocol, unsigned int port, u
             }
         }
     }
-
-    close(sock);
 
     return res;
 }
@@ -204,27 +164,10 @@ LinuxDataSource::sendTimestamp(
         return std::nullopt;
     }
 
-    int sock_domain, sock_type, sock_protocol;
+    Socket sock(protocol);
+    sock.setOpt(SOL_SOCKET, SO_TIMESTAMPING, &val, sizeof(val));
 
-    auto iter = LinuxDataSource::protocol_socket_args.find(protocol);
-
-    if (iter == LinuxDataSource::protocol_socket_args.end()) {
-        std::cout << "Unsupported protocol" << std::endl;
-        return std::nullopt;
-    }
-
-    std::tie(sock_domain, sock_type, sock_protocol) = *iter;
-    int sock = socket(sock_domain, sock_type, sock_protocol);
-
-    setsockopt(sock, SOL_SOCKET, SO_TIMESTAMPING, &val, sizeof(val));
-
-    sockaddr_in addr {
-        .sin_family = AF_INET,
-        .sin_port = htons(port)
-    };
-    inet_aton(ip_addr.toLocal8Bit().data(), &addr.sin_addr);
-
-    if (connect(sock, (sockaddr *)&addr, sizeof(addr)) < 0) {
+    if (sock.connectTo(ip_addr, port) < 0) {
         std::cout << "Connect error" << std::endl;
         return std::nullopt;
     }
@@ -246,12 +189,12 @@ LinuxDataSource::sendTimestamp(
         timespec user_time = {0, 0};
         clock_gettime(CLOCK_REALTIME, &user_time);
 
-        if (send(sock, &user_time, sizeof(timespec), 0) < 0) {
+        if (sock.sendData(&user_time, sizeof(timespec)) < 0) {
             std::cout << "Send error" << std::endl;
             return std::nullopt;
         };
 
-        recvmsg(sock, &msg, MSG_ERRQUEUE);
+        sock.receiveMsg(msg, MSG_ERRQUEUE, false);
 
         scm_timestamping *tmst;
         for (cmsghdr *cmsg = CMSG_FIRSTHDR(&msg); cmsg; cmsg = CMSG_NXTHDR(&msg, cmsg)) {

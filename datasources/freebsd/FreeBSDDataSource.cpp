@@ -126,3 +126,10 @@ InSystemTimeInfo FreeBSDDataSource::getInSystemTime() {
 
 
 }
+
+std::optional<InSystemTimeRXInfo>
+FreeBSDDataSource::getInSystemTimeRX(const QString &protocol, unsigned int port, unsigned int packets_count) {
+
+
+
+}
