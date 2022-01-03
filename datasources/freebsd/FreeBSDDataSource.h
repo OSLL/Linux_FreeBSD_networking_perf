@@ -43,7 +43,7 @@ public:
 
     std::optional<InSystemTimeTXInfo> sendTimestamp(
             const QString &protocol,
-            const QString &addr,
+            const QString &ip_addr,
             unsigned int port,
             unsigned int packets_count,
             const QString& measure_type) override;
