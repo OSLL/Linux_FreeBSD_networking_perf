@@ -36,10 +36,10 @@ public:
 
     std::vector<SocketInfo> getSockets(std::string protocol) override;
 
-    std::optional<InSystemTimeRXInfo> getInSystemTimeRX(
+    std::optional<InSystemTimeInfo> recvTimestamp(
             const QString& protocol, unsigned int port, unsigned int packets_count) override;
 
-    std::optional<InSystemTimeTXInfo> sendTimestamp(
+    std::optional<InSystemTimeInfo> sendTimestamp(
             const QString &protocol,
             const QString &addr,
             unsigned int port,

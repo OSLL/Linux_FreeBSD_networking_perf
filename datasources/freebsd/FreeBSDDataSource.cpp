@@ -74,8 +74,8 @@ std::vector<SocketInfo> FreeBSDDataSource::getSockets(std::string protocol) {
     return sockets_info_list;
 }
 
-std::optional<InSystemTimeRXInfo>
-FreeBSDDataSource::getInSystemTimeRX(const QString &protocol, unsigned int port, unsigned int packets_count) {
+std::optional<InSystemTimeInfo>
+FreeBSDDataSource::recvTimestamp(const QString &protocol, unsigned int port, unsigned int packets_count) {
 
     Socket sock(protocol);
 
@@ -129,18 +129,18 @@ FreeBSDDataSource::getInSystemTimeRX(const QString &protocol, unsigned int port,
                     // TODO: добавить опцию, позволяющую выбрать отобращаемые единицы измерения
                     // так как в текущей реализации на FreeBSD не может быть гаррантирована верность последних 3 знаков
                     tmst->tv_nsec *= 1000;
-                    timespec_avg_add(res.rx_software_time, *tmst, user_time, packets_count);
+                    timespec_avg_add(res.software_time, *tmst, user_time, packets_count);
                 }
             }
         }
 
-        timespec_avg_add(res.rx_total_time, send_time, user_time, packets_count);
+        timespec_avg_add(res.total_time, send_time, user_time, packets_count);
     }
 
     return res;
 }
 
-std::optional<InSystemTimeTXInfo>
+std::optional<InSystemTimeInfo>
 FreeBSDDataSource::sendTimestamp(
         const QString &protocol,
         const QString &ip_addr,

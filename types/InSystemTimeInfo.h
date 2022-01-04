@@ -6,30 +6,18 @@
 #define LFNP_INSYSTEMTIMEINFO_H
 
 
-class InSystemTimeRXInfo {
+class InSystemTimeInfo {
 
 public:
 
-    timespec rx_software_time;
-    timespec rx_hardware_time;
-    timespec rx_total_time;
+    timespec software_time;
+    timespec hardware_time;
+    timespec total_time;
 
-    InSystemTimeRXInfo():
-            rx_software_time({0, 0}),
-            rx_hardware_time({0, 0}),
-            rx_total_time({0, 0}){}
-};
-
-class InSystemTimeTXInfo {
-
-public:
-
-    timespec tx_software_time;
-    timespec tx_hardware_time;
-
-    InSystemTimeTXInfo():
-            tx_software_time({0, 0}), tx_hardware_time({0, 0}){}
-
+    InSystemTimeInfo():
+            software_time({0, 0}),
+            hardware_time({0, 0}),
+            total_time({0, 0}){}
 };
 
 #endif //LFNP_INSYSTEMTIMEINFO_H

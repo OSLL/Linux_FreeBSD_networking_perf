@@ -77,8 +77,8 @@ std::vector<SocketInfo> LinuxDataSource::getSockets(std::string protocol) {
 
 //TODO: При большом количестве пакетов tcp не приходят сообщения
 //TODO: Проверить hardware timestamps
-std::optional<InSystemTimeRXInfo>
-LinuxDataSource::getInSystemTimeRX(const QString &protocol, unsigned int port, unsigned int packets_count) {
+std::optional<InSystemTimeInfo>
+LinuxDataSource::recvTimestamp(const QString &protocol, unsigned int port, unsigned int packets_count) {
 
     Socket sock(protocol);
 
@@ -116,7 +116,7 @@ LinuxDataSource::getInSystemTimeRX(const QString &protocol, unsigned int port, u
             .msg_controllen = sizeof(control)
     };
 
-    InSystemTimeRXInfo res;
+    InSystemTimeInfo res;
 
     scm_timestamping *tmst;
     timespec user_time;
@@ -133,9 +133,9 @@ LinuxDataSource::getInSystemTimeRX(const QString &protocol, unsigned int port, u
 
                 tmst = (scm_timestamping*) &CMSG_DATA(cmsg);
 
-                timespec_avg_add(res.rx_software_time, tmst->ts[0], user_time, packets_count);
-                timespec_avg_add(res.rx_hardware_time, tmst->ts[2], user_time, packets_count);
-                timespec_avg_add(res.rx_total_time, send_time, user_time, packets_count);
+                timespec_avg_add(res.software_time, tmst->ts[0], user_time, packets_count);
+                timespec_avg_add(res.hardware_time, tmst->ts[2], user_time, packets_count);
+                timespec_avg_add(res.total_time, send_time, user_time, packets_count);
             }
         }
     }
@@ -143,10 +143,10 @@ LinuxDataSource::getInSystemTimeRX(const QString &protocol, unsigned int port, u
     return res;
 }
 
-std::optional<InSystemTimeTXInfo>
+std::optional<InSystemTimeInfo>
 LinuxDataSource::sendTimestamp(
         const QString &protocol,
-        const QString &ip_addr,
+        const QString &addr,
         unsigned int port,
         unsigned int packets_count,
         const QString& measure_type) {
@@ -167,7 +167,7 @@ LinuxDataSource::sendTimestamp(
     Socket sock(protocol);
     sock.setOpt(SOL_SOCKET, SO_TIMESTAMPING, &val, sizeof(val));
 
-    if (sock.connectTo(ip_addr, port) < 0) {
+    if (sock.connectTo(addr, port) < 0) {
         std::cout << "Connect error" << std::endl;
         return std::nullopt;
     }
@@ -182,7 +182,7 @@ LinuxDataSource::sendTimestamp(
             .msg_controllen = sizeof(control)
     };
 
-    InSystemTimeTXInfo res;
+    InSystemTimeInfo res;
 
     for (int i=0; i<packets_count; i++) {
 
@@ -203,8 +203,8 @@ LinuxDataSource::sendTimestamp(
 
                 tmst = (scm_timestamping*) &CMSG_DATA(cmsg);
 
-                timespec_avg_add(res.tx_software_time, user_time, tmst->ts[0], packets_count);
-                timespec_avg_add(res.tx_hardware_time, user_time, tmst->ts[2], packets_count);
+                timespec_avg_add(res.software_time, user_time, tmst->ts[0], packets_count);
+                timespec_avg_add(res.hardware_time, user_time, tmst->ts[2], packets_count);
 
             }
         }
