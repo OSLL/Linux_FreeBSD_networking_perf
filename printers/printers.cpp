@@ -35,26 +35,32 @@ void printSocketsInfoList(const std::vector<SocketInfo>& sockets_info_list) {
 
 }
 
-void printInSystemTimeInfo(std::optional<InSystemTimeInfo> o_time_info) {
+void printTimestamp(const timespec &ts, bool in_ms) {
+    std::cout << ts.tv_sec << " sec ";
+    if (in_ms) {
+        std::cout << ts.tv_nsec/1000 << " µs" << std::endl;
+    } else {
+        std::cout << ts.tv_nsec << " ns" << std::endl;
+    }
+}
+
+void printInSystemTimeInfo(std::optional<InSystemTimeInfo> o_time_info, bool in_ms) {
 
     if (o_time_info) {
 
         if (!is_timespec_empty(o_time_info->hardware_time)) {
-            std::cout << "Hardware: "
-                      << o_time_info->hardware_time.tv_sec << " sec "
-                      << o_time_info->hardware_time.tv_nsec << " ns" << std::endl;
+            std::cout << "Hardware: ";
+            printTimestamp(o_time_info->hardware_time, in_ms);
         }
 
         if (!is_timespec_empty(o_time_info->software_time)) {
-            std::cout << "Software: "
-                      << o_time_info->software_time.tv_sec << " sec "
-                      << o_time_info->software_time.tv_nsec << " ns" << std::endl;
+            std::cout << "Software: ";
+            printTimestamp(o_time_info->software_time, in_ms);
         }
 
         if (!is_timespec_empty(o_time_info->total_time)) {
-            std::cout << "Total: "
-                      << o_time_info->total_time.tv_sec << " sec "
-                      << o_time_info->total_time.tv_nsec << " ns" << std::endl;
+            std::cout << "Total: ";
+            printTimestamp(o_time_info->total_time, in_ms);
         }
 
     } else {

@@ -126,8 +126,6 @@ FreeBSDDataSource::recvTimestamp(const QString &protocol, unsigned int port, uns
                     tmst = (timespec *) CMSG_DATA(cmsg);
 
                     // Во FreeBSD здесь хранятся микросекунды, но clock_gettime возвращает наносекунды.
-                    // TODO: добавить опцию, позволяющую выбрать отобращаемые единицы измерения
-                    // так как в текущей реализации на FreeBSD не может быть гаррантирована верность последних 3 знаков
                     tmst->tv_nsec *= 1000;
                     timespec_avg_add(res.software_time, *tmst, user_time, packets_count);
                 }

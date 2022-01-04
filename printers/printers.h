@@ -13,6 +13,6 @@
 
 void printSocketsInfoList(const std::vector<SocketInfo>& sockets_info_list);
 
-void printInSystemTimeInfo(std::optional<InSystemTimeInfo> o_time_info);
+void printInSystemTimeInfo(std::optional<InSystemTimeInfo> o_time_info, bool in_ms);
 
 #endif //LFNP_PRINTERS_H

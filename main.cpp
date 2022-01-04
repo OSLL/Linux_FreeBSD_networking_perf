@@ -40,7 +40,8 @@ int main(int argc, char *argv[]) {
                         {{"p", "port"}, "Use specified port.", "port", "7435"},
                         {"packets-count", "Receive specified count of packets.", "packets-count", "100"},
                         {{"a", "address"}, "Send packets to specified address.","address", "127.0.0.1"},
-                        {"measure-type", R"(Type of measure: "software" or "scheduler")","measure-type", "software"}
+                        {"measure-type", R"(Type of measure: "software" or "scheduler")","measure-type", "software"},
+                        {"ns", "Output in nanoseconds"}
                 });
 
         parser.process(args);
@@ -50,16 +51,17 @@ int main(int argc, char *argv[]) {
         auto packets_count = parser.value("packets-count").toUInt();
         auto addr = parser.value("address");
         auto measure_type = parser.value("measure-type");
+        auto in_ms = !parser.isSet("ns");
 
         if (argc > 2 && args[2] == "rx-timings") {
 
             auto o_rx_time = ds->recvTimestamp(protocol, port, packets_count);
-            printInSystemTimeInfo(o_rx_time);
+            printInSystemTimeInfo(o_rx_time, in_ms);
 
         } else if (argc > 2 && std::string(argv[2]) == "tx-timings") {
 
             auto o_tx_time = ds->sendTimestamp(protocol, addr, port, packets_count, measure_type);
-            printInSystemTimeInfo(o_tx_time);
+            printInSystemTimeInfo(o_tx_time, in_ms);
 
         }
     }
