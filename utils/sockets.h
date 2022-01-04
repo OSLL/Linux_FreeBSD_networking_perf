@@ -31,7 +31,7 @@ private:
     static QMap<QString, std::tuple<int, int, int>> protocol_socket_args;
 
 public:
-    Socket(const QString &protocol);
+    explicit Socket(const QString &protocol);
     ~Socket();
 
     int setOpt(int level, int optname, const void * optval, socklen_t optlen);

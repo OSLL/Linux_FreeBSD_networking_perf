@@ -6,6 +6,8 @@
 
 QMap<QString, std::tuple<int, int, int>> Socket::protocol_socket_args = {
         {"tcp", {AF_INET, SOCK_STREAM, IPPROTO_TCP}},
+        // TODO: проверить работу sctp, сейчас ошибка - неподдерживаемый протокол
+        {"sctp", {PF_INET, SOCK_STREAM, IPPROTO_SCTP}},
         {"udp", {AF_INET, SOCK_DGRAM, IPPROTO_UDP}},
         {"raw", {AF_INET, SOCK_RAW, IPPROTO_RAW}}
 };
