@@ -54,36 +54,13 @@ int main(int argc, char *argv[]) {
         if (argc > 2 && args[2] == "rx-timings") {
 
             auto o_rx_time = ds->recvTimestamp(protocol, port, packets_count);
-            if (o_rx_time) {
-                std::cout << "Hardware: "
-                          << o_rx_time->hardware_time.tv_sec << " sec "
-                          << o_rx_time->hardware_time.tv_nsec << " ns" << std::endl;
-
-                std::cout << "Software: "
-                          << o_rx_time->software_time.tv_sec << " sec "
-                          << o_rx_time->software_time.tv_nsec << " ns" << std::endl;
-
-                std::cout << "Total: "
-                          << o_rx_time->total_time.tv_sec << " sec "
-                          << o_rx_time->total_time.tv_nsec << " ns" << std::endl;
-            } else {
-                std::cout << "Can't measure rx timings" << std::endl;
-            }
+            printInSystemTimeInfo(o_rx_time);
 
         } else if (argc > 2 && std::string(argv[2]) == "tx-timings") {
+
             auto o_tx_time = ds->sendTimestamp(protocol, addr, port, packets_count, measure_type);
+            printInSystemTimeInfo(o_tx_time);
 
-            if (o_tx_time) {
-                std::cout << "Hardware: "
-                          << o_tx_time->hardware_time.tv_sec << " sec "
-                          << o_tx_time->hardware_time.tv_nsec << " ns" << std::endl;
-
-                std::cout << "Software: "
-                          << o_tx_time->software_time.tv_sec << " sec "
-                          << o_tx_time->software_time.tv_nsec << " ns" << std::endl;
-            } else {
-                std::cout << "Can't measure tx timings" << std::endl;
-            }
         }
     }
 

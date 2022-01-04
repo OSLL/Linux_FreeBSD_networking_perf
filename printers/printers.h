@@ -9,7 +9,10 @@
 #include <iostream>
 
 #include "../types/SocketInfo.h"
+#include "../types/InSystemTimeInfo.h"
 
 void printSocketsInfoList(const std::vector<SocketInfo>& sockets_info_list);
+
+void printInSystemTimeInfo(std::optional<InSystemTimeInfo> o_time_info);
 
 #endif //LFNP_PRINTERS_H
