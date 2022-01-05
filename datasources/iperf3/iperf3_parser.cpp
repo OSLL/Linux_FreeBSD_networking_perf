@@ -28,7 +28,6 @@ std::optional<QJsonArray> parseIperf3Output(const QString &filename) {
             auto current_json_data = QJsonDocument::fromJson(current_data, &error).object();
             json_data.append(current_json_data);
         }
-
     }
 
     return json_data;

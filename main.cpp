@@ -66,7 +66,7 @@ int main(int argc, char *argv[]) {
 
         }
     } else if (argc > 2 && args[1] == "iperf3") {
-        parseIperf3Output(args[2]);
+        printIperf3Data(parseIperf3Output(args[2]));
     }
 
     return 0;
