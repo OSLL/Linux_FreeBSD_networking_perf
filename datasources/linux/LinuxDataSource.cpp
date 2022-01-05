@@ -94,7 +94,7 @@ LinuxDataSource::recvTimestamp(const QString &protocol, unsigned int port, unsig
         return std::nullopt;
     }
 
-    if (sock.getType() == SOCK_STREAM && sock.listenFor(1) < 0) {
+    if (sock.listenFor(1) < 0) {
         std::cout << "Listen failed" << std::endl;
         return std::nullopt;
     }
