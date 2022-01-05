@@ -9,6 +9,7 @@
 #endif
 
 #include "printers/printers.h"
+#include "datasources/iperf3/iperf3_parser.h"
 
 #include <QCommandLineParser>
 
@@ -64,6 +65,8 @@ int main(int argc, char *argv[]) {
             printInSystemTimeInfo(o_tx_time, in_ms);
 
         }
+    } else if (argc > 2 && args[1] == "iperf3") {
+        parseIperf3Output(args[2]);
     }
 
     return 0;
