@@ -85,9 +85,12 @@ std::optional <SocketsList> parseProtocolSocketsListFile(const std::string& file
         int header_index = 0, value_index = 0;
 
         // В файлах этого типа могут встречаться "сдвоенные значения", содержащие в себе значения для разных заголовков
-        // Например: в заголовке "tx_queue rx_queue", а в значении с номером, соответствующем local_address,
+        // Например: в заголовке "tx_queue rx_queue", а в значении с номером, соответствующем tx_queue,
         // "00000:00000". Для того, что бы учесть этот случай, вводятся переменные header_index и value_index. При
         // встрече "сдвоенного значения" header_index увеличивается 2 раза, value_index - один.
+        // Но "сдвоенное значение" - это так же local_address, в соответсвующем значении которого - и адрес и порт, но
+        // в заголовке - только local_address
+        // Таким образом, как "сдвоенное" необходимо рассматривать только колонки tx_queue и tr
 
         while (header_index < header.size()) {
 
@@ -104,6 +107,12 @@ std::optional <SocketsList> parseProtocolSocketsListFile(const std::string& file
             header_index++;
             value_index++;
 
+        }
+
+        // В файле /proc/net/tcp не все значения имеют заголовки, поэтому остались необработанные значения. Среди них -
+        // число ссылок, которые используются в программе
+        if (value_index < values.size()) {
+            socket["ref"] = values[value_index];
         }
 
         sockets_list.push_back(socket);

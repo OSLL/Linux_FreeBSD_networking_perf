@@ -9,12 +9,19 @@
 
 #define ADDRESS_WIDTH 25
 #define QUEUE_WIDTH 10
+#define OTHER_WIDTH 5
 
 void printHeader() {
     std::cout << std::left << std::setw(ADDRESS_WIDTH) << "Local address";
     std::cout << std::left << std::setw(ADDRESS_WIDTH) << "Foreign address";
     std::cout << std::left << std::setw(QUEUE_WIDTH) << "RX Queue";
     std::cout << std::left << std::setw(QUEUE_WIDTH) << "TX Queue";
+
+#ifdef __linux__
+    std::cout << std::left << std::setw(OTHER_WIDTH) << "Refs";
+    std::cout << std::left << std::setw(OTHER_WIDTH) << "Drops";
+#endif
+
     std::cout << std::endl;
 }
 
@@ -23,6 +30,12 @@ void printSocketInfo(const SocketInfo &si) {
     std::cout << std::left << std::setw(ADDRESS_WIDTH) << si.foreign_address + ":"  + std::to_string(si.foreign_port);
     std::cout << std::left << std::setw(QUEUE_WIDTH) << si.rx_queue_size;
     std::cout << std::left << std::setw(QUEUE_WIDTH) << si.tx_queue_size;
+
+#ifdef __linux__
+    std::cout << std::left << std::setw(OTHER_WIDTH) << si.ref;
+    std::cout << std::left << std::setw(OTHER_WIDTH) << si.drops;
+#endif
+
     std::cout << std::endl;
 }
 

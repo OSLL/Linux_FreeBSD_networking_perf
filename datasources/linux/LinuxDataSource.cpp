@@ -66,8 +66,15 @@ std::vector<SocketInfo> LinuxDataSource::getSockets(std::string protocol) {
         int rx_queue = std::stoi(socket["rx_queue"]);
         int tx_queue = std::stoi(socket["tx_queue"]);
 
+        int ref = std::stoi(socket["ref"]);
+
+        // В /proc/net/tcp нет информации о сброшенных пакетах. Предполагаю, что это из=за того, что tcp контролирует
+        // доставку всей информации
+        int drops = protocol == "tcp" ? 0 : std::stoi(socket["drops"]);
+
         sockets_info_list.emplace_back(
-                std::string(loc_addr), std::string(for_addr), loc_port, for_port, rx_queue, tx_queue
+                std::string(loc_addr), std::string(for_addr), loc_port, for_port,
+                rx_queue, tx_queue, ref, drops
         );
 
     }
