@@ -5,6 +5,8 @@
 #include "LinuxDataSource.h"
 #include "../../utils/sockets.h"
 
+#include "QDebug"
+
 std::map<std::string, std::string> LinuxDataSource::protocol_sockets_files  = {
         {"tcp",      "/proc/net/tcp"},
         {"tcp6",     "/proc/net/tcp6"},
@@ -18,13 +20,33 @@ std::map<std::string, std::string> LinuxDataSource::protocol_sockets_files  = {
         {"icmp6",    "/proc/net/icmp6"}
 };
 
-int LinuxDataSource::getTcpTotalRecv() {
+std::optional<TcpStats> LinuxDataSource::getTcpStats() {
 
-    auto protocols_stats = parseProtocolsStatsFile("/proc/net/snmp");
-    if (protocols_stats) {
-        return protocols_stats.value()["Tcp"]["InSegs"];
+    auto o_protocols_stats = parseProtocolsStatsFile("/proc/net/snmp");
+    auto o_protocols_stats_ext = parseProtocolsStatsFile("/proc/net/netstat");
+
+    if (!o_protocols_stats || !o_protocols_stats_ext) {
+        std::cout << "Can't open stats files" << std::endl;
+        return std::nullopt;
     }
-    return 0;
+
+    auto protocol_stats = *o_protocols_stats;
+    auto protocol_stats_ext = *o_protocols_stats_ext;
+
+    if (!protocol_stats.contains("Tcp") || !protocol_stats_ext.contains("TcpExt")) {
+        std::cout << "No TCP in protocols stats file" << std::endl;
+        return std::nullopt;
+    }
+
+    auto tcp_stats = protocol_stats["Tcp"];
+    auto tcp_stats_ext = protocol_stats_ext["TcpExt"];
+
+    return TcpStats {
+
+        .syncookies_sent = tcp_stats_ext["SyncookiesSent"],
+        .syncookise_recv = tcp_stats_ext["SyncookiesRecv"]
+
+    };
 
 }
 
@@ -204,6 +226,8 @@ LinuxDataSource::sendTimestamp(
 
         if (!(protocol == "tcp" || protocol == "udp")) continue;
 
+        //TODO: Иногда возвращается значение из прошлой итерации, из-за этого получается, что user-time (время, когда
+        // отправили из user-space) больше чем software-time (время, когда покинуло ядро) -> переполнение при вычитании
         sock.receiveMsg(msg, MSG_ERRQUEUE);
 
         scm_timestamping *tmst;
@@ -212,6 +236,10 @@ LinuxDataSource::sendTimestamp(
             if (cmsg->cmsg_level == SOL_SOCKET && cmsg->cmsg_type == SCM_TIMESTAMPING) {
 
                 tmst = (scm_timestamping*) &CMSG_DATA(cmsg);
+
+                std::cout << "UT: " << user_time.tv_sec << " " << user_time.tv_nsec << std::endl;
+                std::cout << "ST: " << tmst->ts[0].tv_sec << " " << tmst->ts[0].tv_nsec << std::endl;
+                std::cout << "HT: " << tmst->ts[2].tv_sec << " " << tmst->ts[2].tv_nsec << std::endl;
 
                 timespec_avg_add(res.software_time, user_time, tmst->ts[0], packets_count);
                 timespec_avg_add(res.hardware_time, user_time, tmst->ts[2], packets_count);

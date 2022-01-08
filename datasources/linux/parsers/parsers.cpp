@@ -2,48 +2,52 @@
 // Created by shenk on 21.12.2021.
 //
 
+#include <QtCore/QFile>
 #include "parsers.h"
+#include <QtCore/QDebug>
 
-std::optional<ProtocolsStats> parseProtocolsStatsFile(const std::string& filename) {
+std::optional<ProtocolsStats> parseProtocolsStatsFile(const QString& filename) {
 
     ProtocolsStats stats;
 
-    std::ifstream file(filename);
+    QFile file(filename);
 
-    if (!file) {
-        std::cout << "Can't open " << filename << std::endl;
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        std::cout << "Can't open " << filename.toStdString() << std::endl;
         return std::nullopt;
     }
 
-    std::string line;
     bool is_header = true;
 
-    std::string protocol_name;
-    std::vector<std::string> header;
+    QString protocol_name;
+    QStringList header;
 
-    while (getline(file, line)) {
+    do {
 
-        auto v = split(line, ':');
+        QString line = file.readLine();
+
+        auto v = line.split(':');
+
         protocol_name = v[0];
 
         if (is_header) {
-            header = split(v[1], ' ');
+            header = v[1].split(' ', Qt::SkipEmptyParts);
 
             // На следующей строке - информация
             is_header = false;
 
         } else {
 
-            auto string_data = split(v[1], ' ');
+            auto string_data = v[1].split(' ', Qt::SkipEmptyParts);
 
             std::vector<int> data;
             data.reserve(string_data.size());
 
             for (const auto& s: string_data) {
-                data.push_back(std::stoi(s));
+                data.push_back(s.toInt());
             }
 
-            std::map<std::string, int> protocol_stats;
+            QMap<QString, int> protocol_stats;
 
             for (int i=0; i<header.size(); i++) {
                 protocol_stats[header[i]] = data[i];
@@ -55,7 +59,7 @@ std::optional<ProtocolsStats> parseProtocolsStatsFile(const std::string& filenam
             is_header = true;
         }
 
-    }
+    } while (!file.atEnd());
 
     return stats;
 

@@ -11,12 +11,13 @@
 
 #include "../types/SocketInfo.h"
 #include "../types/InSystemTimeInfo.h"
+#include "../types/TcpStats.h"
 
 class BaseDataSource {
 
 public:
 
-    virtual int getTcpTotalRecv()=0;
+    virtual std::optional<TcpStats> getTcpStats()=0;
 
     virtual std::vector<SocketInfo> getSockets(std::string protocol)=0;
 

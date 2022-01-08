@@ -67,6 +67,10 @@ int main(int argc, char *argv[]) {
         }
     } else if (argc > 2 && args[1] == "iperf3") {
         printIperf3Data(parseIperf3Output(args[2]));
+    } else if (argc > 2 && args[1] == "stats" && args[2] == "tcp") {
+        auto o_tcp_stats = ds->getTcpStats();
+        std::cout << o_tcp_stats.value().syncookise_recv << std::endl;
+        std::cout << o_tcp_stats.value().syncookies_sent << std::endl;
     }
 
     return 0;

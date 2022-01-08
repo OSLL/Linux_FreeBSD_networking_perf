@@ -32,7 +32,7 @@ private:
 
 public:
 
-    int getTcpTotalRecv() override;
+    std::optional<TcpStats> getTcpStats() override;
 
     std::vector<SocketInfo> getSockets(std::string protocol) override;
 
