@@ -24,12 +24,18 @@ Socket::Socket(const QString &protocol) {
 
     if (this->sock_descriptor < 0) {
         std::cout << "Could not create socket" << std::endl;
+    } else {
+        this->recv_sock_descriptor = sock_descriptor;
     }
 
 }
 
 Socket::~Socket() {
 
+    // В случае, когда открывали дополнительный сокет с помощью accept (использовали TCP) - его тоже нужно закрыть
+    if (recv_sock_descriptor != sock_descriptor) {
+        close(recv_sock_descriptor);
+    }
     close(sock_descriptor);
 
 }
@@ -83,28 +89,24 @@ int Socket::bindTo(const QString &ip_addr, unsigned int port) {
 int Socket::listenFor(int conn_num) {
 
     bool is_listen_type = this->sock_type == SOCK_STREAM || this->sock_type == SOCK_SEQPACKET;
+    bool is_accept_type = this->sock_type == SOCK_STREAM;
 
     if (is_listen_type) {
-        return listen(this->sock_descriptor, conn_num);
+        int err = listen(this->sock_descriptor, conn_num);
+        if (err < 0) return err;
+    }
+
+    if (is_accept_type) {
+        this->recv_sock_descriptor = accept(this->sock_descriptor, NULL, NULL);
+        if (this->recv_sock_descriptor < 0) return this->recv_sock_descriptor;
     }
 
     return 0;
 }
 
-int Socket::receiveMsg(msghdr &msg, int flags, bool do_accept) {
-    int recv_sock_descriptor = this->sock_descriptor;
-    if (this->sock_type == SOCK_STREAM && do_accept) {
-        recv_sock_descriptor = accept(this->sock_descriptor, NULL, NULL);
-        if (recv_sock_descriptor < 0) {
-            return recv_sock_descriptor;
-        }
-    }
+int Socket::receiveMsg(msghdr &msg, int flags) {
 
     int res = recvmsg(recv_sock_descriptor, &msg, flags);
-
-    if (this->sock_type == SOCK_STREAM && do_accept) {
-        close(recv_sock_descriptor);
-    }
 
     return res;
 }

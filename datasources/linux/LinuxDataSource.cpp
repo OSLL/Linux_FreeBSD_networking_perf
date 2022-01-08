@@ -82,7 +82,6 @@ std::vector<SocketInfo> LinuxDataSource::getSockets(std::string protocol) {
     return sockets_info_list;
 }
 
-//TODO: При большом количестве пакетов tcp не приходят сообщения
 //TODO: Проверить hardware timestamps
 std::optional<InSystemTimeInfo>
 LinuxDataSource::recvTimestamp(const QString &protocol, unsigned int port, unsigned int packets_count) {
@@ -150,6 +149,8 @@ LinuxDataSource::recvTimestamp(const QString &protocol, unsigned int port, unsig
     return res;
 }
 
+
+//TODO: Отправка в raw сокет
 std::optional<InSystemTimeInfo>
 LinuxDataSource::sendTimestamp(
         const QString &protocol,
@@ -201,7 +202,9 @@ LinuxDataSource::sendTimestamp(
             return std::nullopt;
         };
 
-        sock.receiveMsg(msg, MSG_ERRQUEUE, false);
+        if (!(protocol == "tcp" || protocol == "udp")) continue;
+
+        sock.receiveMsg(msg, MSG_ERRQUEUE);
 
         scm_timestamping *tmst;
         for (cmsghdr *cmsg = CMSG_FIRSTHDR(&msg); cmsg; cmsg = CMSG_NXTHDR(&msg, cmsg)) {

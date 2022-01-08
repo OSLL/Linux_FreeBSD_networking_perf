@@ -28,6 +28,10 @@ private:
     int sock_type;
     int sock_protocol;
 
+    // Для TCP прием сообщения происходит не с помощью полученного сокета, а с помощью сокета, полученного после
+    // вызова accept
+    int recv_sock_descriptor;
+
     static QMap<QString, std::tuple<int, int, int>> protocol_socket_args;
 
 public:
@@ -44,7 +48,7 @@ public:
     int bindTo(const QString &ip_addr, unsigned int port);
 
     int listenFor(int conn_num);
-    int receiveMsg(msghdr &msg, int flags = 0, bool do_accept = true);
+    int receiveMsg(msghdr &msg, int flags = 0);
 
     int connectTo(const QString &ip_addr, unsigned int port);
 
