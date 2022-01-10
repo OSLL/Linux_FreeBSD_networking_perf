@@ -31,6 +31,7 @@ std::optional<ProtocolsStats> parseProtocolsStatsFile(const QString& filename) {
         protocol_name = v[0];
 
         if (is_header) {
+            //TODO: При этом в названиях заголовка остаются символы переноса, их нужно убрать
             header = v[1].split(' ', Qt::SkipEmptyParts);
 
             // На следующей строке - информация

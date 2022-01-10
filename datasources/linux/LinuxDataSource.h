@@ -29,10 +29,11 @@ class LinuxDataSource: public BaseDataSource {
 private:
 
     static std::map<std::string, std::string> protocol_sockets_files;
+    static QMap<QString, std::tuple<std::optional<QString>, std::optional<QString>>> protocol_stats_names;
 
 public:
 
-    std::optional<TcpStats> getTcpStats() override;
+    std::optional<QMap<QString, int>> getProtocolStats(const QString &protocol) override;
 
     std::vector<SocketInfo> getSockets(std::string protocol) override;
 

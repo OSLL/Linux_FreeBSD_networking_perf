@@ -20,4 +20,6 @@ void printInSystemTimeInfo(std::optional<InSystemTimeInfo> o_time_info, bool in_
 
 void printIperf3Data(const std::optional<QJsonArray>& o_json_data);
 
+void printProtocolStats(std::optional<QMap<QString, int>> o_protocol_stats);
+
 #endif //LFNP_PRINTERS_H

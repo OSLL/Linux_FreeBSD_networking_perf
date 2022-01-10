@@ -20,7 +20,23 @@ std::map<std::string, std::string> LinuxDataSource::protocol_sockets_files  = {
         {"icmp6",    "/proc/net/icmp6"}
 };
 
-std::optional<TcpStats> LinuxDataSource::getTcpStats() {
+QMap<QString, std::tuple<std::optional<QString>, std::optional<QString>>> LinuxDataSource::protocol_stats_names = {
+        {"ip", {"Ip", "IpExt"}},
+        {"icmp", {"Icmp", std::nullopt}},
+        //TODO: Не похоже, что это отдельный протокол. Нужно объединить с icmp?
+        {"icmpmsg", {"IcmpMsg", std::nullopt}},
+        {"tcp", {"Tcp", "TcpExt"}},
+        {"udp", {"Udp", std::nullopt}},
+        {"udplite", {"UdpLite", std::nullopt}},
+        {"mptcp", {std::nullopt, "MPTcpExt"}}
+};
+
+std::optional<QMap<QString, int>> LinuxDataSource::getProtocolStats(const QString &protocol) {
+
+    if (!LinuxDataSource::protocol_stats_names.contains(protocol)) {
+        std::cout << "Unsupported protocol" << std::endl;
+        return std::nullopt;
+    }
 
     auto o_protocols_stats = parseProtocolsStatsFile("/proc/net/snmp");
     auto o_protocols_stats_ext = parseProtocolsStatsFile("/proc/net/netstat");
@@ -30,24 +46,35 @@ std::optional<TcpStats> LinuxDataSource::getTcpStats() {
         return std::nullopt;
     }
 
-    auto protocol_stats = *o_protocols_stats;
-    auto protocol_stats_ext = *o_protocols_stats_ext;
+    auto protocols_stats = o_protocols_stats.value();
+    auto protocols_stats_ext = o_protocols_stats_ext.value();
 
-    if (!protocol_stats.contains("Tcp") || !protocol_stats_ext.contains("TcpExt")) {
-        std::cout << "No TCP in protocols stats file" << std::endl;
+    auto [o_stat_name, o_ext_stat_name] = LinuxDataSource::protocol_stats_names.value(protocol);
+
+    if (
+            (o_stat_name && !protocols_stats.contains(*o_stat_name)) ||
+            (o_ext_stat_name && !protocols_stats_ext.contains(*o_ext_stat_name)))
+    {
+        std::cout << "No protocol data in protocols stats file" << std::endl;
         return std::nullopt;
     }
 
-    auto tcp_stats = protocol_stats["Tcp"];
-    auto tcp_stats_ext = protocol_stats_ext["TcpExt"];
+    if (o_stat_name && o_ext_stat_name) {
+        auto protocol_stats = protocols_stats.value(*o_stat_name);
+        auto protocol_stats_ext = protocols_stats_ext.value(*o_ext_stat_name);
 
-    return TcpStats {
+        for (auto it = protocol_stats_ext.begin(); it != protocol_stats_ext.end(); it++) {
+            protocol_stats[it.key()] = it.value();
+        }
 
-        .syncookies_sent = tcp_stats_ext["SyncookiesSent"],
-        .syncookise_recv = tcp_stats_ext["SyncookiesRecv"]
+        return protocol_stats;
+    } else if (o_stat_name) {
+        return protocols_stats.value(*o_stat_name);
+    } else if (o_protocols_stats_ext) {
+        return protocols_stats_ext.value(*o_ext_stat_name);
+    }
 
-    };
-
+    return std::nullopt;
 }
 
 std::vector<SocketInfo> LinuxDataSource::getSockets(std::string protocol) {
@@ -62,7 +89,6 @@ std::vector<SocketInfo> LinuxDataSource::getSockets(std::string protocol) {
     }
 
     auto filename = iter->second;
-
     auto sockets_list = parseProtocolSocketsListFile(filename);
 
     if (!sockets_list) {

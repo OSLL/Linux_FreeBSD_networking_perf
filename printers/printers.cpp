@@ -113,3 +113,17 @@ void printIperf3Data(const std::optional<QJsonArray> &o_json_data) {
     }
 
 }
+
+void printProtocolStats(std::optional<QMap<QString, int>> o_protocol_stats) {
+
+    if (!o_protocol_stats) {
+        std::cout << "Can't get protocol stats" << std::endl;
+    } else {
+
+        auto protocol_stats = o_protocol_stats.value();
+
+        for (auto it = protocol_stats.begin(); it != protocol_stats.end(); it++) {
+            std::cout << it.key().toStdString() << ": " << it.value() << std::endl;
+        }
+    }
+}
