@@ -3,20 +3,47 @@
 //
 
 #include "FreeBSDDataSource.h"
+#include <QDebug>
 
 std::map<std::string, std::string> FreeBSDDataSource::protocol_sockets_sysctl_names = {
         {"tcp", "net.inet.tcp.pcblist"},
-        {"udp", "net.inet.tcp.udp"},
+        {"udp", "net.inet.udp.pcblist"},
         {"raw", "net.inet.raw.pcblist"}
 };
 
-int FreeBSDDataSource::getTcpTotalRecv() {
-    tcpstat ts;
+QMap<QString, std::tuple<QString, size_t>> FreeBSDDataSource::protocol_stats_sysctl_names = {
+        {"tcp", {"net.inet.tcp.stats", sizeof(tcpstat)}},
+        {"udp", {"net.inet.udp.stats", sizeof(udpstat)}},
+        {"icmp", {"net.inet.icmp.stats", sizeof(icmpstat)}},
+        {"igmp", {"net.inet.igmp.stats", sizeof(igmpstat)}},
+        {"ip", {"net.inet.ip.stats", sizeof(ipstat)}},
+};
 
-    size_t size;
-    sysctlbyname("net.inet.tcp.stats", &ts, &size, nullptr, 0);
+QMap<QString, QVector<QString>> FreeBSDDataSource::protocols_stats_descriptions =
+#include "protocols_stats_descriptions.h"
 
-    return ts.tcps_rcvtotal;
+std::optional<QMap<QString, int>> FreeBSDDataSource::getProtocolStats(const QString &protocol) {
+
+    if (!FreeBSDDataSource::protocol_stats_sysctl_names.contains(protocol)) {
+        std::cout << "Unsupported protocol" << std::endl;
+        return std::nullopt;
+    }
+
+    auto [sysctl_name, size] = FreeBSDDataSource::protocol_stats_sysctl_names.value(protocol);
+    size /= sizeof(uint64_t);
+
+    QVector<uint64_t> protocol_stats_vals(size);
+
+    sysctlbyname(sysctl_name.toLocal8Bit().data(), protocol_stats_vals.data(), &size, nullptr, 0);
+
+    auto protocol_stats_names = FreeBSDDataSource::protocols_stats_descriptions.value(protocol);
+    QMap<QString, int> protocol_stats;
+
+    for (int i=0; i<protocol_stats_names.size(); i++) {
+        protocol_stats[protocol_stats_names[i]] = protocol_stats_vals[i];
+    }
+
+    return protocol_stats;
 }
 
 std::vector<SocketInfo> FreeBSDDataSource::getSockets(std::string protocol) {
@@ -68,7 +95,8 @@ std::vector<SocketInfo> FreeBSDDataSource::getSockets(std::string protocol) {
         sockets_info_list.emplace_back(
                 std::string(loc_addr), std::string(for_addr),
                 ntohs(inp->inp_lport), ntohs(inp->inp_fport),
-                so->so_rcv.sb_cc, so->so_snd.sb_cc
+                so->so_rcv.sb_cc, so->so_snd.sb_cc,
+                0, 0
         );
     }
     return sockets_info_list;
@@ -112,7 +140,7 @@ FreeBSDDataSource::recvTimestamp(const QString &protocol, unsigned int port, uns
     };
 
     timespec *tmst;
-    InSystemTimeRXInfo res;
+    InSystemTimeInfo res;
 
     for (int i=0; i<packets_count; i++) {
 

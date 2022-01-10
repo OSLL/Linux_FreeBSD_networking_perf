@@ -15,7 +15,16 @@
 #include <sys/socket.h>
 #include <sys/socketvar.h>
 #include <netinet/in_pcb.h>
+
+#include "netinet/ip.h"
+#include "netinet/udp.h"
+#include "netinet/ip_icmp.h"
+
 #include "netinet/tcp_var.h"
+#include "netinet/udp_var.h"
+#include "netinet/igmp_var.h"
+#include "netinet/icmp_var.h"
+#include "netinet/ip_var.h"
 
 #include "../BaseDataSource.h"
 #include "../../utils/sockets.h"
@@ -31,10 +40,12 @@ class FreeBSDDataSource: public BaseDataSource {
 private:
 
     static std::map<std::string, std::string> protocol_sockets_sysctl_names;
+    static QMap<QString, std::tuple<QString, size_t>> protocol_stats_sysctl_names;
+    static QMap<QString, QVector<QString>> protocols_stats_descriptions;
 
 public:
 
-    int getTcpTotalRecv() override;
+    std::optional<QMap<QString, int>> getProtocolStats(const QString &protocol) override;
 
     std::vector<SocketInfo> getSockets(std::string protocol) override;
 
