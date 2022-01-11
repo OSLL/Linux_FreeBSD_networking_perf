@@ -22,4 +22,6 @@ bool is_timespec_empty(timespec &tsp);
 // Используется в функциях вида getInSystemTime для вычисления средней разницы для всех пакетов
 void timespec_avg_add(timespec &res, timespec &from, timespec &to, unsigned int total_count);
 
+bool is_timespec_equal(timespec &tsc1, timespec &tsc2);
+
 #endif //LFNP_UTILS_H

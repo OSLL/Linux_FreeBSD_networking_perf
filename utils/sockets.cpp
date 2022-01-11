@@ -28,6 +28,9 @@ Socket::Socket(const QString &protocol) {
         this->recv_sock_descriptor = sock_descriptor;
     }
 
+    int val = 1;
+    setsockopt(sock_descriptor, SOL_SOCKET, SO_REUSEADDR, &val, sizeof(val));
+
 }
 
 Socket::~Socket() {
@@ -85,6 +88,7 @@ int Socket::bindTo(const QString &ip_addr, unsigned int port) {
 
     return 0;
 }
+
 
 int Socket::listenFor(int conn_num) {
 

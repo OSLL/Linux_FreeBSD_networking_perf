@@ -239,6 +239,7 @@ LinuxDataSource::sendTimestamp(
     };
 
     InSystemTimeInfo res;
+    timespec prev = {0, 0};
 
     for (int i=0; i<packets_count; i++) {
 
@@ -252,26 +253,34 @@ LinuxDataSource::sendTimestamp(
 
         if (!(protocol == "tcp" || protocol == "udp")) continue;
 
-        //TODO: Иногда возвращается значение из прошлой итерации, из-за этого получается, что user-time (время, когда
+        // Иногда возвращается значение из прошлой итерации, из-за этого получается, что user-time (время, когда
         // отправили из user-space) больше чем software-time (время, когда покинуло ядро) -> переполнение при вычитании
-        sock.receiveMsg(msg, MSG_ERRQUEUE);
+        // Для исправление используется do-while, который получает новое значение до тех пор, пока оно равно предыдущему
+
+        //TODO: добавить sleep перед отправклй каждого пакета с заданным значением. Таким образом
+        // do-while не будет исполлнятся более 1 раза.
 
         scm_timestamping *tmst;
-        for (cmsghdr *cmsg = CMSG_FIRSTHDR(&msg); cmsg; cmsg = CMSG_NXTHDR(&msg, cmsg)) {
+        bool is_prev_equal = false;
 
-            if (cmsg->cmsg_level == SOL_SOCKET && cmsg->cmsg_type == SCM_TIMESTAMPING) {
+        do {
+            sock.receiveMsg(msg, MSG_ERRQUEUE);
 
-                tmst = (scm_timestamping*) &CMSG_DATA(cmsg);
+            for (cmsghdr *cmsg = CMSG_FIRSTHDR(&msg); cmsg; cmsg = CMSG_NXTHDR(&msg, cmsg)) {
 
-                std::cout << "UT: " << user_time.tv_sec << " " << user_time.tv_nsec << std::endl;
-                std::cout << "ST: " << tmst->ts[0].tv_sec << " " << tmst->ts[0].tv_nsec << std::endl;
-                std::cout << "HT: " << tmst->ts[2].tv_sec << " " << tmst->ts[2].tv_nsec << std::endl;
+                if (cmsg->cmsg_level == SOL_SOCKET && cmsg->cmsg_type == SCM_TIMESTAMPING) {
 
-                timespec_avg_add(res.software_time, user_time, tmst->ts[0], packets_count);
-                timespec_avg_add(res.hardware_time, user_time, tmst->ts[2], packets_count);
+                    tmst = (scm_timestamping *) &CMSG_DATA(cmsg);
 
+                    is_prev_equal = is_timespec_equal(prev, tmst->ts[0]);
+                    if (!is_prev_equal) {
+                        timespec_avg_add(res.software_time, user_time, tmst->ts[0], packets_count);
+                        timespec_avg_add(res.hardware_time, user_time, tmst->ts[2], packets_count);
+                        prev = tmst->ts[0];
+                    }
+                }
             }
-        }
+        } while (is_prev_equal);
     }
 
     return res;

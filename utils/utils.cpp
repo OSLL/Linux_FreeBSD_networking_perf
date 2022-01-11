@@ -47,3 +47,7 @@ void timespec_avg_add(timespec &res, timespec &from, timespec &to, unsigned int 
     }
 
 }
+
+bool is_timespec_equal(timespec &tsc1, timespec &tsc2) {
+    return tsc1.tv_nsec == tsc2.tv_nsec && tsc1.tv_sec == tsc2.tv_sec;
+}
