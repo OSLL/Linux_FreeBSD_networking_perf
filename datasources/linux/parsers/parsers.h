@@ -12,6 +12,7 @@
 #include <fstream>
 
 #include <QtCore/QMap>
+#include <QtCore/QFile>
 
 #include "../../../utils/utils.h"
 

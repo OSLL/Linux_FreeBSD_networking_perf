@@ -2,9 +2,7 @@
 // Created by shenk on 21.12.2021.
 //
 
-#include <QtCore/QFile>
 #include "parsers.h"
-#include <QtCore/QDebug>
 
 std::optional<ProtocolsStats> parseProtocolsStatsFile(const QString& filename) {
 
@@ -31,8 +29,12 @@ std::optional<ProtocolsStats> parseProtocolsStatsFile(const QString& filename) {
         protocol_name = v[0];
 
         if (is_header) {
-            //TODO: При этом в названиях заголовка остаются символы переноса, их нужно убрать
+            // При этом в названиях заголовка остаются символы переноса, их нужно убрать
             header = v[1].split(' ', Qt::SkipEmptyParts);
+            // Убираем переносы
+            for (auto &h: header) {
+                h = h.trimmed();
+            }
 
             // На следующей строке - информация
             is_header = false;
