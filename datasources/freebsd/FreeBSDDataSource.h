@@ -26,15 +26,17 @@
 #include "netinet/icmp_var.h"
 #include "netinet/ip_var.h"
 
-#include "../BaseDataSource.h"
 #include "../../utils/sockets.h"
+#include "../../utils/utils.h"
 
 #include <sys/sysctl.h>
 
 #include <iostream>
 #include <map>
+#include <QThread>
 
-#include "../../utils/utils.h"
+#include "../BaseDataSource.h"
+
 class FreeBSDDataSource: public BaseDataSource {
 
 private:
@@ -57,7 +59,8 @@ public:
             const QString &ip_addr,
             unsigned int port,
             unsigned int packets_count,
-            const QString& measure_type) override;
+            const QString& measure_type,
+            unsigned int delay) override;
 };
 
 

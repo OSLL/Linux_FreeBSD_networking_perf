@@ -17,8 +17,10 @@
 #include <unistd.h>
 
 #include <QMap>
+#include <QThread>
 
 #include "../../utils/utils.h"
+#include "../../utils/sockets.h"
 #include "parsers/parsers.h"
 
 #include "../BaseDataSource.h"
@@ -45,7 +47,8 @@ public:
             const QString &addr,
             unsigned int port,
             unsigned int packets_count,
-            const QString& measure_type) override;
+            const QString& measure_type,
+            unsigned int delay) override;
 };
 
 

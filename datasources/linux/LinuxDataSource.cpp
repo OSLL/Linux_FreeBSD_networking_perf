@@ -3,9 +3,6 @@
 //
 
 #include "LinuxDataSource.h"
-#include "../../utils/sockets.h"
-
-#include "QDebug"
 
 std::map<std::string, std::string> LinuxDataSource::protocol_sockets_files  = {
         {"tcp",      "/proc/net/tcp"},
@@ -199,15 +196,14 @@ LinuxDataSource::recvTimestamp(const QString &protocol, unsigned int port, unsig
     return res;
 }
 
-
-//TODO: Отправка в raw сокет
 std::optional<InSystemTimeInfo>
 LinuxDataSource::sendTimestamp(
         const QString &protocol,
         const QString &addr,
         unsigned int port,
         unsigned int packets_count,
-        const QString& measure_type) {
+        const QString& measure_type,
+        unsigned int delay) {
 
     unsigned int val = SOF_TIMESTAMPING_TX_HARDWARE |
                        SOF_TIMESTAMPING_SOFTWARE |
@@ -245,6 +241,8 @@ LinuxDataSource::sendTimestamp(
 
     for (int i=0; i<packets_count; i++) {
 
+        QThread::msleep(delay);
+
         timespec user_time = {0, 0};
         clock_gettime(CLOCK_REALTIME, &user_time);
 
@@ -258,9 +256,6 @@ LinuxDataSource::sendTimestamp(
         // Иногда возвращается значение из прошлой итерации, из-за этого получается, что user-time (время, когда
         // отправили из user-space) больше чем software-time (время, когда покинуло ядро) -> переполнение при вычитании
         // Для исправление используется do-while, который получает новое значение до тех пор, пока оно равно предыдущему
-
-        //TODO: добавить sleep перед отправклй каждого пакета с заданным значением. Таким образом
-        // do-while не будет исполлнятся более 1 раза.
 
         scm_timestamping *tmst;
         bool is_prev_equal = false;

@@ -29,7 +29,8 @@ public:
             const QString &addr,
             unsigned int port,
             unsigned int packets_count,
-            const QString& measure_type)=0;
+            const QString& measure_type,
+            unsigned int delay)=0;
 };
 
 

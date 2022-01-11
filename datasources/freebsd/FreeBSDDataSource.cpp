@@ -172,7 +172,8 @@ FreeBSDDataSource::sendTimestamp(
         const QString &ip_addr,
         unsigned int port,
         unsigned int packets_count,
-        const QString& measure_type) {
+        const QString& measure_type,
+        unsigned int delay) {
 
     Socket sock(protocol);
 
@@ -182,6 +183,8 @@ FreeBSDDataSource::sendTimestamp(
     }
 
     for (int i=0; i<packets_count; i++) {
+
+        QThread::msleep(delay);
 
         timespec user_time = {0, 0};
         clock_gettime(CLOCK_REALTIME, &user_time);

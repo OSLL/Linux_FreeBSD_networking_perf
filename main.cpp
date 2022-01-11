@@ -42,6 +42,7 @@ int main(int argc, char *argv[]) {
                         {"packets-count", "Receive specified count of packets.", "packets-count", "100"},
                         {{"a", "address"}, "Send packets to specified address.","address", "127.0.0.1"},
                         {"measure-type", R"(Type of measure: "software" or "scheduler")","measure-type", "software"},
+                        {"delay", "Delay between sending timestamps, ms","delay", "0"},
                         {"ns", "Output in nanoseconds"}
                 });
 
@@ -53,6 +54,7 @@ int main(int argc, char *argv[]) {
         auto addr = parser.value("address");
         auto measure_type = parser.value("measure-type");
         auto in_ms = !parser.isSet("ns");
+        auto delay = parser.value("delay").toUInt();
 
         if (argc > 2 && args[2] == "rx-timings") {
 
@@ -61,7 +63,7 @@ int main(int argc, char *argv[]) {
 
         } else if (argc > 2 && std::string(argv[2]) == "tx-timings") {
 
-            auto o_tx_time = ds->sendTimestamp(protocol, addr, port, packets_count, measure_type);
+            auto o_tx_time = ds->sendTimestamp(protocol, addr, port, packets_count, measure_type, delay);
             printInSystemTimeInfo(o_tx_time, in_ms);
 
         }

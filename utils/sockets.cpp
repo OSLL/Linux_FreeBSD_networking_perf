@@ -9,7 +9,9 @@ QMap<QString, std::tuple<int, int, int>> Socket::protocol_socket_args = {
         {"sctp", {AF_INET, SOCK_STREAM, IPPROTO_SCTP}},
         {"udp", {AF_INET, SOCK_DGRAM, IPPROTO_UDP}},
         {"udplite", {AF_INET, SOCK_DGRAM, IPPROTO_UDPLITE}},
+#ifdef __linux__
         {"mptcp", {AF_INET, SOCK_STREAM, IPPROTO_MPTCP}}
+#endif
 };
 
 Socket::Socket(const QString &protocol) {
