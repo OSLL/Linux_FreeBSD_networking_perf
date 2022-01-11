@@ -265,14 +265,12 @@ LinuxDataSource::sendTimestamp(
 
         do {
             sock.receiveMsg(msg, MSG_ERRQUEUE);
-
             for (cmsghdr *cmsg = CMSG_FIRSTHDR(&msg); cmsg; cmsg = CMSG_NXTHDR(&msg, cmsg)) {
-
                 if (cmsg->cmsg_level == SOL_SOCKET && cmsg->cmsg_type == SCM_TIMESTAMPING) {
 
                     tmst = (scm_timestamping *) &CMSG_DATA(cmsg);
-
                     is_prev_equal = is_timespec_equal(prev, tmst->ts[0]);
+
                     if (!is_prev_equal) {
                         timespec_avg_add(res.software_time, user_time, tmst->ts[0], packets_count);
                         timespec_avg_add(res.hardware_time, user_time, tmst->ts[2], packets_count);
