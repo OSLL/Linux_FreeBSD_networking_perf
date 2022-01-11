@@ -189,9 +189,11 @@ LinuxDataSource::recvTimestamp(const QString &protocol, unsigned int port, unsig
 
                 timespec_avg_add(res.software_time, tmst->ts[0], user_time, packets_count);
                 timespec_avg_add(res.hardware_time, tmst->ts[2], user_time, packets_count);
-                timespec_avg_add(res.total_time, send_time, user_time, packets_count);
+
             }
         }
+
+        timespec_avg_add(res.total_time, send_time, user_time, packets_count);
     }
 
     return res;
