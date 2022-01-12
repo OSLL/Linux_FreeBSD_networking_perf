@@ -304,3 +304,7 @@ std::optional<QMap<QString, int>> LinuxDataSource::_getProtocolV6Stats(const QSt
     return protocols_stats.value(protocol);
 
 }
+
+std::optional<CpusSoftnetData> LinuxDataSource::getSoftnetData() {
+    return parseSoftnetDataFile("/proc/net/softnet_stat");
+}

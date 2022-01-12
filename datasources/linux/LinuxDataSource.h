@@ -52,6 +52,8 @@ public:
             unsigned int packets_count,
             const QString& measure_type,
             unsigned int delay) override;
+
+    std::optional<CpusSoftnetData> getSoftnetData();
 };
 
 

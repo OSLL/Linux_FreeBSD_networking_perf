@@ -156,7 +156,32 @@ std::optional<ProtocolsStats> parseProtocolsV6StatsFile(const QString &filename)
             };
         }
 
-    } while ((!file.atEnd()));
+    } while (!file.atEnd());
 
     return stats;
+}
+
+std::optional<CpusSoftnetData> parseSoftnetDataFile(const QString &filename) {
+
+    CpusSoftnetData cpus_sd;
+    QFile file(filename);
+
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        std::cout << "Can't open " << filename.toStdString() << std::endl;
+        return std::nullopt;
+    }
+
+    do {
+
+        QString line = file.readLine();
+        auto current_sd = line.split(' ');
+
+        cpus_sd.push_back(QVector<int>());
+        for (const auto &sd_field: current_sd) {
+            cpus_sd.last().push_back(sd_field.toInt(nullptr, 16));
+        }
+
+    } while (!file.atEnd());
+
+    return cpus_sd;
 }

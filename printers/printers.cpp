@@ -127,3 +127,36 @@ void printProtocolStats(std::optional<QMap<QString, int>> o_protocol_stats) {
         }
     }
 }
+
+//TODO: поддержка старых версий файла
+#define SOFTNET_COLUMN_WIDTH 20
+void printSoftnetData(std::optional<QVector<QVector<int>>> o_cpus_sd) {
+
+    if (o_cpus_sd) {
+        auto cpus_sd = o_cpus_sd.value();
+
+        std::cout << std::left << std::setw(SOFTNET_COLUMN_WIDTH) << "Processed";
+        std::cout << std::left << std::setw(SOFTNET_COLUMN_WIDTH) << "Dropped";
+        std::cout << std::left << std::setw(SOFTNET_COLUMN_WIDTH) << "Time squeeze";
+        std::cout << std::left << std::setw(SOFTNET_COLUMN_WIDTH) << "Received RPS";
+        std::cout << std::left << std::setw(SOFTNET_COLUMN_WIDTH) << "Flow Limit count";
+        std::cout << std::left << std::setw(SOFTNET_COLUMN_WIDTH) << "Backlog len";
+        std::cout << std::left << std::setw(SOFTNET_COLUMN_WIDTH) << "CPU Index" << std::endl;
+
+        for (const auto &current_sd: cpus_sd) {
+
+            std::cout << std::left << std::setw(SOFTNET_COLUMN_WIDTH) << current_sd[0];
+            std::cout << std::left << std::setw(SOFTNET_COLUMN_WIDTH) << current_sd[1];
+            std::cout << std::left << std::setw(SOFTNET_COLUMN_WIDTH) << current_sd[2];
+            std::cout << std::left << std::setw(SOFTNET_COLUMN_WIDTH) << current_sd[9];
+            std::cout << std::left << std::setw(SOFTNET_COLUMN_WIDTH) << current_sd[10];
+            std::cout << std::left << std::setw(SOFTNET_COLUMN_WIDTH) << current_sd[11];
+            std::cout << std::left << std::setw(SOFTNET_COLUMN_WIDTH) << current_sd[12] << std::endl;
+
+        }
+
+    } else {
+        std::cout << "Can't get softnet data" << std::endl;
+    }
+
+}
