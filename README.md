@@ -7,7 +7,7 @@
 
 Поддерживаемые протоколы:
 
-Linux: ip, tcp, udp, udplite, icmp, mptcp
+Linux: ip, tcp, udp, udplite, icmp, mptcp, ip6, udp6, udplite6, icmp6
 
 FreeBSD: ip, tcp, udp, icmp, igmp
 

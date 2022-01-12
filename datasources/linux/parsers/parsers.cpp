@@ -127,3 +127,36 @@ std::optional <SocketsList> parseProtocolSocketsListFile(const std::string& file
 
     return sockets_list;
 }
+
+std::optional<ProtocolsStats> parseProtocolsV6StatsFile(const QString &filename) {
+    ProtocolsStats stats;
+
+    QFile file(filename);
+
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        std::cout << "Can't open " << filename.toStdString() << std::endl;
+        return std::nullopt;
+    }
+
+    do {
+        QString line = file.readLine();
+        auto v = line.split(' ', Qt::SkipEmptyParts);
+
+        auto protocol_stat_name = v[0].split('6');
+
+        QString protocol = protocol_stat_name[0].toLower() + '6';
+        QString stat_name = protocol_stat_name[1];
+        int stat_val = v[1].toInt();
+
+        if (stats.contains(protocol)) {
+            stats[protocol][stat_name] = stat_val;
+        } else {
+            stats[protocol] = {
+                    {stat_name, stat_val}
+            };
+        }
+
+    } while ((!file.atEnd()));
+
+    return stats;
+}

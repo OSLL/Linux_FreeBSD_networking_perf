@@ -30,48 +30,12 @@ QMap<QString, std::tuple<std::optional<QString>, std::optional<QString>>> LinuxD
 
 std::optional<QMap<QString, int>> LinuxDataSource::getProtocolStats(const QString &protocol) {
 
-    if (!LinuxDataSource::protocol_stats_names.contains(protocol)) {
-        std::cout << "Unsupported protocol" << std::endl;
-        return std::nullopt;
+    if (protocol.endsWith('6')) {
+        return this->_getProtocolV6Stats(protocol);
+    } else {
+        return this->_getProtocolStats(protocol);
     }
 
-    auto o_protocols_stats = parseProtocolsStatsFile("/proc/net/snmp");
-    auto o_protocols_stats_ext = parseProtocolsStatsFile("/proc/net/netstat");
-
-    if (!o_protocols_stats || !o_protocols_stats_ext) {
-        std::cout << "Can't open stats files" << std::endl;
-        return std::nullopt;
-    }
-
-    auto protocols_stats = o_protocols_stats.value();
-    auto protocols_stats_ext = o_protocols_stats_ext.value();
-
-    auto [o_stat_name, o_ext_stat_name] = LinuxDataSource::protocol_stats_names.value(protocol);
-
-    if (
-            (o_stat_name && !protocols_stats.contains(*o_stat_name)) ||
-            (o_ext_stat_name && !protocols_stats_ext.contains(*o_ext_stat_name)))
-    {
-        std::cout << "No protocol data in protocols stats file" << std::endl;
-        return std::nullopt;
-    }
-
-    if (o_stat_name && o_ext_stat_name) {
-        auto protocol_stats = protocols_stats.value(*o_stat_name);
-        auto protocol_stats_ext = protocols_stats_ext.value(*o_ext_stat_name);
-
-        for (auto it = protocol_stats_ext.begin(); it != protocol_stats_ext.end(); it++) {
-            protocol_stats[it.key()] = it.value();
-        }
-
-        return protocol_stats;
-    } else if (o_stat_name) {
-        return protocols_stats.value(*o_stat_name);
-    } else if (o_protocols_stats_ext) {
-        return protocols_stats_ext.value(*o_ext_stat_name);
-    }
-
-    return std::nullopt;
 }
 
 std::vector<SocketInfo> LinuxDataSource::getSockets(std::string protocol) {
@@ -279,4 +243,64 @@ LinuxDataSource::sendTimestamp(
     }
 
     return res;
+}
+
+std::optional<QMap<QString, int>> LinuxDataSource::_getProtocolStats(const QString &protocol) {
+
+    if (!LinuxDataSource::protocol_stats_names.contains(protocol)) {
+        std::cout << "Unsupported protocol" << std::endl;
+        return std::nullopt;
+    }
+
+    auto o_protocols_stats = parseProtocolsStatsFile("/proc/net/snmp");
+    auto o_protocols_stats_ext = parseProtocolsStatsFile("/proc/net/netstat");
+
+    if (!o_protocols_stats || !o_protocols_stats_ext) return std::nullopt;
+
+    auto protocols_stats = o_protocols_stats.value();
+    auto protocols_stats_ext = o_protocols_stats_ext.value();
+
+    auto [o_stat_name, o_ext_stat_name] = LinuxDataSource::protocol_stats_names.value(protocol);
+
+    if (
+            (o_stat_name && !protocols_stats.contains(*o_stat_name)) ||
+            (o_ext_stat_name && !protocols_stats_ext.contains(*o_ext_stat_name)))
+    {
+        std::cout << "No protocol data in protocols stats file" << std::endl;
+        return std::nullopt;
+    }
+
+    if (o_stat_name && o_ext_stat_name) {
+        auto protocol_stats = protocols_stats.value(*o_stat_name);
+        auto protocol_stats_ext = protocols_stats_ext.value(*o_ext_stat_name);
+
+        for (auto it = protocol_stats_ext.begin(); it != protocol_stats_ext.end(); it++) {
+            protocol_stats[it.key()] = it.value();
+        }
+
+        return protocol_stats;
+    } else if (o_stat_name) {
+        return protocols_stats.value(*o_stat_name);
+    } else if (o_protocols_stats_ext) {
+        return protocols_stats_ext.value(*o_ext_stat_name);
+    }
+
+    return std::nullopt;
+
+}
+
+std::optional<QMap<QString, int>> LinuxDataSource::_getProtocolV6Stats(const QString &protocol) {
+
+    auto o_protocols_stats = parseProtocolsV6StatsFile("/proc/net/snmp6");
+    if (!o_protocols_stats) return std::nullopt;
+
+    auto protocols_stats = o_protocols_stats.value();
+
+    if (!protocols_stats.contains(protocol)) {
+        std::cout << "Unsupported protocol" << std::endl;
+        return std::nullopt;
+    }
+
+    return protocols_stats.value(protocol);
+
 }

@@ -33,6 +33,9 @@ private:
     static std::map<std::string, std::string> protocol_sockets_files;
     static QMap<QString, std::tuple<std::optional<QString>, std::optional<QString>>> protocol_stats_names;
 
+    std::optional<QMap<QString, int>> _getProtocolStats(const QString &protocol);
+    std::optional<QMap<QString, int>> _getProtocolV6Stats(const QString &protocol);
+
 public:
 
     std::optional<QMap<QString, int>> getProtocolStats(const QString &protocol) override;
