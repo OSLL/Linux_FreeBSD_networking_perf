@@ -55,7 +55,7 @@ public:
 
     std::optional<CpusSoftnetData> getSoftnetData();
 
-    std::optional<QVector<int>> getCPUDistribution() override ;
+    std::optional<QVector<int>> getCPUDistribution() override;
 };
 
 

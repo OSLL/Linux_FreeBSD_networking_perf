@@ -32,6 +32,8 @@ public:
             const QString& measure_type,
             unsigned int delay)=0;
 
+    //TODO: рассмотреть вариант возвращаемого значения QMap. Возможно, существуют вероятности, что процессоры идут
+    // не подряд
     virtual std::optional<QVector<int>> getCPUDistribution()=0;
 };
 

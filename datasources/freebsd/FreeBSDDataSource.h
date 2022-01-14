@@ -26,6 +26,8 @@
 #include "netinet/icmp_var.h"
 #include "netinet/ip_var.h"
 
+#include "net/netisr.h"
+
 #include "../../utils/sockets.h"
 #include "../../utils/utils.h"
 
@@ -61,6 +63,8 @@ public:
             unsigned int packets_count,
             const QString& measure_type,
             unsigned int delay) override;
+
+    std::optional<QVector<int>> getCPUDistribution() override;
 };
 
 

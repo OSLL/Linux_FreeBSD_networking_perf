@@ -200,3 +200,29 @@ FreeBSDDataSource::sendTimestamp(
 
     return std::nullopt;
 }
+
+//TODO: Проработать netist, там много полезного. Например, поле qdrops.
+std::optional<QVector<int>> FreeBSDDataSource::getCPUDistribution() {
+
+    size_t size;
+    sysctlbyname("net.isr.work", nullptr, &size, nullptr, 0);
+
+    sysctl_netisr_work snw_array[size/sizeof(sysctl_netisr_work)];
+    sysctlbyname("net.isr.work", snw_array, &size, nullptr, 0);
+
+    // Судя по коду FreeBSD (sys/net/netisr.c:sysctl_netisr_work) cpuid всегда будут идти подряд. Но на всякий случай,
+    // реализовал через map. Но при этом возвращаются просто значения map'а, без проверки на то, что идут подряд.
+    // Реалихация не эффективная, но может чуть более читаемая?
+    QMap<int, int> cpus_dist;
+    for (const auto& snw: snw_array) {
+
+        if (!cpus_dist.contains(snw.snw_wsid)) {
+            cpus_dist[snw.snw_wsid] = snw.snw_handled;
+        } else {
+            cpus_dist[snw.snw_wsid] += snw.snw_handled;
+        }
+
+    }
+
+    return cpus_dist.values().toVector();
+}
