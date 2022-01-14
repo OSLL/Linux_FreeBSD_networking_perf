@@ -308,3 +308,18 @@ std::optional<QMap<QString, int>> LinuxDataSource::_getProtocolV6Stats(const QSt
 std::optional<CpusSoftnetData> LinuxDataSource::getSoftnetData() {
     return parseSoftnetDataFile("/proc/net/softnet_stat");
 }
+
+//TODO: различные источники данных (NET_TX в /proc/softirq, /proc/net/softirq_data)
+std::optional<QVector<int>> LinuxDataSource::getCPUDistribution() {
+    auto o_softirqs_count = parseSoftirqFile("/proc/softirqs");
+    if (!o_softirqs_count) return std::nullopt;
+
+    auto softirqs_count = o_softirqs_count.value();
+
+    if (!softirqs_count.contains("NET_RX")) {
+        std::cout << "No NET_RX line in /proc/softirqs" << std::endl;
+        return std::nullopt;
+    }
+
+    return softirqs_count.value("NET_RX");
+}

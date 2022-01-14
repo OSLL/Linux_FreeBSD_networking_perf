@@ -160,3 +160,16 @@ void printSoftnetData(std::optional<QVector<QVector<int>>> o_cpus_sd) {
     }
 
 }
+
+void printCPUDistribution(std::optional<QVector<int>> o_cpus_dist) {
+
+    if (o_cpus_dist) {
+        for (const auto& cpu_dist: o_cpus_dist.value()) {
+            std::cout << cpu_dist << " ";
+        }
+        std::cout << std::endl;
+    } else {
+        std::cout << "Can't get CPU distribution" << std::endl;
+    }
+
+}

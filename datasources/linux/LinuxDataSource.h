@@ -54,6 +54,8 @@ public:
             unsigned int delay) override;
 
     std::optional<CpusSoftnetData> getSoftnetData();
+
+    std::optional<QVector<int>> getCPUDistribution() override ;
 };
 
 

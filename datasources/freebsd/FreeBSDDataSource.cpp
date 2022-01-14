@@ -11,6 +11,7 @@ std::map<std::string, std::string> FreeBSDDataSource::protocol_sockets_sysctl_na
         {"raw", "net.inet.raw.pcblist"}
 };
 
+//TODO: icmp6 и ip6
 QMap<QString, std::tuple<QString, size_t>> FreeBSDDataSource::protocol_stats_sysctl_names = {
         {"tcp", {"net.inet.tcp.stats", sizeof(tcpstat)}},
         {"udp", {"net.inet.udp.stats", sizeof(udpstat)}},

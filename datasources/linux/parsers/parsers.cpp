@@ -185,3 +185,38 @@ std::optional<CpusSoftnetData> parseSoftnetDataFile(const QString &filename) {
 
     return cpus_sd;
 }
+
+std::optional<CpusSoftirqData> parseSoftirqFile(const QString &filename) {
+    CpusSoftirqData cpus_sirq;
+    QFile file(filename);
+
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        std::cout << "Can't open " << filename.toStdString() << std::endl;
+        return std::nullopt;
+    }
+
+    // Пропускаем первую строку, там заголовок с номерами CPU
+    //TODO: А в заголовке могут быть пропуски индексов или что то подобное?
+    file.readLine();
+
+    do {
+
+        QString line = file.readLine();
+        QStringList name_vals = line.split(':');
+        QString sirq_name = name_vals[0].trimmed();
+
+        QString vals = name_vals[1];
+        QStringList s_sirq_count = vals.split(' ', Qt::SkipEmptyParts);
+        QVector <int> i_sirq_count;
+
+        for (const auto& s_val: s_sirq_count) {
+            i_sirq_count.push_back(s_val.toInt());
+        }
+
+        cpus_sirq[sirq_name] = i_sirq_count;
+
+    } while (!file.atEnd());
+
+    return cpus_sirq;
+
+}

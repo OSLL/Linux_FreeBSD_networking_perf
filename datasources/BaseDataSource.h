@@ -31,6 +31,8 @@ public:
             unsigned int packets_count,
             const QString& measure_type,
             unsigned int delay)=0;
+
+    virtual std::optional<QVector<int>> getCPUDistribution()=0;
 };
 
 

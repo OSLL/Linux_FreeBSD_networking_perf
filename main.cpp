@@ -71,12 +71,9 @@ int main(int argc, char *argv[]) {
         printIperf3Data(parseIperf3Output(args[2]));
     } else if (argc > 2 && args[1] == "stats") {
         printProtocolStats(ds->getProtocolStats(args[2]));
+    } else if (argc >1 && args[1] == "get-cpu-distribution") {
+        printCPUDistribution(ds->getCPUDistribution());
     }
-#ifdef __linux__
-    else if (argc >1 && args[1] == "get-softnet") {
-        printSoftnetData(((LinuxDataSource*)ds)->getSoftnetData());
-    }
-#endif
 
     return 0;
 }
