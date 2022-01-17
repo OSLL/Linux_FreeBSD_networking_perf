@@ -12,7 +12,6 @@
 #include <sys/socket.h>
 #include <sys/time.h>
 
-#include <linux/net_tstamp.h>
 #include <linux/errqueue.h>
 #include <unistd.h>
 
@@ -42,20 +41,23 @@ public:
 
     std::vector<SocketInfo> getSockets(std::string protocol) override;
 
-    std::optional<InSystemTimeInfo> recvTimestamp(
-            const QString& protocol, unsigned int port, unsigned int packets_count) override;
-
-    std::optional<InSystemTimeInfo> sendTimestamp(
-            const QString &protocol,
-            const QString &addr,
-            unsigned int port,
-            unsigned int packets_count,
-            const QString& measure_type,
-            unsigned int delay) override;
-
     std::optional<CpusSoftnetData> getSoftnetData();
 
     std::optional<QVector<int>> getCPUDistribution() override;
+
+    void setRecvSockOpt(Socket &sock) override;
+    void processRecvTimestamp(msghdr &msg,
+                                      InSystemTimeInfo &res,
+                                      timespec &after_recv_time,
+                                      unsigned int packets_count) override;
+    void setSendSockOpt(Socket &sock, const QString &measure_type) override;
+    void processSendTimestamp(Socket &sock,
+                                      msghdr &msg,
+                                      InSystemTimeInfo &res,
+                                      timespec &before_send_time,
+                                      unsigned int packets_count,
+                                      timespec &prev,
+                                      const QString &protocol) override;
 };
 
 

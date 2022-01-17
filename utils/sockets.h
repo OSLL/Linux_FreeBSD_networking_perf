@@ -16,6 +16,7 @@
 
 #ifdef __linux__
 #include <libnet.h>
+#include <linux/net_tstamp.h>
 #else
 #include <arpa/inet.h>
 #endif
