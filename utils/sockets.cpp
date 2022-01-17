@@ -14,7 +14,7 @@ QMap<QString, std::tuple<int, int, int>> Socket::protocol_socket_args = {
 #endif
 };
 
-Socket::Socket(const QString &protocol) {
+Socket::Socket(const QString &protocol): protocol(protocol) {
 
     auto iter = Socket::protocol_socket_args.find(protocol);
 
@@ -50,16 +50,8 @@ int Socket::setOpt(int level, int optname, const void *optval, socklen_t optlen)
     return setsockopt(this->sock_descriptor, level, optname, optval, optlen);
 }
 
-int Socket::getDomain() {
-    return this->sock_domain;
-}
-
-int Socket::getType() {
-    return this->sock_type;
-}
-
-int Socket::getProtocol() {
-    return this->sock_protocol;
+const QString& Socket::getProtocol() {
+    return this->protocol;
 }
 
 int Socket::bindTo(in_addr_t ip_addr, unsigned int port) {

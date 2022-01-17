@@ -47,7 +47,7 @@ BaseDataSource::recvTimestamp(const QString &protocol, unsigned int port, unsign
         sock.receiveMsg(msg, 0);
         clock_gettime(CLOCK_REALTIME, &after_recv_time);
 
-        this->processRecvTimestamp(msg, res, after_recv_time, packets_count);
+        this->processRecvTimestamp(msg, res, after_recv_time, packets_count, protocol);
 
         timespec_avg_add(res.in_call_time, before_recv_time, after_recv_time, packets_count);
         timespec_avg_add(res.total_time, send_time, after_recv_time, packets_count);
@@ -97,7 +97,7 @@ BaseDataSource::sendTimestamp(const QString &protocol, const QString &addr, unsi
             return std::nullopt;
         };
 
-        this->processSendTimestamp(sock, msg, res, before_send_time, packets_count, prev, protocol);
+        this->processSendTimestamp(sock, msg, res, before_send_time, packets_count, protocol, prev);
         timespec_avg_add(res.in_call_time, before_send_time, after_send_time, packets_count);
     }
 

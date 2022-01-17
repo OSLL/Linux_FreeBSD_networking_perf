@@ -103,104 +103,6 @@ std::vector<SocketInfo> FreeBSDDataSource::getSockets(std::string protocol) {
     return sockets_info_list;
 }
 
-std::optional<InSystemTimeInfo>
-FreeBSDDataSource::recvTimestamp(const QString &protocol, unsigned int port, unsigned int packets_count) {
-
-    Socket sock(protocol);
-
-    if (protocol == "udp") {
-        int val = 1;
-        sock.setOpt(SOL_SOCKET, SO_TIMESTAMP, &val, sizeof(val));
-    }
-
-    if (sock.bindTo(INADDR_ANY, port) < 0) {
-        std::cout << "Bind failed" << std::endl;
-        return std::nullopt;
-    }
-
-    if (sock.listenFor(1) < 0) {
-        std::cout << "Listen failed" << std::endl;
-        return std::nullopt;
-    }
-
-    char control[1000];
-    timespec user_time, send_time;
-
-    iovec iov {
-            .iov_base = &send_time,
-            .iov_len = sizeof(timespec)
-    };
-
-    msghdr msg{
-            .msg_name = nullptr,
-            .msg_namelen = 0,
-            .msg_iov = &iov,
-            .msg_iovlen = 1,
-            .msg_control = &control,
-            .msg_controllen = sizeof(control)
-    };
-
-    timespec *tmst;
-    InSystemTimeInfo res;
-
-    for (int i=0; i<packets_count; i++) {
-
-        sock.receiveMsg(msg, 0);
-
-        clock_gettime(CLOCK_REALTIME, &user_time);
-
-        if (protocol == "udp") {
-            for (cmsghdr *cmsg = CMSG_FIRSTHDR(&msg); cmsg; cmsg = CMSG_NXTHDR(&msg, cmsg)) {
-                if (cmsg->cmsg_level == SOL_SOCKET && cmsg->cmsg_type == SCM_TIMESTAMP) {
-                    tmst = (timespec *) CMSG_DATA(cmsg);
-
-                    // Во FreeBSD здесь хранятся микросекунды, но clock_gettime возвращает наносекунды.
-                    tmst->tv_nsec *= 1000;
-                    timespec_avg_add(res.software_time, *tmst, user_time, packets_count);
-                }
-            }
-        }
-
-        timespec_avg_add(res.total_time, send_time, user_time, packets_count);
-    }
-
-    return res;
-}
-
-std::optional<InSystemTimeInfo>
-FreeBSDDataSource::sendTimestamp(
-        const QString &protocol,
-        const QString &ip_addr,
-        unsigned int port,
-        unsigned int packets_count,
-        const QString& measure_type,
-        unsigned int delay) {
-
-    Socket sock(protocol);
-
-    if (sock.connectTo(ip_addr, port) < 0) {
-        std::cout << "Connect error" << std::endl;
-        return std::nullopt;
-    }
-
-    for (int i=0; i<packets_count; i++) {
-
-        QThread::msleep(delay);
-
-        timespec user_time = {0, 0};
-        clock_gettime(CLOCK_REALTIME, &user_time);
-
-        if (sock.sendData(&user_time, sizeof(timespec)) < 0) {
-            std::cout << "Send error" << std::endl;
-            return std::nullopt;
-        };
-    }
-
-    std::cout << "Data sent successfully" << std::endl;
-
-    return std::nullopt;
-}
-
 //TODO: Проработать netist, там много полезного. Например, поле qdrops.
 std::optional<QVector<int>> FreeBSDDataSource::getCPUDistribution() {
 
@@ -225,4 +127,42 @@ std::optional<QVector<int>> FreeBSDDataSource::getCPUDistribution() {
     }
 
     return cpus_dist.values().toVector();
+}
+
+void FreeBSDDataSource::setRecvSockOpt(Socket &sock) {
+
+    if (sock.getProtocol() == "udp") {
+        int val = 1;
+        sock.setOpt(SOL_SOCKET, SO_TIMESTAMP, &val, sizeof(val));
+    }
+
+}
+
+void FreeBSDDataSource::processRecvTimestamp(msghdr &msg, InSystemTimeInfo &res, timespec &after_recv_time,
+                                             unsigned int packets_count, const QString &protocol) {
+
+    if (protocol == "udp") {
+        for (cmsghdr *cmsg = CMSG_FIRSTHDR(&msg); cmsg; cmsg = CMSG_NXTHDR(&msg, cmsg)) {
+            if (cmsg->cmsg_level == SOL_SOCKET && cmsg->cmsg_type == SCM_TIMESTAMP) {
+                auto tmst = (timespec *) CMSG_DATA(cmsg);
+
+                // Во FreeBSD здесь хранятся микросекунды, но clock_gettime возвращает наносекунды.
+                tmst->tv_nsec *= 1000;
+                timespec_avg_add(res.software_time, *tmst, after_recv_time, packets_count);
+            }
+        }
+    }
+
+}
+
+void FreeBSDDataSource::setSendSockOpt(Socket &sock, const QString &measure_type) {
+    // Во FreeBSD не реализована получение timestamp'ов при получении
+    return;
+}
+
+void
+FreeBSDDataSource::processSendTimestamp(Socket &sock, msghdr &msg, InSystemTimeInfo &res, timespec &before_send_time,
+                                        unsigned int packets_count, const QString &protocol, timespec &prev) {
+    // Во FreeBSD не реализована получение timestamp'ов при получении
+    return;
 }

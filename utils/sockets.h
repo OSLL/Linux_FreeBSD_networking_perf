@@ -32,6 +32,7 @@ private:
     // Для TCP прием сообщения происходит не с помощью полученного сокета, а с помощью сокета, полученного после
     // вызова accept
     int recv_sock_descriptor;
+    const QString &protocol;
 
     static QMap<QString, std::tuple<int, int, int>> protocol_socket_args;
 
@@ -41,9 +42,7 @@ public:
 
     int setOpt(int level, int optname, const void * optval, socklen_t optlen);
 
-    int getDomain();
-    int getType();
-    int getProtocol();
+    const QString& getProtocol();
 
     int bindTo(in_addr_t ip_addr, unsigned int port);
     int bindTo(const QString &ip_addr, unsigned int port);

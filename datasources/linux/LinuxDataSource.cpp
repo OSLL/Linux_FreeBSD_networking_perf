@@ -182,7 +182,7 @@ void LinuxDataSource::setRecvSockOpt(Socket &sock) {
 }
 
 void LinuxDataSource::processRecvTimestamp(msghdr &msg, InSystemTimeInfo &res, timespec &after_recv_time,
-                                           unsigned int packets_count) {
+                                           unsigned int packets_count, const QString &protocol) {
 
     for (cmsghdr *cmsg = CMSG_FIRSTHDR(&msg); cmsg; cmsg = CMSG_NXTHDR(&msg, cmsg)) {
 
@@ -215,7 +215,7 @@ void LinuxDataSource::setSendSockOpt(Socket &sock, const QString &measure_type) 
 }
 
 void LinuxDataSource::processSendTimestamp(Socket &sock, msghdr &msg, InSystemTimeInfo &res,
-        timespec &before_send_time, unsigned int packets_count, timespec &prev, const QString &protocol) {
+        timespec &before_send_time, unsigned int packets_count, const QString &protocol, timespec &prev) {
 
     if (!(protocol == "tcp" || protocol == "udp")) return;
 

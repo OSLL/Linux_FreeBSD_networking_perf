@@ -29,6 +29,9 @@ public:
 
     //TODO: Проверить hardware timestamps
     //TODO: Добавить время при возвращении из recv/send
+    //TODO: В FreeBSD значение Total огромное. Почему?
+    //TODO: Пропускать первый пакет. В протоколах без состояния происходит ожидание в recv, пока пользователь не
+    // запустит measure tx-timings
     virtual std::optional<InSystemTimeInfo> recvTimestamp(
             const QString &protocol, unsigned int port, unsigned int packets_count);
 
@@ -48,15 +51,16 @@ public:
     virtual void processRecvTimestamp(msghdr &msg,
             InSystemTimeInfo &res,
             timespec &after_recv_time,
-            unsigned int packets_count)=0;
+            unsigned int packets_count,
+            const QString &protocol)=0;
     virtual void setSendSockOpt(Socket &sock, const QString &measure_type)=0;
     virtual void processSendTimestamp(Socket &sock,
             msghdr &msg,
             InSystemTimeInfo &res,
             timespec &before_send_time,
             unsigned int packets_count,
-            timespec &prev,
-            const QString &protocol)=0;
+            const QString &protocol,
+            timespec &prev)=0;
 };
 
 
