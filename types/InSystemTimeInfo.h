@@ -12,11 +12,13 @@ public:
 
     timespec software_time;
     timespec hardware_time;
+    timespec in_call_time;
     timespec total_time;
 
     InSystemTimeInfo():
             software_time({0, 0}),
             hardware_time({0, 0}),
+            in_call_time({0, 0}),
             total_time({0, 0}){}
 };
 

@@ -71,6 +71,11 @@ void printInSystemTimeInfo(std::optional<InSystemTimeInfo> o_time_info, bool in_
             printTimestamp(o_time_info->software_time, in_ms);
         }
 
+        if (!is_timespec_empty(o_time_info->in_call_time)) {
+            std::cout << "In Call: ";
+            printTimestamp(o_time_info->in_call_time, in_ms);
+        }
+
         if (!is_timespec_empty(o_time_info->total_time)) {
             std::cout << "Total: ";
             printTimestamp(o_time_info->total_time, in_ms);

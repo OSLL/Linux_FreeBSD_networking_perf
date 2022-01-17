@@ -21,6 +21,7 @@ public:
 
     virtual std::vector<SocketInfo> getSockets(std::string protocol)=0;
 
+    //TODO: Добавить время при возвращении из recv/send
     virtual std::optional<InSystemTimeInfo> recvTimestamp(
             const QString &protocol, unsigned int port, unsigned int packets_count)=0;
 

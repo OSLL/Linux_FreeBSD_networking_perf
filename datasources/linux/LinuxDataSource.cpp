@@ -134,13 +134,13 @@ LinuxDataSource::recvTimestamp(const QString &protocol, unsigned int port, unsig
     InSystemTimeInfo res;
 
     scm_timestamping *tmst;
-    timespec user_time;
+    timespec before_recv_time, after_recv_time;
 
     for (int i=0; i<packets_count; i++) {
 
+        clock_gettime(CLOCK_REALTIME, &before_recv_time);
         sock.receiveMsg(msg, 0);
-
-        clock_gettime(CLOCK_REALTIME, &user_time);
+        clock_gettime(CLOCK_REALTIME, &after_recv_time);
 
         for (cmsghdr *cmsg = CMSG_FIRSTHDR(&msg); cmsg; cmsg = CMSG_NXTHDR(&msg, cmsg)) {
 
@@ -148,13 +148,14 @@ LinuxDataSource::recvTimestamp(const QString &protocol, unsigned int port, unsig
 
                 tmst = (scm_timestamping*) &CMSG_DATA(cmsg);
 
-                timespec_avg_add(res.software_time, tmst->ts[0], user_time, packets_count);
-                timespec_avg_add(res.hardware_time, tmst->ts[2], user_time, packets_count);
+                timespec_avg_add(res.software_time, tmst->ts[0], after_recv_time, packets_count);
+                timespec_avg_add(res.hardware_time, tmst->ts[2], after_recv_time, packets_count);
 
             }
         }
 
-        timespec_avg_add(res.total_time, send_time, user_time, packets_count);
+        timespec_avg_add(res.in_call_time, before_recv_time, after_recv_time, packets_count);
+        timespec_avg_add(res.total_time, send_time, after_recv_time, packets_count);
     }
 
     return res;
@@ -202,15 +203,17 @@ LinuxDataSource::sendTimestamp(
 
     InSystemTimeInfo res;
     timespec prev = {0, 0};
+    timespec before_send_time, after_send_time;
 
     for (int i=0; i<packets_count; i++) {
 
         QThread::msleep(delay);
 
-        timespec user_time = {0, 0};
-        clock_gettime(CLOCK_REALTIME, &user_time);
+        clock_gettime(CLOCK_REALTIME, &before_send_time);
+        auto err = sock.sendData(&before_send_time, sizeof(timespec));
+        clock_gettime(CLOCK_REALTIME, &after_send_time);
 
-        if (sock.sendData(&user_time, sizeof(timespec)) < 0) {
+        if (err < 0) {
             std::cout << "Send error" << std::endl;
             return std::nullopt;
         };
@@ -233,13 +236,15 @@ LinuxDataSource::sendTimestamp(
                     is_prev_equal = is_timespec_equal(prev, tmst->ts[0]);
 
                     if (!is_prev_equal) {
-                        timespec_avg_add(res.software_time, user_time, tmst->ts[0], packets_count);
-                        timespec_avg_add(res.hardware_time, user_time, tmst->ts[2], packets_count);
+                        timespec_avg_add(res.software_time, before_send_time, tmst->ts[0], packets_count);
+                        timespec_avg_add(res.hardware_time, before_send_time, tmst->ts[2], packets_count);
                         prev = tmst->ts[0];
                     }
                 }
             }
         } while (is_prev_equal);
+
+        timespec_avg_add(res.in_call_time, before_send_time, after_send_time, packets_count);
     }
 
     return res;
