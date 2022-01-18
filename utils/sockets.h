@@ -44,8 +44,7 @@ public:
 
     const QString& getProtocol();
 
-    int bindTo(in_addr_t ip_addr, unsigned int port);
-    int bindTo(const QString &ip_addr, unsigned int port);
+    int bindToAny(unsigned int port);
 
     int listenFor(int conn_num);
     int receiveMsg(msghdr &msg, int flags = 0);

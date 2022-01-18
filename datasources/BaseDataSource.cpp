@@ -10,7 +10,7 @@ BaseDataSource::recvTimestamp(const QString &protocol, unsigned int port, unsign
     Socket sock(protocol);
     this->setRecvSockOpt(sock);
 
-    if (sock.bindTo(INADDR_ANY, port) < 0) {
+    if (sock.bindToAny(port) < 0) {
         std::cout << "Bind failed" << std::endl;
         return std::nullopt;
     }

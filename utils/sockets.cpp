@@ -9,8 +9,14 @@ QMap<QString, std::tuple<int, int, int>> Socket::protocol_socket_args = {
         {"sctp", {AF_INET, SOCK_STREAM, IPPROTO_SCTP}},
         {"udp", {AF_INET, SOCK_DGRAM, IPPROTO_UDP}},
         {"udplite", {AF_INET, SOCK_DGRAM, IPPROTO_UDPLITE}},
+
+        {"tcp6", {AF_INET6, SOCK_STREAM, IPPROTO_TCP}},
+        {"udp6", {AF_INET6, SOCK_DGRAM, IPPROTO_UDP}},
+        {"udplite6", {AF_INET6, SOCK_DGRAM, IPPROTO_UDPLITE}},
 #ifdef __linux__
-        {"mptcp", {AF_INET, SOCK_STREAM, IPPROTO_MPTCP}}
+        {"mptcp", {AF_INET, SOCK_STREAM, IPPROTO_MPTCP}},
+        {"mptcp6", {AF_INET6, SOCK_STREAM, IPPROTO_MPTCP}},
+        {"sctp6", {AF_INET6, SOCK_STREAM, IPPROTO_SCTP}}
 #endif
 };
 
@@ -54,37 +60,6 @@ const QString& Socket::getProtocol() {
     return this->protocol;
 }
 
-int Socket::bindTo(in_addr_t ip_addr, unsigned int port) {
-    if (sock_type != SOCK_RAW) {
-        sockaddr_in addr {
-                .sin_family = AF_INET,
-                .sin_port = htons(port),
-                .sin_addr = {
-                        .s_addr = ip_addr
-                }
-        };
-
-        return bind(this->sock_descriptor, (sockaddr *)&addr, sizeof(addr));
-    }
-
-    return 0;
-}
-
-int Socket::bindTo(const QString &ip_addr, unsigned int port) {
-    if (sock_type != SOCK_RAW) {
-        sockaddr_in addr {
-                .sin_family = AF_INET,
-                .sin_port = htons(port)
-        };
-        inet_aton(ip_addr.toLocal8Bit().data(), &addr.sin_addr);
-
-        return bind(this->sock_descriptor, (sockaddr *)&addr, sizeof(addr));
-    }
-
-    return 0;
-}
-
-
 int Socket::listenFor(int conn_num) {
 
     bool is_listen_type = this->sock_type == SOCK_STREAM || this->sock_type == SOCK_SEQPACKET;
@@ -112,16 +87,61 @@ int Socket::receiveMsg(msghdr &msg, int flags) {
 
 int Socket::connectTo(const QString &ip_addr, unsigned int port) {
 
-    sockaddr_in addr {
-            .sin_family = AF_INET,
-            .sin_port = htons(port)
-    };
-    inet_aton(ip_addr.toLocal8Bit().data(), &addr.sin_addr);
+    if (sock_domain == AF_INET) {
+        sockaddr_in addr {
+                .sin_family = AF_INET,
+                .sin_port = htons(port)
+        };
+        inet_aton(ip_addr.toLocal8Bit().data(), &addr.sin_addr);
 
-    return connect(this->sock_descriptor, (sockaddr *)&addr, sizeof(addr));
+        return connect(this->sock_descriptor, (sockaddr *)&addr, sizeof(addr));
+    } else if (sock_domain == AF_INET6) {
+
+        sockaddr_in6 addr6 {
+            .sin6_family = AF_INET6,
+            .sin6_port = htons(port)
+        };
+
+        if (ip_addr == "127.0.0.1") {
+            inet_pton(AF_INET6, "::1", &addr6.sin6_addr);
+        } else {
+            inet_pton(AF_INET6, ip_addr.toLocal8Bit().data(), &addr6.sin6_addr);
+        }
+        return connect(this->sock_descriptor, (sockaddr *)&addr6, sizeof(addr6));
+    }
+
+    return 0;
 }
 
 int Socket::sendData(const void *data, size_t data_size) {
     return send(this->sock_descriptor, data, data_size, 0);
+}
+
+int Socket::bindToAny(unsigned int port) {
+    if (sock_type != SOCK_RAW) {
+
+        if (sock_domain == AF_INET) {
+
+            sockaddr_in addr {
+                    .sin_family = AF_INET,
+                    .sin_port = htons(port),
+                    .sin_addr = {
+                            .s_addr = INADDR_ANY
+                    }
+            };
+            return bind(this->sock_descriptor, (sockaddr *)&addr, sizeof(addr));
+
+        } else if (sock_domain == AF_INET6) {
+            sockaddr_in6 addr6 {
+                .sin6_family = AF_INET6,
+                .sin6_port = htons(port),
+                .sin6_addr = IN6ADDR_ANY_INIT
+            };
+
+            return bind(this->sock_descriptor, (sockaddr *)&addr6, sizeof(addr6));
+        }
+    }
+
+    return 0;
 }
 

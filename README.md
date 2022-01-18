@@ -43,7 +43,7 @@ FreeBSD: tcp, udp, raw
   
 #### Аргументы
 
-* protocol - используемый протокол. ***tcp***, udp, sctp, udplite, mptcp
+* protocol - используемый протокол. ***tcp***, udp, sctp, udplite, tcp6, udp6, udplite6 (Для Linux так же доступны: mptcp, mptcp6, sctp6)
 * port - используемый порт для отправки/прослушки
 * packets-count - число отправляемых/принимаемых пакетов. Время расчитывается как среднее арифметическое.
 * address - ip-адрес, на который отправлять данные
