@@ -28,10 +28,8 @@ public:
     virtual std::vector<SocketInfo> getSockets(std::string protocol)=0;
 
     //TODO: Проверить hardware timestamps
-    //TODO: Добавить время при возвращении из recv/send
     //TODO: В FreeBSD значение Total огромное. Почему?
-    //TODO: Пропускать первый пакет. В протоколах без состояния происходит ожидание в recv, пока пользователь не
-    // запустит measure tx-timings
+    //TODO: Добавить поддерку отправки данных
     virtual std::optional<InSystemTimeInfo> recvTimestamp(
             const QString &protocol, unsigned int port, unsigned int packets_count);
 

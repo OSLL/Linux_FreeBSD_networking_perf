@@ -41,6 +41,11 @@ BaseDataSource::recvTimestamp(const QString &protocol, unsigned int port, unsign
 
     timespec before_recv_time {0, 0}, after_recv_time {0, 0};
 
+    // Ожидаем первый пакет. Для него не измеряем никаких времен. Без этого, в некоторых ситациях (использование udp)
+    // возможно, что программа будет ожидать запуска measure tx-timings, из-за первый пакет может вносить
+    // большие неточности.
+    sock.receiveMsg(msg, 0);
+
     for (int i=0; i<packets_count; i++) {
 
         clock_gettime(CLOCK_REALTIME, &before_recv_time);
@@ -84,7 +89,8 @@ BaseDataSource::sendTimestamp(const QString &protocol, const QString &addr, unsi
     before_send_time {0, 0},
     after_send_time {0, 0};
 
-    for (int i=0; i<packets_count; i++) {
+    // Отправляем +1 пакет, так как measure rx-timings пропускает первый пакет.
+    for (int i=0; i<packets_count+1; i++) {
 
         QThread::msleep(delay);
 
