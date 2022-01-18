@@ -24,5 +24,5 @@ void printProtocolStats(std::optional<QMap<QString, int>> o_protocol_stats);
 
 void printSoftnetData(std::optional<QVector<QVector<int>>> o_cpus_sd);
 
-void printCPUDistribution(std::optional<QVector<int>> o_cpus_dist);
+void printCPUDistribution(std::optional<QMap<int, int>> o_cpus_dist);
 #endif //LFNP_PRINTERS_H

@@ -186,6 +186,7 @@ std::optional<CpusSoftnetData> parseSoftnetDataFile(const QString &filename) {
     return cpus_sd;
 }
 
+#include <QDebug>
 std::optional<CpusSoftirqData> parseSoftirqFile(const QString &filename) {
     CpusSoftirqData cpus_sirq;
     QFile file(filename);
@@ -195,9 +196,13 @@ std::optional<CpusSoftirqData> parseSoftirqFile(const QString &filename) {
         return std::nullopt;
     }
 
-    // Пропускаем первую строку, там заголовок с номерами CPU
-    //TODO: А в заголовке могут быть пропуски индексов или что то подобное?
-    file.readLine();
+    QString header = file.readLine();
+    QStringList cpu_names = header.trimmed().split(' ', Qt::SkipEmptyParts);
+
+    QVector<int> cpu_nums;
+    for (auto &name: cpu_names) {
+        cpu_nums.push_back(name.remove(0, 3).toInt());
+    }
 
     do {
 
@@ -207,13 +212,14 @@ std::optional<CpusSoftirqData> parseSoftirqFile(const QString &filename) {
 
         QString vals = name_vals[1];
         QStringList s_sirq_count = vals.split(' ', Qt::SkipEmptyParts);
-        QVector <int> i_sirq_count;
 
-        for (const auto& s_val: s_sirq_count) {
-            i_sirq_count.push_back(s_val.toInt());
+        QMap<int, int> sirq_count;
+
+        for (int i=0; i<cpu_nums.size(); i++) {
+            sirq_count[cpu_nums[i]] = s_sirq_count[i].toInt();
         }
 
-        cpus_sirq[sirq_name] = i_sirq_count;
+        cpus_sirq[sirq_name] = sirq_count;
 
     } while (!file.atEnd());
 

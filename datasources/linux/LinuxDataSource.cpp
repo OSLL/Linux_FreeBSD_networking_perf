@@ -156,7 +156,7 @@ std::optional<CpusSoftnetData> LinuxDataSource::getSoftnetData() {
 }
 
 //TODO: различные источники данных (NET_TX в /proc/softirq, /proc/net/softnet_stat)
-std::optional<QVector<int>> LinuxDataSource::getCPUDistribution() {
+std::optional<QMap<int, int>> LinuxDataSource::getCPUDistribution() {
     auto o_softirqs_count = parseSoftirqFile("/proc/softirqs");
     if (!o_softirqs_count) return std::nullopt;
 

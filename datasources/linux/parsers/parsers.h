@@ -19,7 +19,7 @@
 typedef QMap<QString, QMap<QString, int>> ProtocolsStats;
 typedef std::vector<std::map<std::string, std::string>> SocketsList;
 typedef QVector<QVector<int>> CpusSoftnetData;
-typedef QMap<QString, QVector<int>> CpusSoftirqData;
+typedef QMap<QString, QMap<int, int>> CpusSoftirqData;
 
 std::optional<ProtocolsStats> parseProtocolsStatsFile(const QString& filename);
 std::optional<ProtocolsStats> parseProtocolsV6StatsFile(const QString& filename);

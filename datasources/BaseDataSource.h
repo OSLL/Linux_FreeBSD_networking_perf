@@ -43,7 +43,7 @@ public:
 
     //TODO: рассмотреть вариант возвращаемого значения QMap. Возможно, существуют вероятности, что процессоры идут
     // не подряд
-    virtual std::optional<QVector<int>> getCPUDistribution()=0;
+    virtual std::optional<QMap<int, int>> getCPUDistribution()=0;
 
     virtual void setRecvSockOpt(Socket &sock)=0;
     virtual void processRecvTimestamp(msghdr &msg,
