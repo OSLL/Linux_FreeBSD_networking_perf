@@ -52,13 +52,9 @@ public:
                                       unsigned int packets_count,
                                       const QString &protocol) override;
     void setSendSockOpt(Socket &sock, const QString &measure_type) override;
-    void processSendTimestamp(Socket &sock,
-                                      msghdr &msg,
-                                      InSystemTimeInfo &res,
-                                      timespec &before_send_time,
-                                      unsigned int packets_count,
-                                      const QString &protocol,
-                                      timespec &prev) override;
+    void
+    processSendTimestamp(Socket &sock, InSystemTimeInfo &res, timespec &before_send_time, unsigned int packets_count,
+                         const QString &protocol, timespec &prev) override;
 };
 
 

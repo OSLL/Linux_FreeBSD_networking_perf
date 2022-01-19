@@ -39,10 +39,12 @@ public:
             unsigned int port,
             unsigned int packets_count,
             const QString& measure_type,
-            unsigned int delay);
+            unsigned int delay,
 
-    //TODO: рассмотреть вариант возвращаемого значения QMap. Возможно, существуют вероятности, что процессоры идут
-    // не подряд
+            const QString &data_filename,
+            unsigned int data_size,
+            bool zero_copy);
+
     virtual std::optional<QMap<int, int>> getCPUDistribution()=0;
 
     virtual void setRecvSockOpt(Socket &sock)=0;
@@ -52,13 +54,9 @@ public:
             unsigned int packets_count,
             const QString &protocol)=0;
     virtual void setSendSockOpt(Socket &sock, const QString &measure_type)=0;
-    virtual void processSendTimestamp(Socket &sock,
-            msghdr &msg,
-            InSystemTimeInfo &res,
-            timespec &before_send_time,
-            unsigned int packets_count,
-            const QString &protocol,
-            timespec &prev)=0;
+    virtual void
+    processSendTimestamp(Socket &sock, InSystemTimeInfo &res, timespec &before_send_time, unsigned int packets_count,
+                         const QString &protocol, timespec &prev) =0;
 };
 
 

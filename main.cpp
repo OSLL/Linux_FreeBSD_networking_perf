@@ -43,7 +43,10 @@ int main(int argc, char *argv[]) {
                         {{"a", "address"}, "Send packets to specified address.","address", "127.0.0.1"},
                         {"measure-type", R"(Type of measure: "software" or "scheduler")","measure-type", "software"},
                         {"delay", "Delay between sending timestamps, ms","delay", "0"},
-                        {"ns", "Output in nanoseconds"}
+                        {"ns", "Output in nanoseconds"},
+                        {"data", "File, from which taken data to send", "data", "/dev/urandom"},
+                        {"data-size", "Count of bytes to send. If no specified, send all file", "data-size", "0"},
+                        {"zero-copy", "If specified, use sendfile call"}
                 });
 
         parser.process(args);
@@ -55,6 +58,13 @@ int main(int argc, char *argv[]) {
         auto measure_type = parser.value("measure-type");
         auto in_ms = !parser.isSet("ns");
         auto delay = parser.value("delay").toUInt();
+        auto data_filename = parser.value("data");
+        auto data_size = parser.value("data-size").toUInt();
+        auto zero_copy = parser.isSet("zero-copy");
+
+        if (data_filename == "/dev/urandom" && !data_size) {
+            data_size = 1000;
+        }
 
         if (argc > 2 && args[2] == "rx-timings") {
 
@@ -63,7 +73,8 @@ int main(int argc, char *argv[]) {
 
         } else if (argc > 2 && std::string(argv[2]) == "tx-timings") {
 
-            auto o_tx_time = ds->sendTimestamp(protocol, addr, port, packets_count, measure_type, delay);
+            auto o_tx_time = ds->sendTimestamp(protocol, addr, port, packets_count, measure_type, delay,
+                    data_filename, data_size, zero_copy);
             printInSystemTimeInfo(o_tx_time, in_ms);
 
         }

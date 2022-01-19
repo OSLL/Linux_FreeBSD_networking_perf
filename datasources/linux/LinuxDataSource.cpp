@@ -203,7 +203,8 @@ void LinuxDataSource::setSendSockOpt(Socket &sock, const QString &measure_type) 
     unsigned int val = SOF_TIMESTAMPING_TX_SOFTWARE |
                        SOF_TIMESTAMPING_TX_HARDWARE |
                        SOF_TIMESTAMPING_SOFTWARE |
-                       SOF_TIMESTAMPING_RAW_HARDWARE;
+                       SOF_TIMESTAMPING_RAW_HARDWARE |
+                       SOF_TIMESTAMPING_OPT_ID;
 
     if (measure_type == "scheduler") {
         val |= SOF_TIMESTAMPING_TX_SCHED;
@@ -214,33 +215,41 @@ void LinuxDataSource::setSendSockOpt(Socket &sock, const QString &measure_type) 
     sock.setOpt(SOL_SOCKET, SO_TIMESTAMPING, &val, sizeof(val));
 }
 
-void LinuxDataSource::processSendTimestamp(Socket &sock, msghdr &msg, InSystemTimeInfo &res,
+void LinuxDataSource::processSendTimestamp(Socket &sock, InSystemTimeInfo &res,
         timespec &before_send_time, unsigned int packets_count, const QString &protocol, timespec &prev) {
 
+    std::cout << packets_count << std::endl;
     if (!(protocol == "tcp" || protocol == "udp")) return;
 
     // Иногда возвращается значение из прошлой итерации, из-за этого получается, что user-time (время, когда
     // отправили из user-space) больше чем software-time (время, когда покинуло ядро) -> переполнение при вычитании
-    // Для исправление используется do-while, который получает новое значение до тех пор, пока оно равно предыдущему
+    // Для исправление используется while, который получает новое значение до тех пор, пока оно есть
 
-    scm_timestamping *tmst;
-    bool is_prev_equal = false;
+    char control[1000];
+    msghdr msg {
+            .msg_name = nullptr,
+            .msg_namelen = 0,
+            .msg_iov = nullptr,
+            .msg_iovlen = 0,
+            .msg_control = &control,
+            .msg_controllen = sizeof(control)
+    };
 
-    do {
-        sock.receiveMsg(msg, MSG_ERRQUEUE);
-        for (cmsghdr *cmsg = CMSG_FIRSTHDR(&msg); cmsg; cmsg = CMSG_NXTHDR(&msg, cmsg)) {
-            if (cmsg->cmsg_level == SOL_SOCKET && cmsg->cmsg_type == SCM_TIMESTAMPING) {
+    scm_timestamping *tmst = nullptr;
 
-                tmst = (scm_timestamping *) &CMSG_DATA(cmsg);
-                is_prev_equal = is_timespec_equal(prev, tmst->ts[0]);
-
-                if (!is_prev_equal) {
-                    timespec_avg_add(res.software_time, before_send_time, tmst->ts[0], packets_count);
-                    timespec_avg_add(res.hardware_time, before_send_time, tmst->ts[2], packets_count);
-                    prev = tmst->ts[0];
-                }
-            }
+    while (sock.receiveMsg(msg, MSG_ERRQUEUE)) {};
+    for (cmsghdr *cmsg = CMSG_FIRSTHDR(&msg); cmsg; cmsg = CMSG_NXTHDR(&msg, cmsg)) {
+        if (cmsg->cmsg_level == SOL_SOCKET && cmsg->cmsg_type == SCM_TIMESTAMPING) {
+            tmst = (scm_timestamping *) &CMSG_DATA(cmsg);
+            std::cout << "HERE" << std::endl;
         }
-    } while (is_prev_equal);
+    }
+
+
+    std::cout << "SFT: " << tmst->ts[0].tv_sec << " " << tmst->ts[0].tv_nsec << std::endl;
+    auto diff = timespecsub(tmst->ts[0], before_send_time);
+    std::cout << "DIF: " << diff.tv_sec << " " << diff.tv_nsec << std::endl;
+    timespec_avg_add(res.software_time, before_send_time, tmst->ts[0], packets_count);
+    timespec_avg_add(res.hardware_time, before_send_time, tmst->ts[2], packets_count);
 
 }

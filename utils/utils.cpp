@@ -51,3 +51,12 @@ void timespec_avg_add(timespec &res, timespec &from, timespec &to, unsigned int 
 bool is_timespec_equal(timespec &tsc1, timespec &tsc2) {
     return tsc1.tv_nsec == tsc2.tv_nsec && tsc1.tv_sec == tsc2.tv_sec;
 }
+
+int timespeccmp(timespec &ts1, timespec &ts2) {
+    if (ts1.tv_sec == ts2.tv_sec) {
+        return ts1.tv_nsec - ts2.tv_nsec;
+    } else {
+        return ts1.tv_sec - ts2.tv_sec;
+    }
+
+}

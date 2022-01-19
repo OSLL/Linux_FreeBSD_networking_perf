@@ -78,9 +78,17 @@ int Socket::listenFor(int conn_num) {
     return 0;
 }
 
-int Socket::receiveMsg(msghdr &msg, int flags) {
+std::optional<SocketOpTimestamps> Socket::receiveMsg(msghdr &msg, int flags) {
 
-    int res = recvmsg(recv_sock_descriptor, &msg, flags);
+
+    SocketOpTimestamps res;
+    clock_gettime(CLOCK_REALTIME, &res.before_op_time);
+    int err = recvmsg(recv_sock_descriptor, &msg, flags);
+    clock_gettime(CLOCK_REALTIME, &res.after_op_time);
+
+    if (err < 0) {
+        return std::nullopt;
+    }
 
     return res;
 }
@@ -113,8 +121,19 @@ int Socket::connectTo(const QString &ip_addr, unsigned int port) {
     return 0;
 }
 
-int Socket::sendData(const void *data, size_t data_size) {
-    return send(this->sock_descriptor, data, data_size, 0);
+std::optional<SocketOpTimestamps> Socket::sendData(const void *data, size_t data_size) {
+    SocketOpTimestamps res;
+    int err;
+
+    clock_gettime(CLOCK_REALTIME, &res.before_op_time);
+    err = send(sock_descriptor, data, data_size, 0);
+    clock_gettime(CLOCK_REALTIME, &res.after_op_time);
+
+    if (err < 0) {
+        return std::nullopt;
+    }
+
+    return res;
 }
 
 int Socket::bindToAny(unsigned int port) {
@@ -145,3 +164,19 @@ int Socket::bindToAny(unsigned int port) {
     return 0;
 }
 
+std::optional<SocketOpTimestamps> Socket::sendFile(int file_descriptor, size_t data_size) {
+
+    SocketOpTimestamps res;
+    int err;
+
+    clock_gettime(CLOCK_REALTIME, &res.before_op_time);
+    err = sendfile(file_descriptor, sock_descriptor, nullptr, data_size);
+    clock_gettime(CLOCK_REALTIME, &res.after_op_time);
+
+    if (err < 0) {
+        return std::nullopt;
+    }
+
+    return res;
+
+}

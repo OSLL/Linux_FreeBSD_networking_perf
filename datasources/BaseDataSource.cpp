@@ -23,9 +23,13 @@ BaseDataSource::recvTimestamp(const QString &protocol, unsigned int port, unsign
     char control[1000];
     timespec send_time {0, 0};
 
+    unsigned int data_size;
+    sock.receiveData(&data_size);
+
+    char data[data_size];
     iovec iov {
-            .iov_base = &send_time,
-            .iov_len = sizeof(timespec)
+            .iov_base = data,
+            .iov_len = data_size
     };
 
     msghdr msg{
@@ -39,23 +43,20 @@ BaseDataSource::recvTimestamp(const QString &protocol, unsigned int port, unsign
 
     InSystemTimeInfo res;
 
-    timespec before_recv_time {0, 0}, after_recv_time {0, 0};
-
-    // Ожидаем первый пакет. Для него не измеряем никаких времен. Без этого, в некоторых ситациях (использование udp)
-    // возможно, что программа будет ожидать запуска measure tx-timings, из-за первый пакет может вносить
-    // большие неточности.
-    sock.receiveMsg(msg, 0);
-
     for (int i=0; i<packets_count; i++) {
 
-        clock_gettime(CLOCK_REALTIME, &before_recv_time);
-        sock.receiveMsg(msg, 0);
-        clock_gettime(CLOCK_REALTIME, &after_recv_time);
+        auto o_timestamps = sock.receiveMsg(msg, 0);
+        if (!o_timestamps) {
+            std::cout << "Error in receive message" << std::endl;
+            return std::nullopt;
+        }
 
-        this->processRecvTimestamp(msg, res, after_recv_time, packets_count, protocol);
+        this->processRecvTimestamp(msg, res, o_timestamps->after_op_time, packets_count, protocol);
 
-        timespec_avg_add(res.in_call_time, before_recv_time, after_recv_time, packets_count);
-        timespec_avg_add(res.total_time, send_time, after_recv_time, packets_count);
+        sock.receiveData(&send_time);
+
+        timespec_avg_add(res.in_call_time, o_timestamps->before_op_time, o_timestamps->after_op_time, packets_count);
+        timespec_avg_add(res.total_time, send_time, o_timestamps->after_op_time, packets_count);
     }
 
     return res;
@@ -63,7 +64,19 @@ BaseDataSource::recvTimestamp(const QString &protocol, unsigned int port, unsign
 
 std::optional<InSystemTimeInfo>
 BaseDataSource::sendTimestamp(const QString &protocol, const QString &addr, unsigned int port,
-                              unsigned int packets_count, const QString &measure_type, unsigned int delay) {
+                              unsigned int packets_count, const QString &measure_type, unsigned int delay,
+                              const QString &data_filename, unsigned int data_size, bool zero_copy) {
+
+    QFile file(data_filename);
+
+    if (!file.open(QIODevice::ReadOnly)) {
+        std::cout << "Can't open " << data_filename.toStdString() << std::endl;
+        return std::nullopt;
+    }
+
+    if (!data_size) {
+        data_size = file.size();
+    }
 
     Socket sock(protocol);
     this->setSendSockOpt(sock, measure_type);
@@ -73,38 +86,32 @@ BaseDataSource::sendTimestamp(const QString &protocol, const QString &addr, unsi
         return std::nullopt;
     }
 
-    char control[1000];
-    msghdr msg{
-            .msg_name = nullptr,
-            .msg_namelen = 0,
-            .msg_iov = nullptr,
-            .msg_iovlen = 0,
-            .msg_control = &control,
-            .msg_controllen = sizeof(control)
-    };
-
     InSystemTimeInfo res;
+    timespec prev {0, 0};
 
-    timespec prev {0, 0},
-    before_send_time {0, 0},
-    after_send_time {0, 0};
+    sock.sendData(&data_size);
 
-    // Отправляем +1 пакет, так как measure rx-timings пропускает первый пакет.
-    for (int i=0; i<packets_count+1; i++) {
+    for (int i=0; i<packets_count; i++) {
 
         QThread::msleep(delay);
 
-        clock_gettime(CLOCK_REALTIME, &before_send_time);
-        auto err = sock.sendData(&before_send_time, sizeof(timespec));
-        clock_gettime(CLOCK_REALTIME, &after_send_time);
-
-        if (err < 0) {
-            std::cout << "Send error" << std::endl;
+        std::optional<SocketOpTimestamps> o_timestamps;
+        if (zero_copy) {
+            o_timestamps = sock.sendFile(file.handle(), data_size);
+        } else {
+            o_timestamps = sock.sendData(file.read(data_size).data(), data_size);
+        }
+        if (!o_timestamps) {
+            std::cout << "Error in send data" << std::endl;
             return std::nullopt;
-        };
+        }
 
-        this->processSendTimestamp(sock, msg, res, before_send_time, packets_count, protocol, prev);
-        timespec_avg_add(res.in_call_time, before_send_time, after_send_time, packets_count);
+        std::cout << "BFT: " << o_timestamps->before_op_time.tv_sec << " " << o_timestamps->before_op_time.tv_nsec << std::endl;
+        this->processSendTimestamp(sock, res, o_timestamps->before_op_time, packets_count, protocol, prev);
+        std::cout << "AFT: " << o_timestamps->after_op_time.tv_sec << " " << o_timestamps->after_op_time.tv_nsec << std::endl << std::endl;
+        sock.sendData(&o_timestamps->before_op_time, sizeof(timespec));
+
+        timespec_avg_add(res.in_call_time, o_timestamps->before_op_time, o_timestamps->after_op_time, packets_count);
     }
 
     return res;

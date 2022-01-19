@@ -7,12 +7,15 @@
 
 #include <QString>
 #include <QMap>
+#include <QFile>
 
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <unistd.h>
+#include <sys/sendfile.h>
 
 #include <iostream>
+#include <optional>
 
 #ifdef __linux__
 #include <libnet.h>
@@ -20,6 +23,11 @@
 #else
 #include <arpa/inet.h>
 #endif
+
+struct SocketOpTimestamps {
+    timespec before_op_time;
+    timespec after_op_time;
+};
 
 class Socket {
 
@@ -47,11 +55,17 @@ public:
     int bindToAny(unsigned int port);
 
     int listenFor(int conn_num);
-    int receiveMsg(msghdr &msg, int flags = 0);
+
+    template <typename T>
+    int receiveData(T *data) { return recv(recv_sock_descriptor, data, sizeof(T), 0); }
+    std::optional<SocketOpTimestamps> receiveMsg(msghdr &msg, int flags = 0);
 
     int connectTo(const QString &ip_addr, unsigned int port);
 
-    int sendData(const void *data, size_t data_size);
+    template <typename T>
+    std::optional<SocketOpTimestamps> sendData(T* data) { return sendData(data, sizeof(T)); }
+    std::optional<SocketOpTimestamps> sendData(const void *data, size_t data_size);
+    std::optional<SocketOpTimestamps> sendFile(int file_descriptor, size_t data_size);
 };
 
 #endif //LFNP_SOCKETS_H
