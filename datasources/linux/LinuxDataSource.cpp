@@ -200,11 +200,17 @@ void LinuxDataSource::processRecvTimestamp(msghdr &msg, InSystemTimeInfo &res, t
 
 void LinuxDataSource::setSendSockOpt(Socket &sock, const QString &measure_type) {
 
-    unsigned int val = SOF_TIMESTAMPING_TX_SOFTWARE | SOF_TIMESTAMPING_SOFTWARE;
+    unsigned int val;
 
     if (measure_type == "scheduler") {
-        val |= SOF_TIMESTAMPING_TX_SCHED;
-    } else if (measure_type != "software"){
+        val = SOF_TIMESTAMPING_TX_SCHED | SOF_TIMESTAMPING_SOFTWARE;
+    } else if (measure_type == "software") {
+        val = SOF_TIMESTAMPING_TX_SOFTWARE | SOF_TIMESTAMPING_SOFTWARE;
+    } else if (measure_type == "hardware") {
+        val = SOF_TIMESTAMPING_TX_HARDWARE | SOF_TIMESTAMPING_RAW_HARDWARE;
+    } else if (measure_type == "ack") {
+        val = SOF_TIMESTAMPING_TX_ACK | SOF_TIMESTAMPING_SOFTWARE;
+    } else {
         std::cout << "Unknown measure type, used software" << std::endl;
     }
 
@@ -245,8 +251,12 @@ bool LinuxDataSource::processSendTimestamp(Socket &sock, InSystemTimeInfo &res,
             if (cmsg->cmsg_level == SOL_SOCKET && cmsg->cmsg_type == SCM_TIMESTAMPING) {
                 tmst = (scm_timestamping *) &CMSG_DATA(cmsg);
 
-                is_valid_timestamp = timespeccmp(tmst->ts[0], timestamps.before_op_time) > 0 &&
-                        timespeccmp(tmst->ts[0], timestamps.after_op_time) < 0;
+                int check_index = 0; // Software timestamps
+                if (is_timespec_empty(tmst->ts[0])) {
+                    check_index = 2; // Hardware timestamps
+                }
+                is_valid_timestamp = timespeccmp(tmst->ts[check_index], timestamps.before_op_time) > 0 &&
+                        timespeccmp(tmst->ts[check_index], timestamps.after_op_time) < 0;
             }
         }
     }

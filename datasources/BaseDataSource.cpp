@@ -109,16 +109,22 @@ BaseDataSource::sendTimestamp(const QString &protocol, const QString &addr, unsi
         sock.sendData(&o_timestamps->before_op_time, sizeof(timespec));
 
         if (is_timestamp_exist) {
-            timespec_avg_add(res.in_call_time, o_timestamps->before_op_time, o_timestamps->after_op_time, packets_count);
             packets_with_timestamps++;
         }
+        timespec_avg_add(res.in_call_time, o_timestamps->before_op_time, o_timestamps->after_op_time, packets_count);
     }
 
-    double bad_packets_mul = (double)packets_count/packets_with_timestamps;
-    res.hardware_time.tv_nsec *=  bad_packets_mul;
-    res.software_time.tv_nsec *=  bad_packets_mul;
-    res.in_call_time.tv_nsec *=  bad_packets_mul;
-    res.total_time.tv_nsec *=  bad_packets_mul;
+    if (packets_with_timestamps) {
+        double bad_packets_mul = (double)packets_count/packets_with_timestamps;
+        res.hardware_time.tv_nsec *=  bad_packets_mul;
+        res.software_time.tv_nsec *=  bad_packets_mul;
+    } else {
+        // Теоретически, может случится такое, что ни оин пакет не получит timestamp. Что бы не делить на ноль,
+        // вернем нули
+
+        res.hardware_time = {0, 0};
+        res.software_time = {0, 0};
+    }
 
     return res;
 }
