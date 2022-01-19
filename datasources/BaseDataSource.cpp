@@ -87,8 +87,6 @@ BaseDataSource::sendTimestamp(const QString &protocol, const QString &addr, unsi
     }
 
     InSystemTimeInfo res;
-    timespec prev {0, 0};
-
     sock.sendData(&data_size);
 
     int packets_with_timestamps = 0;
@@ -107,7 +105,7 @@ BaseDataSource::sendTimestamp(const QString &protocol, const QString &addr, unsi
             return std::nullopt;
         }
 
-        bool is_timestamp_exist = this->processSendTimestamp(sock, res, o_timestamps.value(), packets_count, protocol, prev);
+        bool is_timestamp_exist = this->processSendTimestamp(sock, res, o_timestamps.value(), packets_count, protocol);
         sock.sendData(&o_timestamps->before_op_time, sizeof(timespec));
 
         if (is_timestamp_exist) {

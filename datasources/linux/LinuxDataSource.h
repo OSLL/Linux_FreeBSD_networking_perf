@@ -54,7 +54,7 @@ public:
     void setSendSockOpt(Socket &sock, const QString &measure_type) override;
     bool
     processSendTimestamp(Socket &sock, InSystemTimeInfo &res, SocketOpTimestamps &timestamps, unsigned int packets_count,
-                         const QString &protocol, timespec &prev) override;
+                         const QString &protocol) override;
 };
 
 

@@ -159,9 +159,9 @@ void FreeBSDDataSource::setSendSockOpt(Socket &sock, const QString &measure_type
     return;
 }
 
-void
-FreeBSDDataSource::processSendTimestamp(Socket &sock, msghdr &msg, InSystemTimeInfo &res, timespec &before_send_time,
-                                        unsigned int packets_count, const QString &protocol, timespec &prev) {
+bool
+FreeBSDDataSource::processSendTimestamp(Socket &sock, InSystemTimeInfo &res, SocketOpTimestamps &timestamps, unsigned int packets_count,
+                     const QString &protocol) {
     // Во FreeBSD не реализована получение timestamp'ов при получении
-    return;
+    return true;
 }

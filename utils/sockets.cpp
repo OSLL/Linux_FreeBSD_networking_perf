@@ -170,7 +170,11 @@ std::optional<SocketOpTimestamps> Socket::sendFile(int file_descriptor, size_t d
     int err;
 
     clock_gettime(CLOCK_REALTIME, &res.before_op_time);
+#ifdef __linux__
     err = sendfile(file_descriptor, sock_descriptor, nullptr, data_size);
+#else
+    err = sendfile(file_descriptor, sock_descriptor, 0, data_size, nullptr, nullptr, 0);
+#endif
     clock_gettime(CLOCK_REALTIME, &res.after_op_time);
 
     if (err < 0) {

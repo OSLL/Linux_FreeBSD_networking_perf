@@ -10,9 +10,10 @@
 #include <QFile>
 
 #include <sys/socket.h>
+#include <sys/types.h>
 #include <netinet/in.h>
 #include <unistd.h>
-#include <sys/sendfile.h>
+#include <sys/uio.h>
 
 #include <iostream>
 #include <optional>
@@ -20,8 +21,10 @@
 #ifdef __linux__
 #include <libnet.h>
 #include <linux/net_tstamp.h>
+#include <sys/sendfile.h>
 #else
 #include <arpa/inet.h>
+#include <sys/types.h>
 #endif
 
 struct SocketOpTimestamps {

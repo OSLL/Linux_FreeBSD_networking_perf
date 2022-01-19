@@ -212,7 +212,7 @@ void LinuxDataSource::setSendSockOpt(Socket &sock, const QString &measure_type) 
 }
 
 bool LinuxDataSource::processSendTimestamp(Socket &sock, InSystemTimeInfo &res,
-        SocketOpTimestamps &timestamps, unsigned int packets_count, const QString &protocol, timespec &prev) {
+        SocketOpTimestamps &timestamps, unsigned int packets_count, const QString &protocol) {
 
     if (!(protocol == "tcp" || protocol == "udp")) return true;
 
