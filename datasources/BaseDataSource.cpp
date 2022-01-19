@@ -91,6 +91,7 @@ BaseDataSource::sendTimestamp(const QString &protocol, const QString &addr, unsi
 
     sock.sendData(&data_size);
 
+    int packets_with_timestamps = 0;
     for (int i=0; i<packets_count; i++) {
 
         QThread::msleep(delay);
@@ -106,13 +107,20 @@ BaseDataSource::sendTimestamp(const QString &protocol, const QString &addr, unsi
             return std::nullopt;
         }
 
-        std::cout << "BFT: " << o_timestamps->before_op_time.tv_sec << " " << o_timestamps->before_op_time.tv_nsec << std::endl;
-        this->processSendTimestamp(sock, res, o_timestamps->before_op_time, packets_count, protocol, prev);
-        std::cout << "AFT: " << o_timestamps->after_op_time.tv_sec << " " << o_timestamps->after_op_time.tv_nsec << std::endl << std::endl;
+        bool is_timestamp_exist = this->processSendTimestamp(sock, res, o_timestamps.value(), packets_count, protocol, prev);
         sock.sendData(&o_timestamps->before_op_time, sizeof(timespec));
 
-        timespec_avg_add(res.in_call_time, o_timestamps->before_op_time, o_timestamps->after_op_time, packets_count);
+        if (is_timestamp_exist) {
+            timespec_avg_add(res.in_call_time, o_timestamps->before_op_time, o_timestamps->after_op_time, packets_count);
+            packets_with_timestamps++;
+        }
     }
+
+    double bad_packets_mul = (double)packets_count/packets_with_timestamps;
+    res.hardware_time.tv_nsec *=  bad_packets_mul;
+    res.software_time.tv_nsec *=  bad_packets_mul;
+    res.in_call_time.tv_nsec *=  bad_packets_mul;
+    res.total_time.tv_nsec *=  bad_packets_mul;
 
     return res;
 }

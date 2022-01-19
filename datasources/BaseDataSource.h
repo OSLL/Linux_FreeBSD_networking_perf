@@ -54,8 +54,8 @@ public:
             unsigned int packets_count,
             const QString &protocol)=0;
     virtual void setSendSockOpt(Socket &sock, const QString &measure_type)=0;
-    virtual void
-    processSendTimestamp(Socket &sock, InSystemTimeInfo &res, timespec &before_send_time, unsigned int packets_count,
+    virtual bool
+    processSendTimestamp(Socket &sock, InSystemTimeInfo &res, SocketOpTimestamps &timestamps, unsigned int packets_count,
                          const QString &protocol, timespec &prev) =0;
 };
 
