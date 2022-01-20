@@ -11,8 +11,8 @@
 #include <QtCore/QJsonArray>
 #include <QtCore/QJsonObject>
 
-#include "../types/SocketInfo.h"
-#include "../types/InSystemTimeInfo.h"
+#include "../../types/SocketInfo.h"
+#include "../../types/InSystemTimeInfo.h"
 
 void printSocketsInfoList(const std::vector<SocketInfo>& sockets_info_list);
 
