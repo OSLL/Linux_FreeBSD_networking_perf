@@ -119,7 +119,7 @@ BaseDataSource::sendTimestamp(const QString &protocol, const QString &addr, unsi
         res.hardware_time.tv_nsec *=  bad_packets_mul;
         res.software_time.tv_nsec *=  bad_packets_mul;
     } else {
-        // Теоретически, может случится такое, что ни оин пакет не получит timestamp. Что бы не делить на ноль,
+        // Теоретически, может случится такое, что ни один пакет не получит timestamp. Что бы не делить на ноль,
         // вернем нули
 
         res.hardware_time = {0, 0};
