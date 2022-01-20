@@ -3,6 +3,12 @@
 
 #include <QMainWindow>
 
+#ifdef __linux__
+#include "../../datasources/linux/LinuxDataSource.h"
+#else
+#include "../../datasources/freebsd/FreeBSDDataSource.h"
+#endif
+
 namespace Ui {
 class MainWindow;
 }
@@ -20,6 +26,8 @@ protected:
 
 private:
     Ui::MainWindow *ui;
+    QTabWidget *tabWidget;
+    BaseDataSource *data_source;
 };
 
 #endif // MAINWINDOW_H
