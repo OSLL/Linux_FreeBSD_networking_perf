@@ -2,6 +2,7 @@
 // Created by shenk on 17.12.2021.
 //
 
+#include <QDir>
 #include "LinuxDataSource.h"
 
 std::map<std::string, std::string> LinuxDataSource::protocol_sockets_files  = {
@@ -265,4 +266,30 @@ bool LinuxDataSource::processSendTimestamp(Socket &sock, InSystemTimeInfo &res,
     timespec_avg_add(res.hardware_time, timestamps.before_op_time, tmst->ts[2], packets_count);
 
     return true;
+}
+
+std::optional<QMap<QString, DeviceDropsInfo>> LinuxDataSource::getDevsDropsInfo() {
+
+    QMap<QString, DeviceDropsInfo> drops_info;
+    QDir dir("/sys/class/net");
+
+    if (!dir.exists()) {
+        std::cout << "No /sys/class/net folder" << std::endl;
+        return std::nullopt;
+    }
+
+    for (const auto &entry: dir.entryList(QDir::NoDotAndDotDot | QDir::AllDirs)) {
+
+        auto rx_drops = get_int_from_file("/sys/class/net/" + entry + "/statistics/rx_dropped");
+        auto tx_drops = get_int_from_file("/sys/class/net/" + entry + "/statistics/tx_dropped");
+
+        if (rx_drops && tx_drops) {
+            drops_info[entry] = {
+                    .rx_drops = *rx_drops,
+                    .tx_drops = *tx_drops
+            };
+        }
+    }
+
+    return drops_info;
 }

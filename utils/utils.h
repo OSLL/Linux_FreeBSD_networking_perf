@@ -8,6 +8,8 @@
 #include <vector>
 #include <string>
 #include <sstream>
+#include <optional>
+#include <QString>
 
 std::vector<std::string> split(const std::string &s, char delim);
 
@@ -26,5 +28,7 @@ bool is_timespec_empty(timespec &tsp);
 void timespec_avg_add(timespec &res, timespec &from, timespec &to, unsigned int total_count);
 
 bool is_timespec_equal(timespec &tsc1, timespec &tsc2);
+
+std::optional<quint64> get_int_from_file(const QString &filename);
 
 #endif //LFNP_UTILS_H

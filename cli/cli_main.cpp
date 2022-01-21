@@ -72,8 +72,10 @@ int cli_main(int argc, char *argv[]) {
         printIperf3Data(parseIperf3Output(args[2]));
     } else if (argc > 2 && args[1] == "stats") {
         printProtocolStats(ds->getProtocolStats(args[2]));
-    } else if (argc >1 && args[1] == "get-cpu-distribution") {
+    } else if (argc > 1 && args[1] == "get-cpu-distribution") {
         printCPUDistribution(ds->getCPUDistribution());
+    } else if (argc > 1 && args[1] == "get-drops-info") {
+        qDebug() << ds->getDevsDropsInfo().value().keys();
     }
 
     return 0;

@@ -16,6 +16,7 @@
 
 #include "../utils/sockets.h"
 #include "../utils/utils.h"
+#include "../types/DeviceDropsInfo.h"
 
 
 class BaseDataSource {
@@ -29,7 +30,6 @@ public:
 
     //TODO: Проверить hardware timestamps
     //TODO: В FreeBSD значение Total огромное. Почему?
-    //TODO: Добавить поддерку отправки данных
     virtual std::optional<InSystemTimeInfo> recvTimestamp(
             const QString &protocol, unsigned int port, unsigned int packets_count);
 
@@ -46,6 +46,7 @@ public:
             bool zero_copy);
 
     virtual std::optional<QMap<int, int>> getCPUDistribution()=0;
+    virtual std::optional<QMap<QString, DeviceDropsInfo>> getDevsDropsInfo()=0;
 
     virtual void setRecvSockOpt(Socket &sock)=0;
     virtual void processRecvTimestamp(msghdr &msg,

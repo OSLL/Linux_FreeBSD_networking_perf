@@ -5,8 +5,8 @@
 #include <QtCharts>
 
 #include "../../datasources/BaseDataSource.h"
-#include "../../utils/TimeSeries.h"
-#include "../../utils/DynamicAxisChart.h"
+#include "../../types/TimeSeries.h"
+#include "../../types/DynamicAxisChart.h"
 
 namespace Ui {
 class CPUDistributionWidget;

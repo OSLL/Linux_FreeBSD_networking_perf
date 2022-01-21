@@ -2,6 +2,8 @@
 // Created by shenk on 18.12.2021.
 //
 
+#include <QFile>
+#include <iostream>
 #include "utils.h"
 
 std::vector<std::string> split(const std::string &s, char delim) {
@@ -59,4 +61,15 @@ int timespeccmp(timespec &ts1, timespec &ts2) {
         return ts1.tv_sec - ts2.tv_sec;
     }
 
+}
+
+std::optional<quint64> get_int_from_file(const QString &filename) {
+
+    QFile file(filename);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        std::cout << "Can't open " << filename.toStdString() << std::endl;
+        return std::nullopt;
+    }
+
+    return file.readLine().toUInt();
 }
