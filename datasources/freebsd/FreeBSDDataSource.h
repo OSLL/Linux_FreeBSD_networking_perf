@@ -32,10 +32,14 @@
 #include "../../utils/utils.h"
 
 #include <sys/sysctl.h>
+#include <net/if.h>
+#include <ifaddrs.h>
 
 #include <iostream>
 #include <map>
+
 #include <QThread>
+#include <QRegularExpression>
 
 #include "../BaseDataSource.h"
 
@@ -54,6 +58,8 @@ public:
     std::vector<SocketInfo> getSockets(std::string protocol) override;
 
     std::optional<QMap<int, int>> getCPUDistribution() override;
+
+    std::optional<QMap<QString, DeviceDropsInfo>> getDevsDropsInfo() override;
 
     void setRecvSockOpt(Socket &sock) override;
     void processRecvTimestamp(msghdr &msg,

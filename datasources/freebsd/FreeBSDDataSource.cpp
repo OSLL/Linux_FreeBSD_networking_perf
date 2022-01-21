@@ -165,3 +165,40 @@ FreeBSDDataSource::processSendTimestamp(Socket &sock, InSystemTimeInfo &res, Soc
     // Во FreeBSD не реализована получение timestamp'ов при получении
     return true;
 }
+
+std::optional<QMap<QString, DeviceDropsInfo>> FreeBSDDataSource::getDevsDropsInfo() {
+
+    QMap<QString, DeviceDropsInfo> drops_info;
+
+    ifaddrs *ifs;
+    QSet<QString> interfaces;
+
+    if (getifaddrs(&ifs) != 0) {
+        std::cout << "Can't get interfaces info" << std::endl;
+        return std::nullopt;
+    }
+
+    auto ifa = ifs;
+    while (ifa) {
+
+        if_data *data = (if_data *)ifa->ifa_data;
+        QString if_name = ifa->ifa_name;
+        if (data) {
+            if (drops_info.contains(if_name)) {
+                drops_info[if_name].rx_drops += data->ifi_iqdrops;
+                drops_info[if_name].tx_drops += data->ifi_oqdrops;
+            } else {
+                drops_info[if_name] = {
+                        .rx_drops = data->ifi_iqdrops,
+                        .tx_drops = data->ifi_iqdrops
+                };
+            }
+        }
+
+        ifa = ifa->ifa_next;
+    }
+
+    freeifaddrs(ifs);
+
+    return drops_info;
+}
