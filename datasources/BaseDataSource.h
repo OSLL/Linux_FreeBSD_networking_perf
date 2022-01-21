@@ -16,7 +16,7 @@
 
 #include "../utils/sockets.h"
 #include "../utils/utils.h"
-#include "../types/DeviceDropsInfo.h"
+#include "../types/DropsInfo.h"
 
 
 class BaseDataSource {
@@ -46,7 +46,8 @@ public:
             bool zero_copy);
 
     virtual std::optional<QMap<int, int>> getCPUDistribution()=0;
-    virtual std::optional<QMap<QString, DeviceDropsInfo>> getDevsDropsInfo()=0;
+    virtual std::optional<QMap<QString, DropsInfo>> getDevsDropsInfo()=0;
+    virtual QVector<QPair<QString, DropsInfo>> getDropsInfo()=0;
 
     virtual void setRecvSockOpt(Socket &sock)=0;
     virtual void processRecvTimestamp(msghdr &msg,

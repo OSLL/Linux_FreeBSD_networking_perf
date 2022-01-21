@@ -268,9 +268,9 @@ bool LinuxDataSource::processSendTimestamp(Socket &sock, InSystemTimeInfo &res,
     return true;
 }
 
-std::optional<QMap<QString, DeviceDropsInfo>> LinuxDataSource::getDevsDropsInfo() {
+std::optional<QMap<QString, DropsInfo>> LinuxDataSource::getDevsDropsInfo() {
 
-    QMap<QString, DeviceDropsInfo> drops_info;
+    QMap<QString, DropsInfo> drops_info;
     QDir dir("/sys/class/net");
 
     if (!dir.exists()) {
@@ -284,11 +284,45 @@ std::optional<QMap<QString, DeviceDropsInfo>> LinuxDataSource::getDevsDropsInfo(
         auto tx_drops = get_int_from_file("/sys/class/net/" + entry + "/statistics/tx_dropped");
 
         if (rx_drops && tx_drops) {
-            drops_info[entry] = {
-                    .rx_drops = *rx_drops,
-                    .tx_drops = *tx_drops
-            };
+            drops_info[entry] = DropsInfo(*rx_drops, *tx_drops);
         }
+    }
+
+    return drops_info;
+}
+
+QVector<QPair<QString, DropsInfo>> LinuxDataSource::getDropsInfo() {
+
+    QVector<QPair<QString, DropsInfo>> drops_info;
+    auto dev_drops_info = getDevsDropsInfo();
+    if (dev_drops_info) {
+        for (auto it = dev_drops_info->begin(); it != dev_drops_info->end(); it++) {
+            drops_info.push_back({it.key(), it.value()});
+        }
+    }
+
+    auto softnet_data = getSoftnetData();
+    if (softnet_data) {
+        int poll = 0;
+        for (const auto &cpu_sd: *softnet_data) {
+            poll += cpu_sd[1];
+        }
+        drops_info.push_back({"poll", DropsInfo(poll)});
+    }
+
+    auto ip_stats = getProtocolStats("ip");
+    if (ip_stats) {
+        drops_info.push_back({"ip", DropsInfo(ip_stats->value("InDiscards"), ip_stats->value("OutDiscards"))});
+    }
+
+    auto udp_stats = getProtocolStats("udp");
+    if (udp_stats) {
+        drops_info.push_back({"udp", DropsInfo(ip_stats->value("RcvbufErrors"), ip_stats->value("SndbufErrors:"))});
+    }
+
+    auto udplite_stats = getProtocolStats("udplite");
+    if (udplite_stats) {
+        drops_info.push_back({"udplite", DropsInfo(ip_stats->value("RcvbufErrors"), ip_stats->value("SndbufErrors:"))});
     }
 
     return drops_info;

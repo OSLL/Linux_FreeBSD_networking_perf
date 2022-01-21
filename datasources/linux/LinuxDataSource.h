@@ -45,7 +45,9 @@ public:
 
     std::optional<QMap<int, int>> getCPUDistribution() override;
 
-    std::optional<QMap<QString, DeviceDropsInfo>> getDevsDropsInfo() override;
+    std::optional<QMap<QString, DropsInfo>> getDevsDropsInfo() override;
+
+    QVector<QPair<QString, DropsInfo>> getDropsInfo() override;
 
     void setRecvSockOpt(Socket &sock) override;
     void processRecvTimestamp(msghdr &msg,

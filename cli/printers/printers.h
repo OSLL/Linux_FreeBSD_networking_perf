@@ -13,6 +13,7 @@
 
 #include "../../types/SocketInfo.h"
 #include "../../types/InSystemTimeInfo.h"
+#include "../../types/DropsInfo.h"
 
 void printSocketsInfoList(const std::vector<SocketInfo>& sockets_info_list);
 
@@ -25,4 +26,6 @@ void printProtocolStats(std::optional<QMap<QString, int>> o_protocol_stats);
 void printSoftnetData(std::optional<QVector<QVector<int>>> o_cpus_sd);
 
 void printCPUDistribution(std::optional<QMap<int, int>> o_cpus_dist);
+
+void printDropsInfo(QVector<QPair<QString, DropsInfo>> drops_info);
 #endif //LFNP_PRINTERS_H

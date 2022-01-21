@@ -166,9 +166,9 @@ FreeBSDDataSource::processSendTimestamp(Socket &sock, InSystemTimeInfo &res, Soc
     return true;
 }
 
-std::optional<QMap<QString, DeviceDropsInfo>> FreeBSDDataSource::getDevsDropsInfo() {
+std::optional<QMap<QString, DropsInfo>> FreeBSDDataSource::getDevsDropsInfo() {
 
-    QMap<QString, DeviceDropsInfo> drops_info;
+    QMap<QString, DropsInfo> drops_info;
 
     ifaddrs *ifs;
     QSet<QString> interfaces;

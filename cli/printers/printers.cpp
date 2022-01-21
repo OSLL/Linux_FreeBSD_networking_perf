@@ -178,3 +178,24 @@ void printCPUDistribution(std::optional<QMap<int, int>> o_cpus_dist) {
     }
 
 }
+
+#define DROPS_COLUMN_WIDTH 20
+
+void printDropsInfo(QVector<QPair<QString, DropsInfo>> drops_info) {
+
+    std::cout << std::left << std::setw(DROPS_COLUMN_WIDTH) << "Source";
+    std::cout << std::left << std::setw(DROPS_COLUMN_WIDTH) << "RX Drops";
+    std::cout << std::left << std::setw(DROPS_COLUMN_WIDTH) << "TX Drops";
+    std::cout << std::endl;
+
+    for (const auto &it: drops_info) {
+        std::cout << std::left << std::setw(DROPS_COLUMN_WIDTH) << it.first.toStdString();
+        if (it.second.is_common) {
+            std::cout << std::right << std::setw(DROPS_COLUMN_WIDTH/2) << it.second.common_drops;
+        } else {
+            std::cout << std::left << std::setw(DROPS_COLUMN_WIDTH) << it.second.rx_drops;
+            std::cout << std::left << std::setw(DROPS_COLUMN_WIDTH) << it.second.tx_drops;
+        }
+        std::cout << std::endl;
+    }
+}

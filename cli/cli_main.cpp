@@ -75,7 +75,7 @@ int cli_main(int argc, char *argv[]) {
     } else if (argc > 1 && args[1] == "get-cpu-distribution") {
         printCPUDistribution(ds->getCPUDistribution());
     } else if (argc > 1 && args[1] == "get-drops-info") {
-        qDebug() << ds->getDevsDropsInfo().value().keys();
+        printDropsInfo(ds->getDropsInfo());
     }
 
     return 0;
