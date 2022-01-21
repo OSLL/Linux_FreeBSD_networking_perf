@@ -41,6 +41,9 @@ CPUDistributionWidget::CPUDistributionWidget(BaseDataSource *ds, QWidget *parent
 CPUDistributionWidget::~CPUDistributionWidget()
 {
     delete ui;
+    delete timer;
+    delete chart_view;
+    delete x_axis;
 }
 
 void CPUDistributionWidget::changeEvent(QEvent *e)
@@ -56,8 +59,6 @@ void CPUDistributionWidget::changeEvent(QEvent *e)
 }
 
 void CPUDistributionWidget::onTimerTimeout() {
-
-    qDebug() << "TimeOut";
 
     auto o_cpu_distribution = data_source->getCPUDistribution();
     if (o_cpu_distribution) {

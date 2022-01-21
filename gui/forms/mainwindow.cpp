@@ -15,6 +15,9 @@ MainWindow::MainWindow(QWidget *parent) :
 #endif
 {
     ui->setupUi(this);
+
+    tabWidget->setTabsClosable(true);
+    QObject::connect(tabWidget->tabBar(), &QTabBar::tabCloseRequested, tabWidget->tabBar(), &QTabBar::removeTab);
     ui->verticalLayout->addWidget(tabWidget);
 
     ui->menu->addAction(tr("CPU Distribution"), this, [this]() {this->tabWidget->addTab(new CPUDistributionWidget(this->data_source), tr("CPU Distribution"));});

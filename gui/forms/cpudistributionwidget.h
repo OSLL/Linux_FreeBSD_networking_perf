@@ -8,7 +8,6 @@
 #include "../../utils/TimeSeries.h"
 #include "../../utils/DynamicAxisChart.h"
 
-
 namespace Ui {
 class CPUDistributionWidget;
 }
