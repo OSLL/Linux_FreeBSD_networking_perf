@@ -43,7 +43,6 @@ CPUDistributionWidget::~CPUDistributionWidget()
     delete ui;
     delete timer;
     delete chart_view;
-    delete x_axis;
 }
 
 void CPUDistributionWidget::changeEvent(QEvent *e)
