@@ -43,7 +43,7 @@ public:
 
     std::optional<CpusSoftnetData> getSoftnetData();
 
-    std::optional<QMap<int, int>> getCPUDistribution() override;
+    std::optional<QMap<int, int>> getCPUDistribution(CPUDistributionSource source) override;
 
     std::optional<QMap<QString, DropsInfo>> getDevsDropsInfo() override;
 

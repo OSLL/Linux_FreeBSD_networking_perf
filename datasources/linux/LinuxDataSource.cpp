@@ -156,19 +156,39 @@ std::optional<CpusSoftnetData> LinuxDataSource::getSoftnetData() {
     return parseSoftnetDataFile("/proc/net/softnet_stat");
 }
 
-//TODO: различные источники данных (NET_TX в /proc/softirq, /proc/net/softnet_stat)
-std::optional<QMap<int, int>> LinuxDataSource::getCPUDistribution() {
-    auto o_softirqs_count = parseSoftirqFile("/proc/softirqs");
-    if (!o_softirqs_count) return std::nullopt;
+#define PROCESSED_COUNT_INDEX 0
+#define CPU_NUMBER_INDEX 12
+std::optional<QMap<int, int>> LinuxDataSource::getCPUDistribution(CPUDistributionSource source) {
 
-    auto softirqs_count = o_softirqs_count.value();
+    if (source == SOFTNET_PROCESSED) {
 
-    if (!softirqs_count.contains("NET_RX")) {
-        std::cout << "No NET_RX line in /proc/softirqs" << std::endl;
-        return std::nullopt;
+        QMap<int, int> softnet_processed;
+        auto o_softnet_data = parseSoftnetDataFile("/proc/net/softnet_stat");
+        if (!o_softnet_data) return std::nullopt;
+
+        auto softnet_data = o_softnet_data.value();
+
+        for (const auto &sd: softnet_data) {
+            softnet_processed[sd[CPU_NUMBER_INDEX]] = sd[PROCESSED_COUNT_INDEX];
+        }
+        return softnet_processed;
+
+    } else {
+
+        auto o_softirqs_count = parseSoftirqFile("/proc/softirqs");
+        if (!o_softirqs_count) return std::nullopt;
+
+        auto softirqs_count = o_softirqs_count.value();
+
+        QString softirq_name = source == SOFTIRQ_NET_RX ? "NET_RX" : "NET_TX";
+
+        if (!softirqs_count.contains(softirq_name)) {
+            std::cout << "No " << softirq_name.toStdString() << " line in /proc/softirqs" << std::endl;
+            return std::nullopt;
+        }
+
+        return softirqs_count.value(softirq_name);
     }
-
-    return softirqs_count.value("NET_RX");
 }
 
 void LinuxDataSource::setRecvSockOpt(Socket &sock) {

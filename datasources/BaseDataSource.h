@@ -17,6 +17,7 @@
 #include "../utils/sockets.h"
 #include "../utils/utils.h"
 #include "../types/DropsInfo.h"
+#include "../types/CPUDistributionSource.h"
 
 
 class BaseDataSource {
@@ -45,7 +46,7 @@ public:
             unsigned int data_size,
             bool zero_copy);
 
-    virtual std::optional<QMap<int, int>> getCPUDistribution()=0;
+    virtual std::optional<QMap<int, int>> getCPUDistribution(CPUDistributionSource source)=0;
     virtual std::optional<QMap<QString, DropsInfo>> getDevsDropsInfo()=0;
     virtual QVector<QPair<QString, DropsInfo>> getDropsInfo()=0;
 

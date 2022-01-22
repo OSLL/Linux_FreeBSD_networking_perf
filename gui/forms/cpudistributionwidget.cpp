@@ -12,7 +12,7 @@ CPUDistributionWidget::CPUDistributionWidget(BaseDataSource *ds, QWidget *parent
     timer->setInterval(1000);
     QObject::connect(timer, &QTimer::timeout, this, &CPUDistributionWidget::onTimerTimeout);
 
-    auto o_cpu_distribution = data_source->getCPUDistribution();
+    auto o_cpu_distribution = data_source->getCPUDistribution(SOFTIRQ_NET_RX);
     if (o_cpu_distribution) {
         auto cpu_distribution = o_cpu_distribution.value();
 
@@ -59,7 +59,7 @@ void CPUDistributionWidget::changeEvent(QEvent *e)
 
 void CPUDistributionWidget::onTimerTimeout() {
 
-    auto o_cpu_distribution = data_source->getCPUDistribution();
+    auto o_cpu_distribution = data_source->getCPUDistribution(SOFTIRQ_NET_RX);
     if (o_cpu_distribution) {
         auto cpu_distribution = o_cpu_distribution.value();
 

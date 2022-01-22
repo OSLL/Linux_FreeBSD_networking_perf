@@ -57,7 +57,7 @@ public:
 
     std::vector<SocketInfo> getSockets(std::string protocol) override;
 
-    std::optional<QMap<int, int>> getCPUDistribution() override;
+    std::optional<QMap<int, int>> getCPUDistribution(CPUDistributionSource source) override;
 
     std::optional<QMap<QString, DropsInfo>> getDevsDropsInfo() override;
 

@@ -104,7 +104,7 @@ std::vector<SocketInfo> FreeBSDDataSource::getSockets(std::string protocol) {
 }
 
 //TODO: Проработать netist, там много полезного. Например, поле qdrops.
-std::optional<QMap<int, int>> FreeBSDDataSource::getCPUDistribution() {
+std::optional<QMap<int, int>> FreeBSDDataSource::getCPUDistribution(CPUDistributionSource source) {
 
     size_t size;
     sysctlbyname("net.isr.work", nullptr, &size, nullptr, 0);

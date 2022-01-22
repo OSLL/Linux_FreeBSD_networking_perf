@@ -73,7 +73,23 @@ int cli_main(int argc, char *argv[]) {
     } else if (argc > 2 && args[1] == "stats") {
         printProtocolStats(ds->getProtocolStats(args[2]));
     } else if (argc > 1 && args[1] == "get-cpu-distribution") {
-        printCPUDistribution(ds->getCPUDistribution());
+        parser.addOption({{"source", "s"}, "Source for get CPU distribution",
+                          "source",
+#ifdef __linux__
+"net-rx"
+#else
+"netisr"
+#endif
+                          });
+        parser.process(args);
+
+        auto s_source = parser.value("source");
+        auto o_source = getCPUDistributionSource(s_source);
+        if (o_source) {
+            printCPUDistribution(ds->getCPUDistribution(*o_source));
+        } else {
+            std::cout << "Undefined source" << std::endl;
+        }
     } else if (argc > 1 && args[1] == "get-drops-info") {
         printDropsInfo(ds->getDropsInfo());
     }
