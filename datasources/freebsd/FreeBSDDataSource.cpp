@@ -211,6 +211,19 @@ QVector<QPair<QString, DropsInfo>> FreeBSDDataSource::getDropsInfo() {
         }
     }
 
+    size_t size;
+    sysctlbyname("net.isr.work", nullptr, &size, nullptr, 0);
+
+    sysctl_netisr_work snw_array[size/sizeof(sysctl_netisr_work)];
+    sysctlbyname("net.isr.work", snw_array, &size, nullptr, 0);
+
+    int poll_drops = 0;
+    for (const auto &snw: snw_array) {
+        poll_drops += snw.snw_qdrops;
+    }
+
+    drops_info.push_back({"poll", DropsInfo(poll_drops)});
+
     auto [udp_stats_name, udp_stats_size] = FreeBSDDataSource::protocol_stats_sysctl_names["udp"];
     udpstat udp_stats;
     sysctlbyname(udp_stats_name.toLocal8Bit().data(), &udp_stats, &udp_stats_size, nullptr, 0);
