@@ -188,10 +188,7 @@ std::optional<QMap<QString, DropsInfo>> FreeBSDDataSource::getDevsDropsInfo() {
                 drops_info[if_name].rx_drops += data->ifi_iqdrops;
                 drops_info[if_name].tx_drops += data->ifi_oqdrops;
             } else {
-                drops_info[if_name] = {
-                        .rx_drops = data->ifi_iqdrops,
-                        .tx_drops = data->ifi_iqdrops
-                };
+                drops_info[if_name] = DropsInfo(data->ifi_iqdrops, data->ifi_oqdrops);
             }
         }
 
@@ -199,6 +196,26 @@ std::optional<QMap<QString, DropsInfo>> FreeBSDDataSource::getDevsDropsInfo() {
     }
 
     freeifaddrs(ifs);
+
+    return drops_info;
+}
+
+QVector<QPair<QString, DropsInfo>> FreeBSDDataSource::getDropsInfo() {
+
+    QVector<QPair<QString, DropsInfo>> drops_info;
+
+    auto dev_drops_info = getDevsDropsInfo();
+    if (dev_drops_info) {
+        for (auto it = dev_drops_info->begin(); it != dev_drops_info->end(); it++) {
+            drops_info.push_back({it.key(), it.value()});
+        }
+    }
+
+    auto [udp_stats_name, udp_stats_size] = FreeBSDDataSource::protocol_stats_sysctl_names["udp"];
+    udpstat udp_stats;
+    sysctlbyname(udp_stats_name.toLocal8Bit().data(), &udp_stats, &udp_stats_size, nullptr, 0);
+
+    drops_info.push_back({"udp", DropsInfo(udp_stats.udps_fullsock)});
 
     return drops_info;
 }

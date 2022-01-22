@@ -61,6 +61,8 @@ public:
 
     std::optional<QMap<QString, DropsInfo>> getDevsDropsInfo() override;
 
+    QVector<QPair<QString, DropsInfo>> getDropsInfo() override;
+
     void setRecvSockOpt(Socket &sock) override;
     void processRecvTimestamp(msghdr &msg,
                                       InSystemTimeInfo &res,
