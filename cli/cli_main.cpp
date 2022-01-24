@@ -4,6 +4,7 @@
 
 #include "cli_main.h"
 #include "../types/enums/BaseEnum.h"
+#include "../utils/default_args.h"
 
 int cli_main(int argc, char *argv[]) {
     QStringList args(argv, argv+argc);
@@ -28,15 +29,15 @@ int cli_main(int argc, char *argv[]) {
 
         parser.addOptions(
                 {
-                        {"protocol", "Use specified protocol.", "protocol", "tcp"},
-                        {{"p", "port"}, "Use specified port.", "port", "7435"},
-                        {"packets-count", "Receive specified count of packets.", "packets-count", "100"},
-                        {{"a", "address"}, "Send packets to specified address.","address", "127.0.0.1"},
-                        {"measure-type", R"(Type of measure: "software" or "scheduler")","measure-type", "software"},
-                        {"delay", "Delay between sending timestamps, ms","delay", "0"},
+                        {"protocol", "Use specified protocol.", "protocol", default_args["protocol"]},
+                        {{"p", "port"}, "Use specified port.", "port", default_args["port"]},
+                        {"packets-count", "Receive specified count of packets.", "packets-count", default_args["packets-count"]},
+                        {{"a", "address"}, "Send packets to specified address.","address", default_args["address"]},
+                        {"measure-type", R"(Type of measure: "software" or "scheduler")","measure-type", default_args["measure-type"]},
+                        {"delay", "Delay between sending timestamps, ms","delay", default_args["delay"]},
                         {"ns", "Output in nanoseconds"},
-                        {"data", "File, from which taken data to send", "data", "/dev/urandom"},
-                        {"data-size", "Count of bytes to send. If no specified, send all file", "data-size", "0"},
+                        {"data", "File, from which taken data to send", "data", default_args["data"]},
+                        {"data-size", "Count of bytes to send. If no specified, send all file", "data-size", default_args["data-size"]},
                         {"zero-copy", "If specified, use sendfile call"}
                 });
 

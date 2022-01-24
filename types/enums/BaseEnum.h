@@ -31,6 +31,10 @@ public:
         }
     }
 
+    QStringList allStrings() const {
+        return string_enum.keys();
+    }
+
 protected:
 
     QMap<T, QString> enum_string;

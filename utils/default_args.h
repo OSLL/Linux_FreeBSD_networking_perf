@@ -8,7 +8,7 @@
 #include <QString>
 #include <QMap>
 
-QMap<QString, QString> default_args = {
+const QMap<QString, QString> default_args = {
         {"protocol", "tcp"},
         {"port", "31415"},
         {"packets-count", "100"},
