@@ -5,7 +5,6 @@
 #ifndef LFNP_INSYSTEMTIMEINFO_H
 #define LFNP_INSYSTEMTIMEINFO_H
 
-
 class InSystemTimeInfo {
 
 public:

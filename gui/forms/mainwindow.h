@@ -2,6 +2,11 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QAction>
+#include <QDebug>
+
+#include "cpudistributionwidget.h"
+#include "recvtimestampwidget.h"
 
 #ifdef __linux__
 #include "../../datasources/linux/LinuxDataSource.h"

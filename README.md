@@ -63,5 +63,7 @@ FreeBSD: tcp, udp, raw
 
 #### Аргументы
 * source - указывает, что использовать в качестве источника данных 
-Для Linux: ***net-rx*** (NET_RX в /proc/softirqs), net-tx (NET_TX в /proc/softirqs), softnet-processed (первый столбей в /proc/net/softnet_stat)
-Для FreeBSD: ***netisr***
+
+Linux: ***net-rx*** (NET_RX в /proc/softirqs), net-tx (NET_TX в /proc/softirqs), softnet-processed (первый столбец в /proc/net/softnet_stat)
+
+FreeBSD: ***netisr***

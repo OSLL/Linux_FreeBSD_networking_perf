@@ -1,8 +1,7 @@
-#include "cpudistributionwidget.h"
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include <QAction>
-#include <QDebug>
+
+#define ACTION(name, widget) ui->menu->addAction(tr(name), this, [this]() {this->tabWidget->addTab(new widget(this->data_source), tr(name));})
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -20,7 +19,8 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(tabWidget->tabBar(), &QTabBar::tabCloseRequested, tabWidget, &QTabWidget::removeTab);
     ui->verticalLayout->addWidget(tabWidget);
 
-    ui->menu->addAction(tr("CPU Distribution"), this, [this]() {this->tabWidget->addTab(new CPUDistributionWidget(this->data_source), tr("CPU Distribution"));});
+    ACTION("CPU Distribution", CPUDistributionWidget);
+    ACTION("Receive timestamps", RecvTimestampWidget);
 }
 
 MainWindow::~MainWindow()

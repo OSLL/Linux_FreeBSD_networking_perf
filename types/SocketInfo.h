@@ -35,5 +35,4 @@ public:
 
 };
 
-
 #endif //LFNP_SOCKETINFO_H

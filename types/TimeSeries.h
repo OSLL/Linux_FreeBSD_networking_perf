@@ -36,5 +36,4 @@ quint64 TimeSeries<T>::getCounter() {
     return counter;
 }
 
-
 #endif //LFNP_TIMESERIES_H
