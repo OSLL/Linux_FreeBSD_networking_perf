@@ -28,7 +28,7 @@
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_3">
           <item>
-           <widget class="QLabel" name="label_3">
+           <widget class="QLabel" name="protocolLabel">
             <property name="text">
              <string>Протокол</string>
             </property>
@@ -76,7 +76,7 @@
         <item>
          <layout class="QHBoxLayout" name="packetsCountLayout">
           <item>
-           <widget class="QLabel" name="label">
+           <widget class="QLabel" name="packetsCountLabel">
             <property name="maximumSize">
              <size>
               <width>16777215</width>
@@ -89,21 +89,21 @@
            </widget>
           </item>
           <item>
-           <widget class="QSpinBox" name="spinBox_2"/>
+           <widget class="QSpinBox" name="packetsCountComboBox"/>
           </item>
          </layout>
         </item>
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_2">
+         <layout class="QHBoxLayout" name="measureTypeLayout">
           <item>
-           <widget class="QLabel" name="label_2">
+           <widget class="QLabel" name="measureTypeLabel">
             <property name="text">
              <string>Измерение:</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QComboBox" name="comboBox"/>
+           <widget class="QComboBox" name="measureTypeComboBox"/>
           </item>
          </layout>
         </item>
@@ -126,37 +126,37 @@
          </layout>
         </item>
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_5">
+         <layout class="QHBoxLayout" name="dataSizeLayout">
           <item>
-           <widget class="QLabel" name="label_5">
+           <widget class="QLabel" name="dataSizeLabel">
             <property name="text">
              <string>Размер данных:</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QSpinBox" name="spinBox"/>
+           <widget class="QSpinBox" name="dataSizeSpinBox"/>
           </item>
          </layout>
         </item>
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_6">
+         <layout class="QHBoxLayout" name="accuracyLayout">
           <item>
-           <widget class="QLabel" name="label_6">
+           <widget class="QLabel" name="accuracyLabel">
             <property name="text">
              <string>Точность:</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QComboBox" name="comboBox_2"/>
+           <widget class="QComboBox" name="accuracyComboBox"/>
           </item>
          </layout>
         </item>
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_7">
+         <layout class="QHBoxLayout" name="zeroCopyLayout">
           <item>
-           <widget class="QCheckBox" name="checkBox">
+           <widget class="QCheckBox" name="zeroCopyCheckBox">
             <property name="text">
              <string>Zero-Copy</string>
             </property>

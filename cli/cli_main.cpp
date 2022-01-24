@@ -3,6 +3,7 @@
 //
 
 #include "cli_main.h"
+#include "../types/enums/BaseEnum.h"
 
 int cli_main(int argc, char *argv[]) {
     QStringList args(argv, argv+argc);
@@ -84,7 +85,7 @@ int cli_main(int argc, char *argv[]) {
         parser.process(args);
 
         auto s_source = parser.value("source");
-        auto o_source = getCPUDistributionSource(s_source);
+        auto o_source = cpu_distribution_source_enum.fromString(s_source);
         if (o_source) {
             printCPUDistribution(ds->getCPUDistribution(*o_source));
         } else {

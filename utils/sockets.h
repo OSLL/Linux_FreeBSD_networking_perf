@@ -69,6 +69,8 @@ public:
     std::optional<SocketOpTimestamps> sendData(T* data) { return sendData(data, sizeof(T)); }
     std::optional<SocketOpTimestamps> sendData(const void *data, size_t data_size);
     std::optional<SocketOpTimestamps> sendFile(int file_descriptor, size_t data_size);
+
+    static QStringList getSupportedProtocols();
 };
 
 #endif //LFNP_SOCKETS_H

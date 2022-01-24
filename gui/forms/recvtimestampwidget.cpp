@@ -7,6 +7,12 @@ RecvTimestampWidget::RecvTimestampWidget(BaseDataSource *ds, QWidget *parent) :
     data_source(ds)
 {
     ui->setupUi(this);
+
+    ui->protocolComboBox->addItems(Socket::getSupportedProtocols());
+    ui->protocolComboBox->setCurrentText("tcp");
+    ui->ipEdit->setText("127.0.0.1");
+    ui->portSpinBox->setValue(7435);
+    ui->packetsCountComboBox->setValue(100);
 }
 
 RecvTimestampWidget::~RecvTimestampWidget()

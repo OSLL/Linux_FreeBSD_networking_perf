@@ -184,3 +184,7 @@ std::optional<SocketOpTimestamps> Socket::sendFile(int file_descriptor, size_t d
     return res;
 
 }
+
+QStringList Socket::getSupportedProtocols() {
+    return Socket::protocol_socket_args.keys();
+}

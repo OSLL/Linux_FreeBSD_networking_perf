@@ -17,7 +17,7 @@
 #include "../utils/sockets.h"
 #include "../utils/utils.h"
 #include "../types/DropsInfo.h"
-#include "../types/CPUDistributionSource.h"
+#include "../types/enums/CPUDistributionSource.h"
 
 
 class BaseDataSource {

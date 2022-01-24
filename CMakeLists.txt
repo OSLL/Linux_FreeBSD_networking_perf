@@ -16,8 +16,8 @@ add_executable(lfnp main.cpp datasources/BaseDataSource.h utils/utils.h utils/ut
         cli/cli_main.cpp cli/cli_main.h gui/gui_main.cpp gui/gui_main.h gui/forms/mainwindow.h
         gui/forms/mainwindow.cpp gui/forms/mainwindow.ui gui/forms/cpudistributionwidget.h
         gui/forms/cpudistributionwidget.cpp gui/forms/cpudistributionwidget.ui types/TimeSeries.h
-        types/DynamicAxisChart.h types/DropsInfo.h types/CPUDistributionSource.h types/CPUDistributionSource.cpp
-        gui/forms/recvtimestampwidget.cpp gui/forms/recvtimestampwidget.h gui/forms/recvtimestampwidget.ui)
+        types/DynamicAxisChart.h types/DropsInfo.h types/enums/CPUDistributionSource.h
+        gui/forms/recvtimestampwidget.cpp gui/forms/recvtimestampwidget.h gui/forms/recvtimestampwidget.ui utils/default_args.h types/enums/MeasureType.h types/enums/BaseEnum.h)
 
 target_link_libraries(lfnp
         Qt5::Core
