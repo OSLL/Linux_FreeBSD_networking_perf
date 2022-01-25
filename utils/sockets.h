@@ -22,15 +22,12 @@
 #include <libnet.h>
 #include <linux/net_tstamp.h>
 #include <sys/sendfile.h>
+#include "../types/TimeRange.h"
+
 #else
 #include <arpa/inet.h>
 #include <sys/types.h>
 #endif
-
-struct SocketOpTimestamps {
-    timespec before_op_time;
-    timespec after_op_time;
-};
 
 class Socket {
 
@@ -61,14 +58,14 @@ public:
 
     template <typename T>
     int receiveData(T *data) { return recv(recv_sock_descriptor, data, sizeof(T), 0); }
-    std::optional<SocketOpTimestamps> receiveMsg(msghdr &msg, int flags = 0);
+    std::optional<TimeRange> receiveMsg(msghdr &msg, int flags = 0);
 
     int connectTo(const QString &ip_addr, unsigned int port);
 
     template <typename T>
-    std::optional<SocketOpTimestamps> sendData(T* data) { return sendData(data, sizeof(T)); }
-    std::optional<SocketOpTimestamps> sendData(const void *data, size_t data_size);
-    std::optional<SocketOpTimestamps> sendFile(int file_descriptor, size_t data_size);
+    std::optional<TimeRange> sendData(T* data) { return sendData(data, sizeof(T)); }
+    std::optional<TimeRange> sendData(const void *data, size_t data_size);
+    std::optional<TimeRange> sendFile(int file_descriptor, size_t data_size);
 
     static QStringList getSupportedProtocols();
 };

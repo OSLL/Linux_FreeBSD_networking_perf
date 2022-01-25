@@ -138,7 +138,7 @@ void FreeBSDDataSource::setRecvSockOpt(Socket &sock) {
 }
 
 void FreeBSDDataSource::processRecvTimestamp(msghdr &msg, InSystemTimeInfo &res, timespec &after_recv_time,
-                                             unsigned int packets_count, const QString &protocol) {
+                                             const QString &protocol) {
 
     if (protocol == "udp") {
         for (cmsghdr *cmsg = CMSG_FIRSTHDR(&msg); cmsg; cmsg = CMSG_NXTHDR(&msg, cmsg)) {
@@ -147,11 +147,10 @@ void FreeBSDDataSource::processRecvTimestamp(msghdr &msg, InSystemTimeInfo &res,
 
                 // Во FreeBSD здесь хранятся микросекунды, но clock_gettime возвращает наносекунды.
                 tmst->tv_nsec *= 1000;
-                timespec_avg_add(res.software_time, *tmst, after_recv_time, packets_count);
+                res.software_time.push_back(TimeRange(*tmst, after_recv_time).getRangeNS());
             }
         }
     }
-
 }
 
 void FreeBSDDataSource::setSendSockOpt(Socket &sock, const QString &measure_type) {
@@ -159,11 +158,10 @@ void FreeBSDDataSource::setSendSockOpt(Socket &sock, const QString &measure_type
     return;
 }
 
-bool
-FreeBSDDataSource::processSendTimestamp(Socket &sock, InSystemTimeInfo &res, SocketOpTimestamps &timestamps, unsigned int packets_count,
-                     const QString &protocol) {
+void
+FreeBSDDataSource::processSendTimestamp(Socket &sock, InSystemTimeInfo &res, TimeRange &timestamps) {
     // Во FreeBSD не реализована получение timestamp'ов при получении
-    return true;
+    return;
 }
 
 std::optional<QMap<QString, DropsInfo>> FreeBSDDataSource::getDevsDropsInfo() {

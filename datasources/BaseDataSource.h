@@ -19,7 +19,6 @@
 #include "../types/DropsInfo.h"
 #include "../types/enums/CPUDistributionSource.h"
 
-
 class BaseDataSource {
 
 public:
@@ -31,10 +30,10 @@ public:
 
     //TODO: Проверить hardware timestamps
     //TODO: В FreeBSD значение Total огромное. Почему?
-    virtual std::optional<InSystemTimeInfo> recvTimestamp(
+    std::optional<InSystemTimeInfo> recvTimestamps(
             const QString &protocol, unsigned int port, unsigned int packets_count);
 
-    virtual std::optional<InSystemTimeInfo> sendTimestamp(
+    std::optional<InSystemTimeInfo> sendTimestamps(
             const QString &protocol,
             const QString &addr,
             unsigned int port,
@@ -51,15 +50,12 @@ public:
     virtual QVector<QPair<QString, DropsInfo>> getDropsInfo()=0;
 
     virtual void setRecvSockOpt(Socket &sock)=0;
-    virtual void processRecvTimestamp(msghdr &msg,
-            InSystemTimeInfo &res,
-            timespec &after_recv_time,
-            unsigned int packets_count,
-            const QString &protocol)=0;
+    virtual void
+    processRecvTimestamp(msghdr &msg, InSystemTimeInfo &res, timespec &after_recv_time, const QString &protocol)=0;
+
     virtual void setSendSockOpt(Socket &sock, const QString &measure_type)=0;
-    virtual bool
-    processSendTimestamp(Socket &sock, InSystemTimeInfo &res, SocketOpTimestamps &timestamps, unsigned int packets_count,
-                         const QString &protocol) =0;
+    virtual void
+    processSendTimestamp(Socket &sock, InSystemTimeInfo &res, TimeRange &timestamps)=0;
 };
 
 

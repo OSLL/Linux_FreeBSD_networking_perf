@@ -203,7 +203,7 @@ void LinuxDataSource::setRecvSockOpt(Socket &sock) {
 }
 
 void LinuxDataSource::processRecvTimestamp(msghdr &msg, InSystemTimeInfo &res, timespec &after_recv_time,
-                                           unsigned int packets_count, const QString &protocol) {
+                                           const QString &protocol) {
 
     for (cmsghdr *cmsg = CMSG_FIRSTHDR(&msg); cmsg; cmsg = CMSG_NXTHDR(&msg, cmsg)) {
 
@@ -211,9 +211,12 @@ void LinuxDataSource::processRecvTimestamp(msghdr &msg, InSystemTimeInfo &res, t
 
             auto tmst = (scm_timestamping*) &CMSG_DATA(cmsg);
 
-            timespec_avg_add(res.software_time, tmst->ts[0], after_recv_time, packets_count);
-            timespec_avg_add(res.hardware_time, tmst->ts[2], after_recv_time, packets_count);
-
+            if (!is_timespec_empty(tmst->ts[0])) {
+                res.software_time.push_back(TimeRange(tmst->ts[0], after_recv_time).getRangeNS());
+            }
+            if (!is_timespec_empty(tmst->ts[2])) {
+                res.hardware_time.push_back(TimeRange(tmst->ts[2], after_recv_time).getRangeNS());
+            }
         }
     }
 
@@ -238,17 +241,17 @@ void LinuxDataSource::setSendSockOpt(Socket &sock, const QString &measure_type) 
     sock.setOpt(SOL_SOCKET, SO_TIMESTAMPING, &val, sizeof(val));
 }
 
-bool LinuxDataSource::processSendTimestamp(Socket &sock, InSystemTimeInfo &res,
-        SocketOpTimestamps &timestamps, unsigned int packets_count, const QString &protocol) {
+void LinuxDataSource::processSendTimestamp(Socket &sock, InSystemTimeInfo &res, TimeRange &timestamps) {
 
-    if (!(protocol == "tcp" || protocol == "udp")) return true;
+    auto protocol = sock.getProtocol();
+    if (!(protocol == "tcp" || protocol == "udp")) return;
 
     // Далее происходит работа с очередью ошибок. Так как в ней не гарантируется правильная последовательность пакетов
     // то возникают некоторые проблемы. 1. При обработке нужно найти timestamp для текущего времени. Он должен находится
-    // между вызовом send и выхода из него (в аргументе timestamps). 2. Иногда timestamp'ы просто исчезают и не удается
-    // найти нужный, причину найти не смог. Так что здесь возвращается true/false. Пакет обработан или нет. Если нет, то
-    // его так же не нужно учитывать во всех временах и значит делить нужно не на packets_count. Это обрабатывается в
-    // sendTimestamp.
+    // между вызовом send и выхода из него (находятся в аргументе timestamps). 2. Иногда timestamp'ы просто исчезают и не удается
+    // найти нужный, думаю, они отбрасываются при обработке прошлых пакетов. Так что здесь возвращается true/false.
+    // Пакет обработан или нет. Если нет, то его так же не нужно учитывать во всех временах и значит делить нужно
+    // не на packets_count. Это обрабатывается в sendTimestamps.
 
     char control[1000];
     memset(control, 0, sizeof(control));
@@ -266,7 +269,7 @@ bool LinuxDataSource::processSendTimestamp(Socket &sock, InSystemTimeInfo &res,
     bool is_valid_timestamp = false;
     while (!is_valid_timestamp) {
         auto is_cmsg_exist = sock.receiveMsg(msg, MSG_ERRQUEUE | MSG_WAITALL);
-        if (!is_cmsg_exist) return false;
+        if (!is_cmsg_exist) return;
 
         for (cmsghdr *cmsg = CMSG_FIRSTHDR(&msg); cmsg; cmsg = CMSG_NXTHDR(&msg, cmsg)) {
             if (cmsg->cmsg_level == SOL_SOCKET && cmsg->cmsg_type == SCM_TIMESTAMPING) {
@@ -276,16 +279,20 @@ bool LinuxDataSource::processSendTimestamp(Socket &sock, InSystemTimeInfo &res,
                 if (is_timespec_empty(tmst->ts[0])) {
                     check_index = 2; // Hardware timestamps
                 }
-                is_valid_timestamp = timespeccmp(tmst->ts[check_index], timestamps.before_op_time) > 0 &&
-                        timespeccmp(tmst->ts[check_index], timestamps.after_op_time) < 0;
+                is_valid_timestamp = timespeccmp(tmst->ts[check_index], timestamps.from) > 0 &&
+                        timespeccmp(tmst->ts[check_index], timestamps.to) < 0;
             }
         }
     }
 
-    timespec_avg_add(res.software_time, timestamps.before_op_time, tmst->ts[0], packets_count);
-    timespec_avg_add(res.hardware_time, timestamps.before_op_time, tmst->ts[2], packets_count);
-
-    return true;
+    if (tmst) {
+        if (!is_timespec_empty(tmst->ts[0])) {
+            res.software_time.push_back(TimeRange(timestamps.from, tmst->ts[0]).getRangeNS());
+        }
+        if (!is_timespec_empty(tmst->ts[2])) {
+            res.hardware_time.push_back(TimeRange(timestamps.from, tmst->ts[2]).getRangeNS());
+        }
+    }
 }
 
 std::optional<QMap<QString, DropsInfo>> LinuxDataSource::getDevsDropsInfo() {

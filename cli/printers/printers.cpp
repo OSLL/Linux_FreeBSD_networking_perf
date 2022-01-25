@@ -48,12 +48,11 @@ void printSocketsInfoList(const std::vector<SocketInfo>& sockets_info_list) {
 
 }
 
-void printTimestamp(const timespec &ts, bool in_ms) {
-    std::cout << ts.tv_sec << " sec ";
+void printTimestamp(const quint64 &ts, bool in_ms) {
     if (in_ms) {
-        std::cout << ts.tv_nsec/1000 << " µs" << std::endl;
+        std::cout << ts/1000 << " us" << std::endl;
     } else {
-        std::cout << ts.tv_nsec << " ns" << std::endl;
+        std::cout << ts << " ns" << std::endl;
     }
 }
 
@@ -61,24 +60,29 @@ void printInSystemTimeInfo(std::optional<InSystemTimeInfo> o_time_info, bool in_
 
     if (o_time_info) {
 
-        if (!is_timespec_empty(o_time_info->hardware_time)) {
+        auto avg_software = o_time_info->getAverageSoftware();
+        auto avg_hardware = o_time_info->getAverageHardware();
+        auto avg_in_call = o_time_info->getAverageInCall();
+        auto avg_total = o_time_info->getAverageTotal();
+
+        if (avg_hardware) {
             std::cout << "Hardware: ";
-            printTimestamp(o_time_info->hardware_time, in_ms);
+            printTimestamp(avg_hardware, in_ms);
         }
 
-        if (!is_timespec_empty(o_time_info->software_time)) {
+        if (avg_software) {
             std::cout << "Software: ";
-            printTimestamp(o_time_info->software_time, in_ms);
+            printTimestamp(avg_software, in_ms);
         }
 
-        if (!is_timespec_empty(o_time_info->in_call_time)) {
-            std::cout << "In Call: ";
-            printTimestamp(o_time_info->in_call_time, in_ms);
+        if (avg_in_call) {
+            std::cout << "In call: ";
+            printTimestamp(avg_in_call, in_ms);
         }
 
-        if (!is_timespec_empty(o_time_info->total_time)) {
+        if (avg_total) {
             std::cout << "Total: ";
-            printTimestamp(o_time_info->total_time, in_ms);
+            printTimestamp(avg_total, in_ms);
         }
 
     } else {

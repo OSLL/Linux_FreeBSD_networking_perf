@@ -78,13 +78,13 @@ int Socket::listenFor(int conn_num) {
     return 0;
 }
 
-std::optional<SocketOpTimestamps> Socket::receiveMsg(msghdr &msg, int flags) {
+std::optional<TimeRange> Socket::receiveMsg(msghdr &msg, int flags) {
 
 
-    SocketOpTimestamps res;
-    clock_gettime(CLOCK_REALTIME, &res.before_op_time);
+    TimeRange res;
+    clock_gettime(CLOCK_REALTIME, &res.from);
     int err = recvmsg(recv_sock_descriptor, &msg, flags);
-    clock_gettime(CLOCK_REALTIME, &res.after_op_time);
+    clock_gettime(CLOCK_REALTIME, &res.to);
 
     if (err < 0) {
         return std::nullopt;
@@ -121,13 +121,13 @@ int Socket::connectTo(const QString &ip_addr, unsigned int port) {
     return 0;
 }
 
-std::optional<SocketOpTimestamps> Socket::sendData(const void *data, size_t data_size) {
-    SocketOpTimestamps res;
+std::optional<TimeRange> Socket::sendData(const void *data, size_t data_size) {
+    TimeRange res;
     int err;
 
-    clock_gettime(CLOCK_REALTIME, &res.before_op_time);
+    clock_gettime(CLOCK_REALTIME, &res.from);
     err = send(sock_descriptor, data, data_size, 0);
-    clock_gettime(CLOCK_REALTIME, &res.after_op_time);
+    clock_gettime(CLOCK_REALTIME, &res.to);
 
     if (err < 0) {
         return std::nullopt;
@@ -164,18 +164,18 @@ int Socket::bindToAny(unsigned int port) {
     return 0;
 }
 
-std::optional<SocketOpTimestamps> Socket::sendFile(int file_descriptor, size_t data_size) {
+std::optional<TimeRange> Socket::sendFile(int file_descriptor, size_t data_size) {
 
-    SocketOpTimestamps res;
+    TimeRange res;
     int err;
 
-    clock_gettime(CLOCK_REALTIME, &res.before_op_time);
+    clock_gettime(CLOCK_REALTIME, &res.from);
 #ifdef __linux__
     err = sendfile(file_descriptor, sock_descriptor, nullptr, data_size);
 #else
     err = sendfile(file_descriptor, sock_descriptor, 0, data_size, nullptr, nullptr, 0);
 #endif
-    clock_gettime(CLOCK_REALTIME, &res.after_op_time);
+    clock_gettime(CLOCK_REALTIME, &res.to);
 
     if (err < 0) {
         return std::nullopt;

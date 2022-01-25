@@ -60,13 +60,13 @@ int cli_main(int argc, char *argv[]) {
 
         if (argc > 2 && args[2] == "rx-timings") {
 
-            auto o_rx_time = ds->recvTimestamp(protocol, port, packets_count);
+            auto o_rx_time = ds->recvTimestamps(protocol, port, packets_count);
             printInSystemTimeInfo(o_rx_time, in_ms);
 
         } else if (argc > 2 && std::string(argv[2]) == "tx-timings") {
 
-            auto o_tx_time = ds->sendTimestamp(protocol, addr, port, packets_count, measure_type, delay,
-                                               data_filename, data_size, zero_copy);
+            auto o_tx_time = ds->sendTimestamps(protocol, addr, port, packets_count, measure_type, delay,
+                                                data_filename, data_size, zero_copy);
             printInSystemTimeInfo(o_tx_time, in_ms);
 
         }

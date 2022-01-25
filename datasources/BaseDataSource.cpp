@@ -3,9 +3,13 @@
 //
 
 #include "BaseDataSource.h"
+#include "timestamping/TimestampsSender.h"
+#include "timestamping/TimestampsReceiver.h"
+
+using namespace std::placeholders;
 
 std::optional<InSystemTimeInfo>
-BaseDataSource::recvTimestamp(const QString &protocol, unsigned int port, unsigned int packets_count) {
+BaseDataSource::recvTimestamps(const QString &protocol, unsigned int port, unsigned int packets_count) {
 
     Socket sock(protocol);
     this->setRecvSockOpt(sock);
@@ -20,52 +24,20 @@ BaseDataSource::recvTimestamp(const QString &protocol, unsigned int port, unsign
         return std::nullopt;
     }
 
-    char control[1000];
-    timespec send_time {0, 0};
-
-    unsigned int data_size;
-    sock.receiveData(&data_size);
-
-    char data[data_size];
-    iovec iov {
-            .iov_base = data,
-            .iov_len = data_size
-    };
-
-    msghdr msg{
-            .msg_name = nullptr,
-            .msg_namelen = 0,
-            .msg_iov = &iov,
-            .msg_iovlen = 1,
-            .msg_control = &control,
-            .msg_controllen = sizeof(control)
-    };
-
-    InSystemTimeInfo res;
+    RecvProcessFunc recv_func = std::bind(&BaseDataSource::processRecvTimestamp, this, _1, _2, _3, _4);
+    TimestampsReceiver receiver(sock, recv_func);
 
     for (int i=0; i<packets_count; i++) {
-
-        auto o_timestamps = sock.receiveMsg(msg, 0);
-        if (!o_timestamps) {
-            std::cout << "Error in receive message" << std::endl;
-            return std::nullopt;
-        }
-
-        this->processRecvTimestamp(msg, res, o_timestamps->after_op_time, packets_count, protocol);
-
-        sock.receiveData(&send_time);
-
-        timespec_avg_add(res.in_call_time, o_timestamps->before_op_time, o_timestamps->after_op_time, packets_count);
-        timespec_avg_add(res.total_time, send_time, o_timestamps->after_op_time, packets_count);
+        receiver.recvOne();
     }
 
-    return res;
+    return receiver.getInfo();
 }
 
 std::optional<InSystemTimeInfo>
-BaseDataSource::sendTimestamp(const QString &protocol, const QString &addr, unsigned int port,
-                              unsigned int packets_count, const QString &measure_type, unsigned int delay,
-                              const QString &data_filename, unsigned int data_size, bool zero_copy) {
+BaseDataSource::sendTimestamps(const QString &protocol, const QString &addr, unsigned int port,
+                               unsigned int packets_count, const QString &measure_type, unsigned int delay,
+                               const QString &data_filename, unsigned int data_size, bool zero_copy) {
 
     QFile file(data_filename);
 
@@ -86,45 +58,14 @@ BaseDataSource::sendTimestamp(const QString &protocol, const QString &addr, unsi
         return std::nullopt;
     }
 
-    InSystemTimeInfo res;
-    sock.sendData(&data_size);
+    SendProcessFunc send_func = std::bind(&BaseDataSource::processSendTimestamp, this, _1, _2, _3);
+    TimestampsSender sender(sock, file, data_size, zero_copy, send_func);
 
-    int packets_with_timestamps = 0;
     for (int i=0; i<packets_count; i++) {
 
         QThread::msleep(delay);
-
-        std::optional<SocketOpTimestamps> o_timestamps;
-        if (zero_copy) {
-            o_timestamps = sock.sendFile(file.handle(), data_size);
-        } else {
-            o_timestamps = sock.sendData(file.read(data_size).data(), data_size);
-        }
-        if (!o_timestamps) {
-            std::cout << "Error in send data" << std::endl;
-            return std::nullopt;
-        }
-
-        bool is_timestamp_exist = this->processSendTimestamp(sock, res, o_timestamps.value(), packets_count, protocol);
-        sock.sendData(&o_timestamps->before_op_time, sizeof(timespec));
-
-        if (is_timestamp_exist) {
-            packets_with_timestamps++;
-        }
-        timespec_avg_add(res.in_call_time, o_timestamps->before_op_time, o_timestamps->after_op_time, packets_count);
+        sender.sendOne();
     }
 
-    if (packets_with_timestamps) {
-        double bad_packets_mul = (double)packets_count/packets_with_timestamps;
-        res.hardware_time.tv_nsec *=  bad_packets_mul;
-        res.software_time.tv_nsec *=  bad_packets_mul;
-    } else {
-        // Теоретически, может случится такое, что ни один пакет не получит timestamp. Что бы не делить на ноль,
-        // вернем нули
-
-        res.hardware_time = {0, 0};
-        res.software_time = {0, 0};
-    }
-
-    return res;
+    return sender.getInfo();
 }
