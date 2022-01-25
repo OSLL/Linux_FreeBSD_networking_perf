@@ -6,6 +6,8 @@
 
 int gui_main(int argc, char **argv) {
 
+    qRegisterMetaType<InSystemTimeInfo>("InSystemTimeInfo");
+
     QApplication a(argc, argv);
 
     MainWindow w;

@@ -24,7 +24,7 @@ sock(sock), recv_process_func(func) {
     };
 }
 
-void TimestampsReceiver::recvOne(void) {
+void TimestampsReceiver::recvOne() {
 
     auto o_in_call_time = sock.receiveMsg(msg, 0);
 
