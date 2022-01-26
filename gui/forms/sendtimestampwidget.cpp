@@ -1,11 +1,17 @@
 #include <QMessageBox>
 #include "sendtimestampwidget.h"
 #include "ui_sendtimestampwidget.h"
+#include "../../types/DynamicAxisChart.h"
 
 SendTimestampWidget::SendTimestampWidget(BaseDataSource *ds, QWidget *parent) :
     QWidget(parent),
     ui(new Ui::SendTimestampWidget),
-    data_source(ds)
+    data_source(ds),
+    chart(nullptr),
+    sender(nullptr),
+    software_series(nullptr),
+    hardware_series(nullptr),
+    in_call_series(nullptr)
 {
     ui->setupUi(this);
 
@@ -29,6 +35,9 @@ SendTimestampWidget::SendTimestampWidget(BaseDataSource *ds, QWidget *parent) :
     ui->zeroCopyCheckBox->setCheckState(Qt::CheckState::Unchecked);
 
     QObject::connect(ui->startButton, &QPushButton::clicked, this, &SendTimestampWidget::onStartClicked);
+
+    chart_view.setRenderHint(QPainter::Antialiasing);
+    ui->resultLayout->addWidget(&chart_view);
 }
 
 SendTimestampWidget::~SendTimestampWidget()
@@ -85,8 +94,41 @@ void SendTimestampWidget::onStartClicked() {
 
     SendProcessFunc send_func = std::bind(&BaseDataSource::processSendTimestamp, data_source, _1, _2, _3);
 
+    recreateChart(packets_count, is_us);
+
+    delete sender;
     sender = new TimestampsSenderThread(sock, file, data_size, zero_copy, send_func, packets_count);
     sender->start();
-
     ui->startButton->setDisabled(true);
+
+    QObject::connect(sender, &TimestampsSenderThread::packetSent, this, &SendTimestampWidget::onPacketSent);
+}
+
+void SendTimestampWidget::recreateChart(quint64 packets_count, bool is_us) {
+
+    auto new_chart = new TimestampsChart(packets_count, is_us);
+    chart_view.setChart(new_chart);
+    delete chart;
+    chart = new_chart;
+
+    chart->addSeries(reinterpret_cast<QXYSeries **>(&software_series));
+    chart->addSeries(reinterpret_cast<QXYSeries **>(&hardware_series));
+    chart->addSeries(reinterpret_cast<QXYSeries **>(&in_call_series));
+
+    software_series->setName("Software");
+    hardware_series->setName("Hardware");
+    in_call_series->setName("In call");
+}
+
+void SendTimestampWidget::onPacketSent(std::optional<SendTimestamp> o_timestamp) {
+
+    if (o_timestamp) {
+        auto timestamp = o_timestamp.value();
+
+        if (timestamp.software_send) { software_series->append(*timestamp.getSoftwareTime()); };
+        if (timestamp.hardware_send) { hardware_series->append(*timestamp.getHardwareTime()); }
+        in_call_series->append(timestamp.getInCallTime());
+
+    }
+
 }

@@ -7,7 +7,7 @@
 int gui_main(int argc, char **argv) {
 
     qRegisterMetaType<ReceiveTimestamp>("ReceiveTimestamp");
-    qRegisterMetaType<SendTimestamp>("SendTimestamp");
+    qRegisterMetaType<std::optional<SendTimestamp>>("std::optional<SendTimestamp>");
 
     QApplication a(argc, argv);
 

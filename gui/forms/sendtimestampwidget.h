@@ -2,12 +2,14 @@
 #define SENDTIMESTAMPWIDGET_H
 
 #include <QWidget>
+#include <QtCharts>
 
 #include "../../utils/default_args.h"
 #include "../../types/enums/MeasureType.h"
 #include "../../utils/sockets.h"
 #include "../../datasources/BaseDataSource.h"
 #include "../threads/TimestampsSenderThread.h"
+#include "../../types/TimestampsChart.h"
 
 namespace Ui {
 class SendTimestampWidget;
@@ -25,15 +27,24 @@ public:
 
 protected:
     void changeEvent(QEvent *e);
+    void recreateChart(quint64 packets_count, bool is_us);
 
 protected slots:
     void onStartClicked();
+    void onPacketSent(std::optional<SendTimestamp> timestamp);
 
 private:
 
     Ui::SendTimestampWidget *ui;
     TimestampsSenderThread *sender;
     BaseDataSource *data_source;
+    TimestampsChart *chart;
+
+    TimeSeries<QLineSeries> *software_series;
+    TimeSeries<QLineSeries> *hardware_series;
+    TimeSeries<QLineSeries> *in_call_series;
+
+    QChartView chart_view;
 };
 
 #endif // SENDTIMESTAMPWIDGET_H
