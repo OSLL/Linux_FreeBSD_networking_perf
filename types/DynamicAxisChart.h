@@ -15,20 +15,20 @@ class DynamicYAxisChart: public QChart {
 
 public:
 
-    DynamicYAxisChart(): QChart(), y_max(std::nullopt) {
-        this->addAxis(&y_axis, Qt::AlignLeft);
+    DynamicYAxisChart(): QChart(), y_max(std::nullopt), y_axis(new QValueAxis()) {
+        this->addAxis(y_axis, Qt::AlignLeft);
     }
 
     void addSeries(QXYSeries *series) {
         QChart::addSeries(series);
         QObject::connect(series, &QXYSeries::pointAdded, this, [this, series](int index)
         {onPointAdded(series->at(index));});
-        series->attachAxis(&y_axis);
+        series->attachAxis(y_axis);
     }
 
 private:
     std::optional<qreal> y_max;
-    QValueAxis y_axis;
+    QValueAxis *y_axis;
 
 private slots:
 
@@ -36,7 +36,7 @@ private slots:
         if (!y_max || *y_max < point.y()) {
             qDebug() << "Point" << point;
             y_max = point.y();
-            y_axis.setRange(-10, *y_max+10);
+            y_axis->setRange(-10, *y_max+10);
         }
     }
 };

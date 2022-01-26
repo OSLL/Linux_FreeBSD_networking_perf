@@ -6,7 +6,8 @@
 #include <QtCharts>
 
 #include "../../datasources/BaseDataSource.h"
-#include "../../types/TimeSeries.h"
+#include "../../types/series/TimeSeries.h"
+#include "../../types/series/FuncSeries.h"
 #include "../../types/DynamicAxisChart.h"
 #include "../threads/TimestampsReceiverThread.h"
 
@@ -26,6 +27,7 @@ public:
 
 protected:
     void changeEvent(QEvent *e);
+    void recreateChart(bool is_us);
 
 private:
     Ui::RecvTimestampWidget *ui;

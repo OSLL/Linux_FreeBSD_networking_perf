@@ -5,7 +5,7 @@
 #include <QtCharts>
 
 #include "../../datasources/BaseDataSource.h"
-#include "../../types/TimeSeries.h"
+#include "../../types/series/TimeSeries.h"
 #include "../../types/DynamicAxisChart.h"
 
 namespace Ui {

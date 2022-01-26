@@ -8,12 +8,14 @@
 #include <QtGlobal>
 #include <QDebug>
 
+#include "BaseSeries.h"
+
 template <typename T>
-class TimeSeries: public T{
+class TimeSeries: public BaseSeries<T, quint64>{
 
 public:
     TimeSeries();
-    void append(qreal y);
+    void append(quint64 y) override;
     quint64 getCounter();
 
 private:
@@ -26,7 +28,7 @@ template<typename T>
 TimeSeries<T>::TimeSeries(): counter(0) {}
 
 template<typename T>
-void TimeSeries<T>::append(qreal y) {
+void TimeSeries<T>::append(quint64 y) {
     T::append(counter, y);
     counter += 1;
 }
