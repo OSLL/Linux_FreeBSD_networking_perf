@@ -22,7 +22,7 @@ add_executable(lfnp main.cpp datasources/BaseDataSource.h utils/utils.h utils/ut
         datasources/timestamping/TimestampsSender.cpp datasources/timestamping/TimestampsSender.h types/TimeRange.h
         datasources/timestamping/TimestampsReceiver.cpp datasources/timestamping/TimestampsReceiver.h
         gui/threads/TimestampsReceiverThread.h types/series/FuncSeries.h types/series/BaseSeries.h
-        gui/forms/sendtimestampwidget.h gui/forms/sendtimestampwidget.cpp gui/forms/sendtimestampwidget.ui)
+        gui/forms/sendtimestampwidget.h gui/forms/sendtimestampwidget.cpp gui/forms/sendtimestampwidget.ui gui/threads/TimestampsSenderThread.h)
 
 target_link_libraries(lfnp
         Qt5::Core

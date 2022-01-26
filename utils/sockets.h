@@ -18,12 +18,12 @@
 #include <iostream>
 #include <optional>
 
+#include "../types/TimeRange.h"
+
 #ifdef __linux__
 #include <libnet.h>
 #include <linux/net_tstamp.h>
 #include <sys/sendfile.h>
-#include "../types/TimeRange.h"
-
 #else
 #include <arpa/inet.h>
 #include <sys/types.h>

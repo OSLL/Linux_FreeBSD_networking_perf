@@ -12,7 +12,6 @@ RecvTimestampWidget::RecvTimestampWidget(BaseDataSource *ds, QWidget *parent) :
     ui->protocolComboBox->addItems(Socket::getSupportedProtocols());
     ui->protocolComboBox->setCurrentText(default_args["protocol"]);
 
-    ui->ipEdit->setText(default_args["address"]);
     ui->portSpinBox->setValue(default_args["port"].toInt());
     ui->packetsCountComboBox->setValue(default_args["packets-count"].toInt());
 
@@ -45,7 +44,6 @@ void RecvTimestampWidget::changeEvent(QEvent *e)
 void RecvTimestampWidget::onStartClicked() {
 
     const QString protocol = ui->protocolComboBox->currentText();
-    const QString ip_addr = ui->ipEdit->text();
     const int port = ui->portSpinBox->value();
     const int packets_count = ui->packetsCountComboBox->value();
     const bool is_us = ui->accuracyComboBox->currentText() == "us";
