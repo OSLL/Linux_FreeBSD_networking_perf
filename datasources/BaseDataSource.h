@@ -18,6 +18,7 @@
 #include "../utils/utils.h"
 #include "../types/DropsInfo.h"
 #include "../types/enums/CPUDistributionSource.h"
+#include "../types/enums/MeasureType.h"
 
 class BaseDataSource {
 
@@ -53,7 +54,7 @@ public:
     virtual void
     processRecvTimestamp(msghdr &msg, ReceiveTimestamp &res, timespec &after_recv_time, const QString &protocol)=0;
 
-    virtual void setSendSockOpt(Socket &sock, const QString &measure_type)=0;
+    virtual void setSendSockOpt(Socket &sock, const MeasureType measure_type)=0;
     virtual void
     processSendTimestamp(Socket &sock, SendTimestamp &res, TimeRange &timestamps)=0;
 };

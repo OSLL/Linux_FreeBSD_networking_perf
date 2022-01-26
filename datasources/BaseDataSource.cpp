@@ -51,7 +51,13 @@ BaseDataSource::sendTimestamps(const QString &protocol, const QString &addr, uns
     }
 
     Socket sock(protocol);
-    this->setSendSockOpt(sock, measure_type);
+    auto o_mt = measure_type_enum.fromString(measure_type);
+    if (o_mt) {
+        this->setSendSockOpt(sock, *o_mt);
+    } else {
+        std::cout << "Unknown measure-type" << std::endl;
+        return std::nullopt;
+    }
 
     if (sock.connectTo(addr, port) < 0) {
         std::cout << "Connect error" << std::endl;

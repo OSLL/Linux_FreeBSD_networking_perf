@@ -222,20 +222,20 @@ void LinuxDataSource::processRecvTimestamp(msghdr &msg, ReceiveTimestamp &res, t
 
 }
 
-void LinuxDataSource::setSendSockOpt(Socket &sock, const QString &measure_type) {
+void LinuxDataSource::setSendSockOpt(Socket &sock, const MeasureType measure_type) {
 
     unsigned int val;
 
-    if (measure_type == "scheduler") {
+    if (measure_type == SCHEDULE) {
         val = SOF_TIMESTAMPING_TX_SCHED | SOF_TIMESTAMPING_SOFTWARE;
-    } else if (measure_type == "software_recv") {
+    } else if (measure_type == SOFTWARE) {
         val = SOF_TIMESTAMPING_TX_SOFTWARE | SOF_TIMESTAMPING_SOFTWARE;
-    } else if (measure_type == "hardware_recv") {
+    } else if (measure_type == HARDWARE) {
         val = SOF_TIMESTAMPING_TX_HARDWARE | SOF_TIMESTAMPING_RAW_HARDWARE;
-    } else if (measure_type == "ack") {
+    } else if (measure_type == ACK) {
         val = SOF_TIMESTAMPING_TX_ACK | SOF_TIMESTAMPING_SOFTWARE;
     } else {
-        std::cout << "Unknown measure type, used software_recv" << std::endl;
+        std::cout << "Unknown measure type, used software" << std::endl;
     }
 
     sock.setOpt(SOL_SOCKET, SO_TIMESTAMPING, &val, sizeof(val));
@@ -255,7 +255,7 @@ void LinuxDataSource::processSendTimestamp(Socket &sock, SendTimestamp &res, Tim
 
     char control[1000];
     memset(control, 0, sizeof(control));
-    msghdr msg{
+    msghdr msg {
             .msg_name = nullptr,
             .msg_namelen = 0,
             .msg_iov = nullptr,

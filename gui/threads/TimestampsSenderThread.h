@@ -23,7 +23,7 @@ public:
     ~TimestampsSenderThread() {
         delete sock;
         delete file;
-        delete receiver;
+        delete sender;
     }
 
 protected:
@@ -34,15 +34,15 @@ protected:
     bool zero_copy;
     SendProcessFunc func;
 
-    TimestampsSender *receiver;
+    TimestampsSender *sender;
     quint64 packets_count;
 
     void run() override {
 
-        receiver = new TimestampsSender(*sock, *file, data_size, zero_copy, func);
+        sender = new TimestampsSender(*sock, *file, data_size, zero_copy, func);
 
         for (int i=0; i<packets_count; i++) {
-            emit packetSent(receiver->sendOne());
+            emit packetSent(sender->sendOne());
         }
     }
 

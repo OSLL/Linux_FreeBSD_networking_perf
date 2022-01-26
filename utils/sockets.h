@@ -40,7 +40,7 @@ private:
     // Для TCP прием сообщения происходит не с помощью полученного сокета, а с помощью сокета, полученного после
     // вызова accept
     int recv_sock_descriptor;
-    const QString &protocol;
+    const QString protocol;
 
     static QMap<QString, std::tuple<int, int, int>> protocol_socket_args;
 

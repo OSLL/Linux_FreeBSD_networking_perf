@@ -7,10 +7,13 @@
 #include "../../types/enums/MeasureType.h"
 #include "../../utils/sockets.h"
 #include "../../datasources/BaseDataSource.h"
+#include "../threads/TimestampsSenderThread.h"
 
 namespace Ui {
 class SendTimestampWidget;
 }
+
+using namespace std::placeholders;
 
 class SendTimestampWidget : public QWidget
 {
@@ -27,7 +30,10 @@ protected slots:
     void onStartClicked();
 
 private:
+
     Ui::SendTimestampWidget *ui;
+    TimestampsSenderThread *sender;
+    BaseDataSource *data_source;
 };
 
 #endif // SENDTIMESTAMPWIDGET_H

@@ -53,7 +53,7 @@ public:
     void processRecvTimestamp(msghdr &msg, ReceiveTimestamp &res, timespec &after_recv_time,
                               const QString &protocol) override;
 
-    void setSendSockOpt(Socket &sock, const QString &measure_type) override;
+    void setSendSockOpt(Socket &sock, const MeasureType measure_type) override;
     void
     processSendTimestamp(Socket &sock, SendTimestamp &res, TimeRange &timestamps) override;
 };
