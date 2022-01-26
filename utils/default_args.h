@@ -13,7 +13,7 @@ const QMap<QString, QString> default_args = {
         {"port", "31415"},
         {"packets-count", "100"},
         {"address", "127.0.0.1"},
-        {"measure-type", "software_recv"},
+        {"measure-type", "software"},
         {"delay", "0"},
         {"data", "/dev/urandom"},
         {"data-size", "0"}
