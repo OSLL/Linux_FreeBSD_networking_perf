@@ -28,12 +28,12 @@ public:
 
     virtual std::vector<SocketInfo> getSockets(std::string protocol)=0;
 
-    //TODO: Проверить hardware timestamps
+    //TODO: Проверить hardware_recv timestamps
     //TODO: В FreeBSD значение Total огромное. Почему?
-    std::optional<InSystemTimeInfo> recvTimestamps(
+    std::optional<QVector<ReceiveTimestamp>> recvTimestamps(
             const QString &protocol, unsigned int port, unsigned int packets_count);
 
-    std::optional<InSystemTimeInfo> sendTimestamps(
+    std::optional<QVector<SendTimestamp>> sendTimestamps(
             const QString &protocol,
             const QString &addr,
             unsigned int port,
@@ -51,11 +51,11 @@ public:
 
     virtual void setRecvSockOpt(Socket &sock)=0;
     virtual void
-    processRecvTimestamp(msghdr &msg, InSystemTimeInfo &res, timespec &after_recv_time, const QString &protocol)=0;
+    processRecvTimestamp(msghdr &msg, ReceiveTimestamp &res, timespec &after_recv_time, const QString &protocol)=0;
 
     virtual void setSendSockOpt(Socket &sock, const QString &measure_type)=0;
     virtual void
-    processSendTimestamp(Socket &sock, InSystemTimeInfo &res, TimeRange &timestamps)=0;
+    processSendTimestamp(Socket &sock, SendTimestamp &res, TimeRange &timestamps)=0;
 };
 
 

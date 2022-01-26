@@ -8,7 +8,7 @@
 
 using namespace std::placeholders;
 
-std::optional<InSystemTimeInfo>
+std::optional<QVector<ReceiveTimestamp>>
 BaseDataSource::recvTimestamps(const QString &protocol, unsigned int port, unsigned int packets_count) {
 
     Socket sock(protocol);
@@ -34,7 +34,7 @@ BaseDataSource::recvTimestamps(const QString &protocol, unsigned int port, unsig
     return receiver.getInfo();
 }
 
-std::optional<InSystemTimeInfo>
+std::optional<QVector<SendTimestamp>>
 BaseDataSource::sendTimestamps(const QString &protocol, const QString &addr, unsigned int port,
                                unsigned int packets_count, const QString &measure_type, unsigned int delay,
                                const QString &data_filename, quint64 data_size, bool zero_copy) {

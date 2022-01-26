@@ -25,21 +25,21 @@ sock(sock), recv_process_func(func) {
     };
 }
 
-void TimestampsReceiver::recvOne() {
+ReceiveTimestamp TimestampsReceiver::recvOne() {
 
+    ReceiveTimestamp timestamp;
     auto o_in_call_time = sock.receiveMsg(msg, MSG_WAITALL);
-
-    timespec send_time = {0, 0};
-    sock.receiveData(&send_time);
+    sock.receiveData(&timestamp.before_send);
 
     if (o_in_call_time) {
-        auto total_time = TimeRange(send_time, o_in_call_time->to).getRangeNS();
 
-        time_info.in_call_time.push_back(o_in_call_time->getRangeNS());
-        time_info.total_time.push_back(total_time);
+        timestamp.before_recv = o_in_call_time->from;
+        timestamp.after_recv = o_in_call_time->to;
     }
 
-    recv_process_func(msg, time_info, o_in_call_time->to, sock.getProtocol());
+    recv_process_func(msg, timestamp, o_in_call_time->to, sock.getProtocol());
+    time_info.push_back(timestamp);
+    return timestamp;
 }
 
 TimestampsReceiver::~TimestampsReceiver() {
@@ -49,6 +49,6 @@ TimestampsReceiver::~TimestampsReceiver() {
 
 }
 
-const InSystemTimeInfo &TimestampsReceiver::getInfo() {
+const QVector<ReceiveTimestamp> &TimestampsReceiver::getInfo() {
     return time_info;
 }

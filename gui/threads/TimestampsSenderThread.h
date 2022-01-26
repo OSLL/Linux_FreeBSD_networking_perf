@@ -42,14 +42,13 @@ protected:
         receiver = new TimestampsSender(*sock, *file, data_size, zero_copy, func);
 
         for (int i=0; i<packets_count; i++) {
-            receiver->sendOne();
-            emit packetSent(receiver->getInfo());
+            emit packetSent(receiver->sendOne());
         }
     }
 
     signals:
 
-            void packetSent(const InSystemTimeInfo time_info);
+            void packetSent(const std::optional<SendTimestamp> o_send_ts);
 
 };
 

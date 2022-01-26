@@ -5,31 +5,77 @@
 #ifndef LFNP_INSYSTEMTIMEINFO_H
 #define LFNP_INSYSTEMTIMEINFO_H
 
-class InSystemTimeInfo {
+#include "TimeRange.h"
+
+class ITimestamp {
 
 public:
 
-    QVector<quint64> software_time;
-    QVector<quint64> hardware_time;
-    QVector<quint64> in_call_time;
-    QVector<quint64> total_time;
+    virtual quint64 getInCallTime() const = 0;
+    virtual quint64 getTotalTime() const = 0;
+    virtual std::optional<quint64> getSoftwareTime() const = 0;
+    virtual std::optional<quint64> getHardwareTime() const = 0;
+};
 
-    quint64 getAverage(const QVector<quint64> &v) {
+class ReceiveTimestamp: public ITimestamp{
 
-        double avg = 0;
-        int size = v.size();
+public:
 
-        for (auto e: v) {
-            avg += (double)e/size;
+    timespec before_recv;
+    timespec after_recv;
+    std::optional<timespec> software_recv;
+    std::optional<timespec> hardware_recv;
+    timespec before_send;
+
+    quint64 getInCallTime() const override { return TimeRange(before_recv, after_recv).getRangeNS(); }
+    quint64 getTotalTime() const override { return TimeRange(before_send, after_recv).getRangeNS(); }
+
+    std::optional<quint64> getSoftwareTime() const override {
+        if (software_recv) {
+            return TimeRange(software_recv.value(), after_recv).getRangeNS();
+        } else {
+            return std::nullopt;
         }
-
-        return (quint64)avg;
     }
 
-    quint64 getAverageSoftware() { return getAverage(software_time); }
-    quint64 getAverageHardware() { return getAverage(hardware_time); }
-    quint64 getAverageInCall() { return getAverage(in_call_time); }
-    quint64 getAverageTotal() { return getAverage(total_time); }
+    std::optional<quint64> getHardwareTime() const override {
+        if (hardware_recv) {
+            return TimeRange(hardware_recv.value(), after_recv).getRangeNS();
+        } else {
+            return std::nullopt;
+        }
+    }
+
+};
+
+class SendTimestamp: public ITimestamp{
+
+public:
+
+    timespec before_send;
+    timespec after_send;
+    std::optional<timespec> software_send;
+    std::optional<timespec> hardware_send;
+
+    quint64 getInCallTime() const override { return TimeRange(before_send, after_send).getRangeNS(); }
+    quint64 getTotalTime() const override { return 0; }
+
+    std::optional<quint64> getSoftwareTime() const override {
+        if (software_send) {
+            return TimeRange(software_send.value(), after_send).getRangeNS();
+        } else {
+            return std::nullopt;
+        }
+    }
+
+    std::optional<quint64> getHardwareTime() const {
+        if (hardware_send) {
+            return TimeRange(hardware_send.value(), after_send).getRangeNS();
+        } else {
+            return std::nullopt;
+        }
+    }
+
 };
 
 #endif //LFNP_INSYSTEMTIMEINFO_H

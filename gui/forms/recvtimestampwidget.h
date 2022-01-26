@@ -46,7 +46,7 @@ private:
 protected slots:
 
     void onStartClicked();
-    void onPacketReceived(const InSystemTimeInfo &time_info);
+    void onPacketReceived(const ReceiveTimestamp recv_ts);
 };
 
 #endif // RECVTIMESTAMPWIDGET_H

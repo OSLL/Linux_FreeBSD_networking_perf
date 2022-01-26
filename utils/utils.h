@@ -31,4 +31,34 @@ bool is_timespec_equal(timespec &tsc1, timespec &tsc2);
 
 std::optional<quint64> get_int_from_file(const QString &filename);
 
+template<typename T>
+quint64 get_average(QVector<T> &v, std::function<quint64(T&)> func) {
+    quint64 avg = 0;
+
+    for (auto e:v) {
+        avg += func(e);
+    }
+
+    return avg/v.size();
+}
+
+
+template<typename T>
+quint64 get_average_o(QVector<T> &v, std::function<std::optional<quint64>(T&)> func) {
+    quint64 avg = 0;
+    quint64 size = 0;
+
+    for (auto e:v) {
+        auto o_val = func(e);
+
+        if (o_val) {
+            avg += *o_val;
+            size++;
+        }
+    }
+
+    if (size) return avg/v.size();
+    else return 0;
+}
+
 #endif //LFNP_UTILS_H

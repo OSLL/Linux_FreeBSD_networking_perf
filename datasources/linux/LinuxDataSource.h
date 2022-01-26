@@ -50,12 +50,12 @@ public:
     QVector<QPair<QString, DropsInfo>> getDropsInfo() override;
 
     void setRecvSockOpt(Socket &sock) override;
-    void processRecvTimestamp(msghdr &msg, InSystemTimeInfo &res, timespec &after_recv_time,
+    void processRecvTimestamp(msghdr &msg, ReceiveTimestamp &res, timespec &after_recv_time,
                               const QString &protocol) override;
 
     void setSendSockOpt(Socket &sock, const QString &measure_type) override;
     void
-    processSendTimestamp(Socket &sock, InSystemTimeInfo &res, TimeRange &timestamps) override;
+    processSendTimestamp(Socket &sock, SendTimestamp &res, TimeRange &timestamps) override;
 };
 
 

@@ -16,26 +16,32 @@ TimestampsSender::TimestampsSender(Socket &sock, QFile &file, quint64 data_size,
     sock.sendData(&data_size);
 }
 
-void TimestampsSender::sendOne() {
+std::optional<SendTimestamp> TimestampsSender::sendOne() {
 
+    SendTimestamp timestamp;
     std::optional<TimeRange> o_timerange;
     if (zero_copy) {
         o_timerange = sock.sendFile(file.handle(), data_size);
     } else {
         o_timerange = sock.sendData(data, data_size);
     }
+
     if (!o_timerange) {
         std::cout << "Error in send data" << std::endl;
-        return;
+        return std::nullopt;
     }
 
-    send_process_func(sock, time_info, *o_timerange);
+    send_process_func(sock, timestamp, *o_timerange);
     sock.sendData(&o_timerange->from);
 
-    time_info.in_call_time.push_back(o_timerange->getRangeNS());
+    timestamp.before_send = o_timerange->from;
+    timestamp.after_send = o_timerange->to;
+
+    time_info.push_back(timestamp);
+    return timestamp;
 }
 
-const InSystemTimeInfo &TimestampsSender::getInfo() {
+const QVector<SendTimestamp> &TimestampsSender::getInfo() {
     return time_info;
 }
 

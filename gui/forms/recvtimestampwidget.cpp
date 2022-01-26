@@ -67,13 +67,12 @@ void RecvTimestampWidget::onStartClicked() {
     ui->startButton->setDisabled(true);
 }
 
-//TODO: передавать не time_info, а отдельно последние, что бы не было проблем с потоками
-void RecvTimestampWidget::onPacketReceived(const InSystemTimeInfo &time_info) {
+void RecvTimestampWidget::onPacketReceived(const ReceiveTimestamp recv_ts) {
 
-    if (!time_info.software_time.empty()) {software_series->append(time_info.software_time.last());}
-    if (!time_info.hardware_time.empty()) {hardware_series->append(time_info.hardware_time.last());}
-    if (!time_info.in_call_time.empty()) {in_call_series->append(time_info.in_call_time.last());}
-    if (!time_info.total_time.empty()) {total_series->append(time_info.total_time.last());}
+    if (recv_ts.software_recv) { software_series->append(*recv_ts.getSoftwareTime()); };
+    if (recv_ts.hardware_recv) { hardware_series->append(*recv_ts.getHardwareTime()); }
+    in_call_series->append(recv_ts.getInCallTime());
+    total_series->append(recv_ts.getTotalTime());
 
 }
 

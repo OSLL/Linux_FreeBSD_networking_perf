@@ -137,7 +137,7 @@ void FreeBSDDataSource::setRecvSockOpt(Socket &sock) {
 
 }
 
-void FreeBSDDataSource::processRecvTimestamp(msghdr &msg, InSystemTimeInfo &res, timespec &after_recv_time,
+void FreeBSDDataSource::processRecvTimestamp(msghdr &msg, ReceiveTimestamp &res, timespec &after_recv_time,
                                              const QString &protocol) {
 
     if (protocol == "udp") {
@@ -147,7 +147,7 @@ void FreeBSDDataSource::processRecvTimestamp(msghdr &msg, InSystemTimeInfo &res,
 
                 // Во FreeBSD здесь хранятся микросекунды, но clock_gettime возвращает наносекунды.
                 tmst->tv_nsec *= 1000;
-                res.software_time.push_back(TimeRange(*tmst, after_recv_time).getRangeNS());
+                res.software_recv = *tmst;
             }
         }
     }
@@ -159,7 +159,7 @@ void FreeBSDDataSource::setSendSockOpt(Socket &sock, const QString &measure_type
 }
 
 void
-FreeBSDDataSource::processSendTimestamp(Socket &sock, InSystemTimeInfo &res, TimeRange &timestamps) {
+FreeBSDDataSource::processSendTimestamp(Socket &sock, SendTimestamp &res, TimeRange &timestamps) {
     // Во FreeBSD не реализована получение timestamp'ов при получении
     return;
 }

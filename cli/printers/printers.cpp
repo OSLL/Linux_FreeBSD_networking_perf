@@ -2,10 +2,7 @@
 // Created by shenk on 22.12.2021.
 //
 
-#include <iomanip>
-#include <optional>
 #include "printers.h"
-#include "../../utils/utils.h"
 
 #define ADDRESS_WIDTH 25
 #define QUEUE_WIDTH 10
@@ -54,41 +51,6 @@ void printTimestamp(const quint64 &ts, bool in_ms) {
     } else {
         std::cout << ts << " ns" << std::endl;
     }
-}
-
-void printInSystemTimeInfo(std::optional<InSystemTimeInfo> o_time_info, bool in_ms) {
-
-    if (o_time_info) {
-
-        auto avg_software = o_time_info->getAverageSoftware();
-        auto avg_hardware = o_time_info->getAverageHardware();
-        auto avg_in_call = o_time_info->getAverageInCall();
-        auto avg_total = o_time_info->getAverageTotal();
-
-        if (avg_hardware) {
-            std::cout << "Hardware: ";
-            printTimestamp(avg_hardware, in_ms);
-        }
-
-        if (avg_software) {
-            std::cout << "Software: ";
-            printTimestamp(avg_software, in_ms);
-        }
-
-        if (avg_in_call) {
-            std::cout << "In call: ";
-            printTimestamp(avg_in_call, in_ms);
-        }
-
-        if (avg_total) {
-            std::cout << "Total: ";
-            printTimestamp(avg_total, in_ms);
-        }
-
-    } else {
-        std::cout << "Can't measure timings" << std::endl;
-    }
-
 }
 
 #define INTERVAL_COLUMN_WIDTH 20

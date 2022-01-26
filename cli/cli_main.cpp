@@ -33,7 +33,7 @@ int cli_main(int argc, char *argv[]) {
                         {{"p", "port"}, "Use specified port.", "port", default_args["port"]},
                         {"packets-count", "Receive specified count of packets.", "packets-count", default_args["packets-count"]},
                         {{"a", "address"}, "Send packets to specified address.","address", default_args["address"]},
-                        {"measure-type", R"(Type of measure: "software" or "scheduler")","measure-type", default_args["measure-type"]},
+                        {"measure-type", R"(Type of measure: "software_recv" or "scheduler")","measure-type", default_args["measure-type"]},
                         {"delay", "Delay between sending timestamps, ms","delay", default_args["delay"]},
                         {"ns", "Output in nanoseconds"},
                         {"data", "File, from which taken data to send", "data", default_args["data"]},
@@ -61,13 +61,13 @@ int cli_main(int argc, char *argv[]) {
         if (argc > 2 && args[2] == "rx-timings") {
 
             auto o_rx_time = ds->recvTimestamps(protocol, port, packets_count);
-            printInSystemTimeInfo(o_rx_time, in_ms);
+            printTimestampsAverage(o_rx_time, in_ms);
 
         } else if (argc > 2 && std::string(argv[2]) == "tx-timings") {
 
             auto o_tx_time = ds->sendTimestamps(protocol, addr, port, packets_count, measure_type, delay,
                                                 data_filename, data_size, zero_copy);
-            printInSystemTimeInfo(o_tx_time, in_ms);
+            printTimestampsAverage(o_tx_time, in_ms);
 
         }
     } else if (argc > 2 && args[1] == "iperf3") {

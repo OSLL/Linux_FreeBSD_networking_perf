@@ -40,14 +40,13 @@ protected:
         receiver = new TimestampsReceiver(*sock, func);
 
         for (int i=0; i<packets_count; i++) {
-            receiver->recvOne();
-            emit packetReceived(receiver->getInfo());
+            emit packetReceived(receiver->recvOne());
         }
     }
 
 signals:
 
-    void packetReceived(const InSystemTimeInfo time_info);
+    void packetReceived(const ReceiveTimestamp time_info);
 
 };
 

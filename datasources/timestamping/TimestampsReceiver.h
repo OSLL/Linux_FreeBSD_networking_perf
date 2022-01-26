@@ -11,7 +11,7 @@
 
 #define CONTROL_SIZE 1024
 
-typedef std::function<void(msghdr &msg, InSystemTimeInfo &res, timespec &after_recv_time,
+typedef std::function<void(msghdr &msg, ReceiveTimestamp &res, timespec &after_recv_time,
                            const QString &protocol)> RecvProcessFunc;
 
 class TimestampsReceiver {
@@ -24,7 +24,7 @@ private:
     iovec iov;
     msghdr msg;
 
-    InSystemTimeInfo time_info;
+    QVector<ReceiveTimestamp> time_info;
     RecvProcessFunc &recv_process_func;
 
 public:
@@ -32,8 +32,8 @@ public:
     TimestampsReceiver(Socket &sock, RecvProcessFunc &func);
     ~TimestampsReceiver();
 
-    void recvOne();
-    const InSystemTimeInfo& getInfo();
+    ReceiveTimestamp recvOne();
+    const QVector<ReceiveTimestamp>& getInfo();
 };
 
 

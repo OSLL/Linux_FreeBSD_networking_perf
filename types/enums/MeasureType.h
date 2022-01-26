@@ -17,9 +17,9 @@ enum MeasureType {
 };
 
 const Enum<MeasureType> measure_type_enum({
-        {SOFTWARE, "software"},
+        {SOFTWARE, "software_recv"},
 #ifdef __linux__
-        {HARDWARE, "hardware"},
+        {HARDWARE, "hardware_recv"},
         {SCHEDULE, "schedule"},
         {ACK, "ack"}
 #endif

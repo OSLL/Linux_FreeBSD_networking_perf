@@ -202,7 +202,7 @@ void LinuxDataSource::setRecvSockOpt(Socket &sock) {
 
 }
 
-void LinuxDataSource::processRecvTimestamp(msghdr &msg, InSystemTimeInfo &res, timespec &after_recv_time,
+void LinuxDataSource::processRecvTimestamp(msghdr &msg, ReceiveTimestamp &res, timespec &after_recv_time,
                                            const QString &protocol) {
 
     for (cmsghdr *cmsg = CMSG_FIRSTHDR(&msg); cmsg; cmsg = CMSG_NXTHDR(&msg, cmsg)) {
@@ -212,10 +212,10 @@ void LinuxDataSource::processRecvTimestamp(msghdr &msg, InSystemTimeInfo &res, t
             auto tmst = (scm_timestamping*) &CMSG_DATA(cmsg);
 
             if (!is_timespec_empty(tmst->ts[0])) {
-                res.software_time.push_back(TimeRange(tmst->ts[0], after_recv_time).getRangeNS());
+                res.software_recv = tmst->ts[0];
             }
             if (!is_timespec_empty(tmst->ts[2])) {
-                res.hardware_time.push_back(TimeRange(tmst->ts[2], after_recv_time).getRangeNS());
+                res.hardware_recv =tmst->ts[2];
             }
         }
     }
@@ -228,20 +228,20 @@ void LinuxDataSource::setSendSockOpt(Socket &sock, const QString &measure_type) 
 
     if (measure_type == "scheduler") {
         val = SOF_TIMESTAMPING_TX_SCHED | SOF_TIMESTAMPING_SOFTWARE;
-    } else if (measure_type == "software") {
+    } else if (measure_type == "software_recv") {
         val = SOF_TIMESTAMPING_TX_SOFTWARE | SOF_TIMESTAMPING_SOFTWARE;
-    } else if (measure_type == "hardware") {
+    } else if (measure_type == "hardware_recv") {
         val = SOF_TIMESTAMPING_TX_HARDWARE | SOF_TIMESTAMPING_RAW_HARDWARE;
     } else if (measure_type == "ack") {
         val = SOF_TIMESTAMPING_TX_ACK | SOF_TIMESTAMPING_SOFTWARE;
     } else {
-        std::cout << "Unknown measure type, used software" << std::endl;
+        std::cout << "Unknown measure type, used software_recv" << std::endl;
     }
 
     sock.setOpt(SOL_SOCKET, SO_TIMESTAMPING, &val, sizeof(val));
 }
 
-void LinuxDataSource::processSendTimestamp(Socket &sock, InSystemTimeInfo &res, TimeRange &timestamps) {
+void LinuxDataSource::processSendTimestamp(Socket &sock, SendTimestamp &res, TimeRange &timestamps) {
 
     auto protocol = sock.getProtocol();
     if (!(protocol == "tcp" || protocol == "udp")) return;
@@ -287,10 +287,10 @@ void LinuxDataSource::processSendTimestamp(Socket &sock, InSystemTimeInfo &res, 
 
     if (tmst) {
         if (!is_timespec_empty(tmst->ts[0])) {
-            res.software_time.push_back(TimeRange(timestamps.from, tmst->ts[0]).getRangeNS());
+            res.software_send = tmst->ts[0];
         }
         if (!is_timespec_empty(tmst->ts[2])) {
-            res.hardware_time.push_back(TimeRange(timestamps.from, tmst->ts[2]).getRangeNS());
+            res.hardware_send = tmst->ts[2];
         }
     }
 }
