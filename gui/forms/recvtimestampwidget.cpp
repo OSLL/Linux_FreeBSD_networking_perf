@@ -102,7 +102,6 @@ void RecvTimestampWidget::onStartClicked() {
 }
 
 void RecvTimestampWidget::onPacketReceived(const InSystemTimeInfo &time_info) {
-    qDebug() << "Packet received" << time_info.software_time.size();
 
     if (!time_info.software_time.empty()) {software_series->append(time_info.software_time.last());}
     if (!time_info.hardware_time.empty()) {hardware_series->append(time_info.hardware_time.last());}

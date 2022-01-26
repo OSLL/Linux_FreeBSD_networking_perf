@@ -37,7 +37,7 @@ BaseDataSource::recvTimestamps(const QString &protocol, unsigned int port, unsig
 std::optional<InSystemTimeInfo>
 BaseDataSource::sendTimestamps(const QString &protocol, const QString &addr, unsigned int port,
                                unsigned int packets_count, const QString &measure_type, unsigned int delay,
-                               const QString &data_filename, unsigned int data_size, bool zero_copy) {
+                               const QString &data_filename, quint64 data_size, bool zero_copy) {
 
     QFile file(data_filename);
 

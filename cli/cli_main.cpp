@@ -51,7 +51,7 @@ int cli_main(int argc, char *argv[]) {
         auto in_ms = !parser.isSet("ns");
         auto delay = parser.value("delay").toUInt();
         auto data_filename = parser.value("data");
-        auto data_size = parser.value("data-size").toUInt();
+        auto data_size = parser.value("data-size").toULongLong();
         auto zero_copy = parser.isSet("zero-copy");
 
         if (data_filename == "/dev/urandom" && !data_size) {

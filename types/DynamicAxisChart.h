@@ -34,6 +34,7 @@ private slots:
 
     void onPointAdded(const QPointF &point) {
         if (!y_max || *y_max < point.y()) {
+            qDebug() << "Point" << point;
             y_max = point.y();
             y_axis.setRange(-10, *y_max+10);
         }

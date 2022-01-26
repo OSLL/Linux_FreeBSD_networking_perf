@@ -3,6 +3,7 @@
 //
 
 #include "TimestampsReceiver.h"
+#include <QDebug>
 
 TimestampsReceiver::TimestampsReceiver(Socket &sock, RecvProcessFunc &func):
 sock(sock), recv_process_func(func) {
@@ -26,7 +27,7 @@ sock(sock), recv_process_func(func) {
 
 void TimestampsReceiver::recvOne() {
 
-    auto o_in_call_time = sock.receiveMsg(msg, 0);
+    auto o_in_call_time = sock.receiveMsg(msg, MSG_WAITALL);
 
     timespec send_time = {0, 0};
     sock.receiveData(&send_time);

@@ -42,7 +42,7 @@ public:
             unsigned int delay,
 
             const QString &data_filename,
-            unsigned int data_size,
+            quint64 data_size,
             bool zero_copy);
 
     virtual std::optional<QMap<int, int>> getCPUDistribution(CPUDistributionSource source)=0;

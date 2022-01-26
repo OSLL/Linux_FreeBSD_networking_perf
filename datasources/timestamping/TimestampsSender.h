@@ -27,7 +27,7 @@ protected:
 
 public:
 
-    TimestampsSender(Socket &sock, QFile &file, unsigned int data_size, bool zero_copy, SendProcessFunc &func);
+    TimestampsSender(Socket &sock, QFile &file, quint64 data_size, bool zero_copy, SendProcessFunc &func);
 
     void sendOne(void);
     const InSystemTimeInfo& getInfo();

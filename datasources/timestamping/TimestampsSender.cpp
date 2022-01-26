@@ -4,7 +4,7 @@
 
 #include "TimestampsSender.h"
 
-TimestampsSender::TimestampsSender(Socket &sock, QFile &file, unsigned int data_size, bool zero_copy,
+TimestampsSender::TimestampsSender(Socket &sock, QFile &file, quint64 data_size, bool zero_copy,
                                    SendProcessFunc &func):
                                    sock(sock), file(file), data_size(data_size), zero_copy(zero_copy),
                                    send_process_func(func) {
