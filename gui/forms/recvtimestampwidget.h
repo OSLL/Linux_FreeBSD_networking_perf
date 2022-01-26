@@ -10,6 +10,7 @@
 #include "../../types/series/FuncSeries.h"
 #include "../../types/DynamicAxisChart.h"
 #include "../threads/TimestampsReceiverThread.h"
+#include "../../utils/default_args.h"
 
 namespace Ui {
 class RecvTimestampWidget;

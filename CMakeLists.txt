@@ -17,7 +17,12 @@ add_executable(lfnp main.cpp datasources/BaseDataSource.h utils/utils.h utils/ut
         gui/forms/mainwindow.cpp gui/forms/mainwindow.ui gui/forms/cpudistributionwidget.h
         gui/forms/cpudistributionwidget.cpp gui/forms/cpudistributionwidget.ui types/series/TimeSeries.h
         types/DynamicAxisChart.h types/DropsInfo.h types/enums/CPUDistributionSource.h
-        gui/forms/recvtimestampwidget.cpp gui/forms/recvtimestampwidget.h gui/forms/recvtimestampwidget.ui utils/default_args.h types/enums/MeasureType.h types/enums/BaseEnum.h datasources/timestamping/TimestampsSender.cpp datasources/timestamping/TimestampsSender.h types/TimeRange.h datasources/timestamping/TimestampsReceiver.cpp datasources/timestamping/TimestampsReceiver.h gui/threads/TimestampsReceiverThread.h types/series/FuncSeries.h types/series/BaseSeries.h)
+        gui/forms/recvtimestampwidget.cpp gui/forms/recvtimestampwidget.h gui/forms/recvtimestampwidget.ui
+        utils/default_args.h types/enums/MeasureType.h types/enums/BaseEnum.h
+        datasources/timestamping/TimestampsSender.cpp datasources/timestamping/TimestampsSender.h types/TimeRange.h
+        datasources/timestamping/TimestampsReceiver.cpp datasources/timestamping/TimestampsReceiver.h
+        gui/threads/TimestampsReceiverThread.h types/series/FuncSeries.h types/series/BaseSeries.h
+        gui/forms/sendtimestampwidget.h gui/forms/sendtimestampwidget.cpp gui/forms/sendtimestampwidget.ui)
 
 target_link_libraries(lfnp
         Qt5::Core

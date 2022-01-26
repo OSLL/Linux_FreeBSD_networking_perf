@@ -33,7 +33,6 @@
     <property name="title">
      <string>Инструменты</string>
     </property>
-    <addaction name="cpu_distribution_action"/>
    </widget>
    <addaction name="menu"/>
   </widget>

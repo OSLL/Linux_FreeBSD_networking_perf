@@ -7,6 +7,7 @@
 
 #include "cpudistributionwidget.h"
 #include "recvtimestampwidget.h"
+#include "sendtimestampwidget.h"
 
 #ifdef __linux__
 #include "../../datasources/linux/LinuxDataSource.h"

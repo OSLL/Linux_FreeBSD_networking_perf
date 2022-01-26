@@ -21,6 +21,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ACTION("CPU Distribution", CPUDistributionWidget);
     ACTION("Receive timestamps", RecvTimestampWidget);
+    ACTION("Send timestamps", SendTimestampWidget);
 }
 
 MainWindow::~MainWindow()

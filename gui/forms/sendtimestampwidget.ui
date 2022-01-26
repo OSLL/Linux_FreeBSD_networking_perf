@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>RecvTimestampWidget</class>
- <widget class="QWidget" name="RecvTimestampWidget">
+ <class>SendTimestampWidget</class>
+ <widget class="QWidget" name="SendTimestampWidget">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -24,7 +24,7 @@
        <property name="maximumSize">
         <size>
          <width>16777215</width>
-         <height>250</height>
+         <height>16777215</height>
         </size>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout">
@@ -117,6 +117,56 @@
          </layout>
         </item>
         <item>
+         <layout class="QHBoxLayout" name="measureTypeLayout">
+          <item>
+           <widget class="QLabel" name="measureTypeLabel">
+            <property name="text">
+             <string>Измерение:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QComboBox" name="measureTypeComboBox"/>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="fileLayout">
+          <item>
+           <widget class="QLabel" name="fileLabel">
+            <property name="text">
+             <string>Файл:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="fileLineEdit">
+            <property name="text">
+             <string>/dev/urandom</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="dataSizeLayout">
+          <item>
+           <widget class="QLabel" name="dataSizeLabel">
+            <property name="text">
+             <string>Размер данных:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QSpinBox" name="dataSizeSpinBox">
+            <property name="maximum">
+             <number>9999</number>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
          <layout class="QHBoxLayout" name="accuracyLayout">
           <item>
            <widget class="QLabel" name="accuracyLabel">
@@ -127,6 +177,35 @@
           </item>
           <item>
            <widget class="QComboBox" name="accuracyComboBox"/>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="delayLayout">
+          <item>
+           <widget class="QLabel" name="delayLabel">
+            <property name="text">
+             <string>Задержка:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QSpinBox" name="delaySpinBox">
+            <property name="maximum">
+             <number>9999</number>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="zeroCopyLayout">
+          <item>
+           <widget class="QCheckBox" name="zeroCopyCheckBox">
+            <property name="text">
+             <string>Zero-Copy</string>
+            </property>
+           </widget>
           </item>
          </layout>
         </item>
@@ -153,6 +232,6 @@
    </item>
   </layout>
  </widget>
- <resources/>
+ <pixmapfunction/>
  <connections/>
 </ui>

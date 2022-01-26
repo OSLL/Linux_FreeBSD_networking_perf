@@ -1,7 +1,5 @@
 #include "recvtimestampwidget.h"
 #include "ui_recvtimestampwidget.h"
-#include "../../utils/default_args.h"
-#include "../../types/enums/MeasureType.h"
 
 RecvTimestampWidget::RecvTimestampWidget(BaseDataSource *ds, QWidget *parent) :
     QWidget(parent),
@@ -18,17 +16,8 @@ RecvTimestampWidget::RecvTimestampWidget(BaseDataSource *ds, QWidget *parent) :
     ui->portSpinBox->setValue(default_args["port"].toInt());
     ui->packetsCountComboBox->setValue(default_args["packets-count"].toInt());
 
-    ui->measureTypeComboBox->addItems(measure_type_enum.allStrings());
-    ui->measureTypeComboBox->setCurrentText(default_args["measure-type"]);
-
-    ui->fileLineEdit->setText(default_args["data"]);
-    ui->dataSizeSpinBox->setValue(default_args["data-size"].toInt());
-
     ui->accuracyComboBox->addItems({"us", "ns"});
     ui->accuracyComboBox->setCurrentText("us");
-
-    ui->delaySpinBox->setValue(default_args["delay"].toInt());
-    ui->zeroCopyCheckBox->setCheckState(Qt::CheckState::Unchecked);
 
     QObject::connect(ui->startButton, &QPushButton::clicked, this, &RecvTimestampWidget::onStartClicked);
 
@@ -59,9 +48,6 @@ void RecvTimestampWidget::onStartClicked() {
     const QString ip_addr = ui->ipEdit->text();
     const int port = ui->portSpinBox->value();
     const int packets_count = ui->packetsCountComboBox->value();
-    const MeasureType measure_type = measure_type_enum.fromString(ui->measureTypeComboBox->currentText()).value();
-    const QString filename = ui->fileLineEdit->text();
-    const int data_size = ui->dataSizeSpinBox->value();
     const bool is_us = ui->accuracyComboBox->currentText() == "us";
 
     recreateChart(is_us);
@@ -83,6 +69,7 @@ void RecvTimestampWidget::onStartClicked() {
     ui->startButton->setDisabled(true);
 }
 
+//TODO: передавать не time_info, а отдельно последние, что бы не было проблем с потоками
 void RecvTimestampWidget::onPacketReceived(const InSystemTimeInfo &time_info) {
 
     if (!time_info.software_time.empty()) {software_series->append(time_info.software_time.last());}
