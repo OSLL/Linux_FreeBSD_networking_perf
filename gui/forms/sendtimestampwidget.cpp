@@ -1,7 +1,6 @@
 #include <QMessageBox>
 #include "sendtimestampwidget.h"
 #include "ui_sendtimestampwidget.h"
-#include "../../types/DynamicAxisChart.h"
 
 SendTimestampWidget::SendTimestampWidget(BaseDataSource *ds, QWidget *parent) :
     QWidget(parent),

@@ -5,6 +5,9 @@
 #include "BaseDataSource.h"
 #include "timestamping/TimestampsSender.h"
 #include "timestamping/TimestampsReceiver.h"
+#include "bandwidth/BandwidthSender.h"
+#include "bandwidth/BandwidthReceiver.h"
+#include <QThreadPool>
 
 using namespace std::placeholders;
 
@@ -74,4 +77,103 @@ BaseDataSource::sendTimestamps(const QString &protocol, const QString &addr, uns
     }
 
     return sender.getInfo();
+}
+
+void BaseDataSource::sendBandwidth(const QString &protocol, const QString &addr, unsigned int port, quint64 duration,
+                                   const QString &data_filename, quint64 data_size, bool zero_copy) {
+
+    QFile file(data_filename);
+
+    if (!file.open(QIODevice::ReadOnly)) {
+        std::cout << "Can't open " << data_filename.toStdString() << std::endl;
+        return;
+    }
+
+    if (!data_size) {
+        data_size = file.size();
+    }
+    auto data = file.read(data_size);
+
+    Socket sock(protocol);
+
+    if (sock.connectTo(addr, port) < 0) {
+        std::cout << "Connect error" << std::endl;
+        return;
+    }
+
+    sock.sendData(&data_size);
+
+    QVector<BandwidthSender*> senders;
+    for (int i=0; i<4; i++) {
+        auto sender = new BandwidthSender(sock, data, file.handle(), data_size, zero_copy);
+        senders.push_back(sender);
+        sender->start();
+    }
+
+    QThread::sleep(duration);
+    for (auto sender: senders) {
+        sender->requestInterruption();
+    }
+    for (auto sender: senders) {
+        sender->wait();
+    }
+
+    quint64 packets_count = 0;
+    quint64 bytes_sent = 0;
+
+    for (auto sender: senders) {
+        packets_count += sender->getPacketsCount();
+        bytes_sent += sender->getBytesSent();
+    }
+
+    std::cout << "Packets count: " << packets_count << std::endl;
+    std::cout << "GBytes: " << (double)bytes_sent/1024/1024/1024 << std::endl;
+    std::cout << "GBits/s: " << (double)bytes_sent/duration/1024/1024/128 << std::endl;
+}
+
+void BaseDataSource::recvBandwidth(const QString &protocol, unsigned int port) {
+
+    Socket sock(protocol);
+    this->setRecvSockOpt(sock);
+
+    if (sock.bindToAny(port) < 0) {
+        std::cout << "Bind failed" << std::endl;
+        return;
+    }
+
+    if (sock.listenFor(4) < 0) {
+        std::cout << "Listen failed" << std::endl;
+        return;
+    }
+
+    quint64 data_size = 0;
+    sock.receiveData(&data_size);
+    QVector<BandwidthReceiver*> receivers;
+    for (int i=0; i<1; i++) {
+        auto receiver = new BandwidthReceiver(sock, data_size);
+        receivers.push_back(receiver);
+        receiver->start();
+    }
+
+    int duration = 11;
+    QThread::sleep(duration);
+    for (auto receiver: receivers) {
+        receiver->requestInterruption();
+    }
+    for (auto receiver: receivers) {
+        receiver->wait();
+    }
+
+    quint64 packets_count = 0;
+    quint64 bytes_sent = 0;
+
+    for (auto receiver: receivers) {
+        packets_count += receiver->getPacketsCount();
+        bytes_sent += receiver->getBytesSent();
+    }
+
+    std::cout << "Packets count: " << packets_count << std::endl;
+    std::cout << "GBytes: " << (double)bytes_sent/1024/1024/1024 << std::endl;
+    std::cout << "GBits/s: " << (double)bytes_sent/duration/1024/1024/128 << std::endl;
+
 }

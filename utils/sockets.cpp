@@ -78,7 +78,7 @@ int Socket::listenFor(int conn_num) {
     return 0;
 }
 
-std::optional<TimeRange> Socket::receiveMsg(msghdr &msg, int flags) {
+std::optional<TimeRange> Socket::receiveMsgTS(msghdr &msg, int flags) {
 
 
     TimeRange res;
@@ -121,7 +121,7 @@ int Socket::connectTo(const QString &ip_addr, unsigned int port) {
     return 0;
 }
 
-std::optional<TimeRange> Socket::sendData(const void *data, size_t data_size) {
+std::optional<TimeRange> Socket::sendDataTS(const void *data, size_t data_size) {
     TimeRange res;
     int err;
 
@@ -164,7 +164,7 @@ int Socket::bindToAny(unsigned int port) {
     return 0;
 }
 
-std::optional<TimeRange> Socket::sendFile(int file_descriptor, size_t data_size) {
+std::optional<TimeRange> Socket::sendFileTS(int file_descriptor, size_t data_size) {
 
     TimeRange res;
     int err;
@@ -187,4 +187,12 @@ std::optional<TimeRange> Socket::sendFile(int file_descriptor, size_t data_size)
 
 QStringList Socket::getSupportedProtocols() {
     return Socket::protocol_socket_args.keys();
+}
+
+int Socket::sendFile(int file_descriptor, size_t data_size) {
+#ifdef __linux__
+    return sendfile(file_descriptor, sock_descriptor, nullptr, data_size);
+#else
+    return sendfile(file_descriptor, sock_descriptor, 0, data_size, nullptr, nullptr, 0);
+#endif
 }

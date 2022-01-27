@@ -57,15 +57,21 @@ public:
     int listenFor(int conn_num);
 
     template <typename T>
-    int receiveData(T *data) { return recv(recv_sock_descriptor, data, sizeof(T), 0); }
-    std::optional<TimeRange> receiveMsg(msghdr &msg, int flags = 0);
+    int receiveData(T *data, int flags=0) { return recv(recv_sock_descriptor, data, sizeof(T), flags); }
+    int receiveData(void *data, size_t data_size, int flags=0) { return recv(recv_sock_descriptor, data, data_size, flags); }
+    int receiveMsg(msghdr &msg, int flags = 0) { return recvmsg(recv_sock_descriptor, &msg, flags); }
+    std::optional<TimeRange> receiveMsgTS(msghdr &msg, int flags = 0);
 
     int connectTo(const QString &ip_addr, unsigned int port);
 
     template <typename T>
-    std::optional<TimeRange> sendData(T* data) { return sendData(data, sizeof(T)); }
-    std::optional<TimeRange> sendData(const void *data, size_t data_size);
-    std::optional<TimeRange> sendFile(int file_descriptor, size_t data_size);
+    int sendData(T* data) { return send(sock_descriptor, data, sizeof(T), 0); }
+    int sendData(const void *data, size_t data_size) { return send(sock_descriptor, data, data_size, 0); }
+    int sendMsg(const msghdr &msg, int flags=0) { return sendmsg(sock_descriptor, &msg, flags); }
+
+    int sendFile(int file_descriptor, size_t data_size);
+    std::optional<TimeRange> sendDataTS(const void *data, size_t data_size);
+    std::optional<TimeRange> sendFileTS(int file_descriptor, size_t data_size);
 
     static QStringList getSupportedProtocols();
 };

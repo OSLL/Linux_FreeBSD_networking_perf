@@ -153,7 +153,7 @@ void FreeBSDDataSource::processRecvTimestamp(msghdr &msg, ReceiveTimestamp &res,
     }
 }
 
-void FreeBSDDataSource::setSendSockOpt(Socket &sock, const QString &measure_type) {
+void FreeBSDDataSource::setSendSockOpt(Socket &sock,  const MeasureType measure_type) {
     // Во FreeBSD не реализована получение timestamp'ов при получении
     return;
 }

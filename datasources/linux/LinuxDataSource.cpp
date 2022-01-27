@@ -268,7 +268,7 @@ void LinuxDataSource::processSendTimestamp(Socket &sock, SendTimestamp &res, Tim
 
     bool is_valid_timestamp = false;
     while (!is_valid_timestamp) {
-        auto is_cmsg_exist = sock.receiveMsg(msg, MSG_ERRQUEUE | MSG_WAITALL);
+        auto is_cmsg_exist = sock.receiveMsgTS(msg, MSG_ERRQUEUE | MSG_WAITALL);
         if (!is_cmsg_exist) return;
 
         for (cmsghdr *cmsg = CMSG_FIRSTHDR(&msg); cmsg; cmsg = CMSG_NXTHDR(&msg, cmsg)) {

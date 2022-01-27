@@ -21,9 +21,9 @@ std::optional<SendTimestamp> TimestampsSender::sendOne() {
     SendTimestamp timestamp;
     std::optional<TimeRange> o_timerange;
     if (zero_copy) {
-        o_timerange = sock.sendFile(file.handle(), data_size);
+        o_timerange = sock.sendFileTS(file.handle(), data_size);
     } else {
-        o_timerange = sock.sendData(data, data_size);
+        o_timerange = sock.sendDataTS(data, data_size);
     }
 
     if (!o_timerange) {

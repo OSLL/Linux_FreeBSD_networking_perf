@@ -28,7 +28,7 @@ sock(sock), recv_process_func(func) {
 ReceiveTimestamp TimestampsReceiver::recvOne() {
 
     ReceiveTimestamp timestamp;
-    auto o_in_call_time = sock.receiveMsg(msg, MSG_WAITALL);
+    auto o_in_call_time = sock.receiveMsgTS(msg, MSG_WAITALL);
     sock.receiveData(&timestamp.before_send);
 
     if (o_in_call_time) {
