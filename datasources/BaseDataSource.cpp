@@ -105,7 +105,14 @@ void BaseDataSource::sendBandwidth(const QString &protocol, const QString &addr,
 
     QVector<BandwidthSender*> senders;
     for (int i=0; i<4; i++) {
-        auto sender = new BandwidthSender(sock, data, file.handle(), data_size, zero_copy);
+        auto *connection_sock = new Socket(protocol);
+
+        if (connection_sock->connectTo(addr, port) < 0) {
+            std::cout << "Connect error" << std::endl;
+            return;
+        }
+
+        auto sender = new BandwidthSender(connection_sock, data, file.handle(), data_size, zero_copy);
         senders.push_back(sender);
         sender->start();
     }
@@ -141,7 +148,7 @@ void BaseDataSource::recvBandwidth(const QString &protocol, unsigned int port) {
         return;
     }
 
-    if (sock.listenFor(4) < 0) {
+    if (sock.listenFor(8) < 0) {
         std::cout << "Listen failed" << std::endl;
         return;
     }
@@ -149,8 +156,9 @@ void BaseDataSource::recvBandwidth(const QString &protocol, unsigned int port) {
     quint64 data_size = 0;
     sock.receiveData(&data_size);
     QVector<BandwidthReceiver*> receivers;
-    for (int i=0; i<1; i++) {
-        auto receiver = new BandwidthReceiver(sock, data_size);
+    for (int i=0; i<4; i++) {
+        auto accept_sock = sock.acceptConnection();
+        auto receiver = new BandwidthReceiver(accept_sock, data_size);
         receivers.push_back(receiver);
         receiver->start();
     }

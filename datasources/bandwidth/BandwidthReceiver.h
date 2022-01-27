@@ -14,7 +14,7 @@ class BandwidthReceiver: public QThread {
 
 private:
 
-    Socket sock;
+    Socket *sock;
     quint64 data_size;
 
     quint64 packets_count;
@@ -25,7 +25,7 @@ private:
 
 public:
 
-    BandwidthReceiver(const Socket& _sock, quint64 _ds):
+    BandwidthReceiver(Socket *_sock, quint64 _ds):
     sock(_sock), data_size(_ds), packets_count(0), bytes_sent(0) {
 
         iov = {
@@ -44,6 +44,7 @@ public:
     }
 
     ~BandwidthReceiver() {
+        delete sock;
         delete[] (char*)msg.msg_iov->iov_base;
     }
 
@@ -52,7 +53,7 @@ public:
         int err = 0;
 
         while (!QThread::currentThread()->isInterruptionRequested()) {
-            err = sock.receiveMsg(msg, MSG_WAITALL);
+            err = sock->receiveMsg(msg, MSG_WAITALL);
 
             if (err >= 0) {
                 packets_count++;

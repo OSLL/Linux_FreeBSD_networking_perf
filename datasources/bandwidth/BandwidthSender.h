@@ -14,7 +14,7 @@ class BandwidthSender: public QThread {
 
 private:
 
-    Socket sock;
+    Socket *sock;
     QByteArray data;
     int file_descriptor;
     quint64 data_size;
@@ -28,7 +28,7 @@ private:
 
 public:
 
-    BandwidthSender(const Socket& _sock, QByteArray _data, int _fd, quint64 _ds, bool _zc):
+    BandwidthSender(Socket *_sock, QByteArray _data, int _fd, quint64 _ds, bool _zc):
     sock(_sock), data(_data), file_descriptor(_fd), zero_copy(_zc), data_size(_ds), packets_count(0), bytes_sent(0) {
 
         iov = {
@@ -47,16 +47,20 @@ public:
 
     }
 
+    ~BandwidthSender() {
+        delete sock;
+    }
+
     void run() override {
 
-        int err = 0;
+        int err;
 
         while (!QThread::currentThread()->isInterruptionRequested()) {
             if (zero_copy) {
-                err = sock.sendFile(file_descriptor, data_size);
+                err = sock->sendFile(file_descriptor, data_size);
             } else {
 //                err = sock.sendData(data, data_size);
-                err = sock.sendMsg(msg);
+                err = sock->sendMsg(msg);
             }
 
             if (err >= 0) {
@@ -66,8 +70,6 @@ public:
                 qDebug() << "Error: " << err << strerror(errno);
             }
         }
-
-        qDebug() << packets_count << bytes_sent;
     }
 
     quint64 getPacketsCount() { return packets_count; }

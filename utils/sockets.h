@@ -46,6 +46,7 @@ private:
 
 public:
     explicit Socket(const QString &protocol);
+    Socket(int descriptor, const QString &protocol);
     ~Socket();
 
     int setOpt(int level, int optname, const void * optval, socklen_t optlen);
@@ -55,6 +56,7 @@ public:
     int bindToAny(unsigned int port);
 
     int listenFor(int conn_num);
+    Socket *acceptConnection();
 
     template <typename T>
     int receiveData(T *data, int flags=0) { return recv(recv_sock_descriptor, data, sizeof(T), flags); }

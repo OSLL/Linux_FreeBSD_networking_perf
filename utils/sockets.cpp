@@ -42,6 +42,20 @@ Socket::Socket(const QString &protocol): protocol(protocol) {
 
 }
 
+Socket::Socket(int descriptor, const QString &protocol) {
+
+    this->sock_descriptor = descriptor;
+    this->recv_sock_descriptor = descriptor;
+
+    auto iter = Socket::protocol_socket_args.find(protocol);
+    if (iter == Socket::protocol_socket_args.end()) {
+        std::cout << "Unsupported protocol" << std::endl;
+    }
+
+    std::tie(this->sock_domain, this->sock_type, this->sock_protocol) = *iter;
+
+}
+
 Socket::~Socket() {
 
     // В случае, когда открывали дополнительный сокет с помощью accept (использовали TCP) - его тоже нужно закрыть
@@ -76,6 +90,11 @@ int Socket::listenFor(int conn_num) {
     }
 
     return 0;
+}
+
+Socket *Socket::acceptConnection() {
+    int accept_descriptor = accept(this->sock_descriptor, NULL, NULL);
+    return new Socket(accept_descriptor, protocol);
 }
 
 std::optional<TimeRange> Socket::receiveMsgTS(msghdr &msg, int flags) {
