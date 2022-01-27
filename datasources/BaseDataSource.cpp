@@ -7,6 +7,7 @@
 #include "timestamping/TimestampsReceiver.h"
 #include "bandwidth/BandwidthSender.h"
 #include "bandwidth/BandwidthReceiver.h"
+#include "../types/BandwidthResult.h"
 #include <QThreadPool>
 
 using namespace std::placeholders;
@@ -79,14 +80,14 @@ BaseDataSource::sendTimestamps(const QString &protocol, const QString &addr, uns
     return sender.getInfo();
 }
 
-void BaseDataSource::sendBandwidth(const QString &protocol, const QString &addr, unsigned int port, quint64 duration,
+std::optional<BandwidthResult> BaseDataSource::sendBandwidth(const QString &protocol, const QString &addr, unsigned int port, quint64 duration,
                                    const QString &data_filename, quint64 data_size, bool zero_copy, quint64 threads_count) {
 
     QFile file(data_filename);
 
     if (!file.open(QIODevice::ReadOnly)) {
         std::cout << "Can't open " << data_filename.toStdString() << std::endl;
-        return;
+        return std::nullopt;
     }
 
     if (!data_size) {
@@ -98,7 +99,7 @@ void BaseDataSource::sendBandwidth(const QString &protocol, const QString &addr,
 
     if (sock.connectTo(addr, port) < 0) {
         std::cout << "Connect error" << std::endl;
-        return;
+        return std::nullopt;
     }
 
     sock.sendData(&duration);
@@ -110,7 +111,7 @@ void BaseDataSource::sendBandwidth(const QString &protocol, const QString &addr,
 
         if (connection_sock->connectTo(addr, port) < 0) {
             std::cout << "Connect error" << std::endl;
-            return;
+            return std::nullopt;
         }
 
         auto sender = new BandwidthSender(connection_sock, data, file.handle(), data_size, zero_copy);
@@ -127,33 +128,31 @@ void BaseDataSource::sendBandwidth(const QString &protocol, const QString &addr,
         sender->wait();
     }
 
-    quint64 packets_count = 0;
-    quint64 bytes_sent = 0;
+    BandwidthResult res;
+    res.duration = duration;
 
     for (auto sender: senders) {
-        packets_count += sender->getPacketsCount();
-        bytes_sent += sender->getBytesSent();
+        res.packets_count += sender->getPacketsCount();
+        res.bytes_count += sender->getBytesSent();
     }
 
-    std::cout << "Packets count: " << packets_count << std::endl;
-    std::cout << "GBytes: " << (double)bytes_sent/1024/1024/1024 << std::endl;
-    std::cout << "GBits/s: " << (double)bytes_sent/duration/1024/1024/128 << std::endl;
+    return res;
 }
 
-void BaseDataSource::recvBandwidth(const QString &protocol, unsigned int port, quint64 threads_count) {
+std::optional<BandwidthResult> BaseDataSource::recvBandwidth(const QString &protocol, unsigned int port, quint64 threads_count) {
 
     Socket sock(protocol);
 
     if (sock.bindToAny(port) < 0) {
         std::cout << "Bind failed" << std::endl;
-        return;
+        return std::nullopt;
     }
 
     // Так как сервер запустит threads_count accept-ов, то нужно слушать threads_count + основной, через который будут получены
     // duration и data_size
     if (sock.listenFor(threads_count + 1) < 0) {
         std::cout << "Listen failed" << std::endl;
-        return;
+        return std::nullopt;
     }
 
     quint64 duration = 0;
@@ -165,6 +164,7 @@ void BaseDataSource::recvBandwidth(const QString &protocol, unsigned int port, q
     QVector<BandwidthReceiver*> receivers;
     for (int i=0; i < threads_count; i++) {
         auto accept_sock = sock.acceptConnection();
+
         auto receiver = new BandwidthReceiver(accept_sock, data_size);
         receivers.push_back(receiver);
         receiver->start();
@@ -179,16 +179,13 @@ void BaseDataSource::recvBandwidth(const QString &protocol, unsigned int port, q
         receiver->wait();
     }
 
-    quint64 packets_count = 0;
-    quint64 bytes_sent = 0;
+    BandwidthResult res;
+    res.duration = duration;
 
     for (auto receiver: receivers) {
-        packets_count += receiver->getPacketsCount();
-        bytes_sent += receiver->getBytesSent();
+        res.packets_count += receiver->getPacketsCount();
+        res.bytes_count += receiver->getBytesSent();
     }
 
-    std::cout << "Packets count: " << packets_count << std::endl;
-    std::cout << "GBytes: " << (double)bytes_sent/1024/1024/1024 << std::endl;
-    std::cout << "GBits/s: " << (double)bytes_sent/duration/1024/1024/128 << std::endl;
-
+    return res;
 }

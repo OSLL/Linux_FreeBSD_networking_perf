@@ -19,6 +19,7 @@
 #include "../types/DropsInfo.h"
 #include "../types/enums/CPUDistributionSource.h"
 #include "../types/enums/MeasureType.h"
+#include "../types/BandwidthResult.h"
 
 class BaseDataSource {
 
@@ -46,9 +47,9 @@ public:
             quint64 data_size,
             bool zero_copy);
 
-    void recvBandwidth(const QString &protocol, unsigned int port, quint64 threads_count);
+    std::optional<BandwidthResult> recvBandwidth(const QString &protocol, unsigned int port, quint64 threads_count);
 
-    void sendBandwidth(const QString &protocol,
+    std::optional<BandwidthResult> sendBandwidth(const QString &protocol,
                        const QString &addr,
                        unsigned int port,
                        quint64 duration,

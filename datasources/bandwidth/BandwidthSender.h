@@ -59,16 +59,13 @@ public:
             if (zero_copy) {
                 err = sock->sendFile(file_descriptor, data_size);
             } else {
-//                err = sock.sendData(data, data_size);
-                err = sock->sendMsg(msg);
+                err = sock->sendData(data, data_size);
+//                err = sock->sendMsg(msg);
+//                err = write(sock->sock_descriptor, data, data_size);
             }
 
-            if (err >= 0) {
-                packets_count++;
-                bytes_sent += err;
-            } else {
-                qDebug() << "Error: " << err << strerror(errno);
-            }
+            packets_count++;
+            bytes_sent += err;
         }
     }
 

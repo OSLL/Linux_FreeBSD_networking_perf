@@ -55,12 +55,8 @@ public:
         while (!QThread::currentThread()->isInterruptionRequested()) {
             err = sock->receiveMsg(msg, MSG_WAITALL);
 
-            if (err > 0) {
-                packets_count++;
-                bytes_sent += err;
-            } else {
-                qDebug() << "Error: " << err << strerror(errno);
-            }
+            packets_count++;
+            bytes_sent += err;
         }
     }
 

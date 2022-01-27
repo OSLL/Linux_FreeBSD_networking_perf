@@ -84,9 +84,9 @@ int cli_main(int argc, char *argv[]) {
             printTimestampsAverage(o_tx_time, in_ms);
 
         } else if (argc > 2 && args[2] == "tx-bandwidth") {
-            ds->sendBandwidth(protocol, addr, port, duration, data_filename, data_size, zero_copy, threads_count);
+            printBandwidthResult(ds->sendBandwidth(protocol, addr, port, duration, data_filename, data_size, zero_copy, threads_count));
         } else if (argc > 2 && args[2] == "rx-bandwidth") {
-            ds->recvBandwidth(protocol, port, threads_count);
+            printBandwidthResult(ds->recvBandwidth(protocol, port, threads_count));
         }
 
     } else if (argc > 2 && args[1] == "iperf3") {

@@ -165,3 +165,14 @@ void printDropsInfo(QVector<QPair<QString, DropsInfo>> drops_info) {
         std::cout << std::endl;
     }
 }
+
+void printBandwidthResult(std::optional<BandwidthResult> o_res) {
+
+    if (o_res) {
+        std::cout << "Transfered, GBytes: " << (double)o_res->bytes_count/1000000000L << std::endl;
+        std::cout << "Bandwidth, GBites/s: " << (double)o_res->bytes_count/o_res->duration/1000000000L*8 << std::endl;
+    } else {
+        std::cout << "Can't measure bandwidth" << std::endl;
+    }
+
+}

@@ -17,6 +17,7 @@
 #include "../../types/InSystemTimeInfo.h"
 #include "../../types/DropsInfo.h"
 #include "../../utils/utils.h"
+#include "../../types/BandwidthResult.h"
 
 void printSocketsInfoList(const std::vector<SocketInfo>& sockets_info_list);
 
@@ -31,6 +32,8 @@ void printSoftnetData(std::optional<QVector<QVector<int>>> o_cpus_sd);
 void printCPUDistribution(std::optional<QMap<int, int>> o_cpus_dist);
 
 void printDropsInfo(QVector<QPair<QString, DropsInfo>> drops_info);
+
+void printBandwidthResult(std::optional<BandwidthResult> o_res);
 
 template <typename T>
 void printTimestampsAverage(std::optional<QVector<T>> &o_time_info, bool in_ms) {
