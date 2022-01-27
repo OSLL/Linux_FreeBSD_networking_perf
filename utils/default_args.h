@@ -16,7 +16,9 @@ const QMap<QString, QString> default_args = {
         {"measure-type", "software"},
         {"delay", "0"},
         {"data", "/dev/urandom"},
-        {"data-size", "0"}
+        {"data-size", "0"},
+        {"threads", "1"},
+        {"duration", "10"}
 };
 
 #endif //LFNP_DEFAULT_ARGS_H

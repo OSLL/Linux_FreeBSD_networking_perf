@@ -80,7 +80,7 @@ BaseDataSource::sendTimestamps(const QString &protocol, const QString &addr, uns
 }
 
 void BaseDataSource::sendBandwidth(const QString &protocol, const QString &addr, unsigned int port, quint64 duration,
-                                   const QString &data_filename, quint64 data_size, bool zero_copy) {
+                                   const QString &data_filename, quint64 data_size, bool zero_copy, quint64 threads_count) {
 
     QFile file(data_filename);
 
@@ -101,10 +101,11 @@ void BaseDataSource::sendBandwidth(const QString &protocol, const QString &addr,
         return;
     }
 
+    sock.sendData(&duration);
     sock.sendData(&data_size);
 
     QVector<BandwidthSender*> senders;
-    for (int i=0; i<4; i++) {
+    for (int i=0; i < threads_count; i++) {
         auto *connection_sock = new Socket(protocol);
 
         if (connection_sock->connectTo(addr, port) < 0) {
@@ -118,6 +119,7 @@ void BaseDataSource::sendBandwidth(const QString &protocol, const QString &addr,
     }
 
     QThread::sleep(duration);
+
     for (auto sender: senders) {
         sender->requestInterruption();
     }
@@ -138,33 +140,38 @@ void BaseDataSource::sendBandwidth(const QString &protocol, const QString &addr,
     std::cout << "GBits/s: " << (double)bytes_sent/duration/1024/1024/128 << std::endl;
 }
 
-void BaseDataSource::recvBandwidth(const QString &protocol, unsigned int port) {
+void BaseDataSource::recvBandwidth(const QString &protocol, unsigned int port, quint64 threads_count) {
 
     Socket sock(protocol);
-    this->setRecvSockOpt(sock);
 
     if (sock.bindToAny(port) < 0) {
         std::cout << "Bind failed" << std::endl;
         return;
     }
 
-    if (sock.listenFor(8) < 0) {
+    // Так как сервер запустит threads_count accept-ов, то нужно слушать threads_count + основной, через который будут получены
+    // duration и data_size
+    if (sock.listenFor(threads_count + 1) < 0) {
         std::cout << "Listen failed" << std::endl;
         return;
     }
 
+    quint64 duration = 0;
     quint64 data_size = 0;
+
+    sock.receiveData(&duration);
     sock.receiveData(&data_size);
+
     QVector<BandwidthReceiver*> receivers;
-    for (int i=0; i<4; i++) {
+    for (int i=0; i < threads_count; i++) {
         auto accept_sock = sock.acceptConnection();
         auto receiver = new BandwidthReceiver(accept_sock, data_size);
         receivers.push_back(receiver);
         receiver->start();
     }
 
-    int duration = 11;
     QThread::sleep(duration);
+
     for (auto receiver: receivers) {
         receiver->requestInterruption();
     }

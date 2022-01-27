@@ -28,7 +28,9 @@ int cli_main(int argc, char *argv[]) {
 #else
                             "netisr"
 #endif
-                    }
+                    },
+                    {"duration", "Duration of bandwidth measure", "duration", default_args["duration"]},
+                    {"threads", "Count of threads to use", "threads", default_args["threads"]}
             });
 
     parser.process(args);
@@ -46,6 +48,9 @@ int cli_main(int argc, char *argv[]) {
 
     auto s_source = parser.value("source");
     auto o_source = cpu_distribution_source_enum.fromString(s_source);
+
+    auto duration = parser.value("duration").toULongLong();
+    auto threads_count = parser.value("threads").toULongLong();
 
 #ifdef __linux__
     BaseDataSource *ds = new LinuxDataSource();
@@ -79,9 +84,9 @@ int cli_main(int argc, char *argv[]) {
             printTimestampsAverage(o_tx_time, in_ms);
 
         } else if (argc > 2 && args[2] == "tx-bandwidth") {
-            ds->sendBandwidth(protocol, addr, port, 10, data_filename, data_size, zero_copy);
+            ds->sendBandwidth(protocol, addr, port, duration, data_filename, data_size, zero_copy, threads_count);
         } else if (argc > 2 && args[2] == "rx-bandwidth") {
-            ds->recvBandwidth(protocol, port);
+            ds->recvBandwidth(protocol, port, threads_count);
         }
 
     } else if (argc > 2 && args[1] == "iperf3") {

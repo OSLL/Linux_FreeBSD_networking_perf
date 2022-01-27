@@ -46,7 +46,7 @@ public:
             quint64 data_size,
             bool zero_copy);
 
-    void recvBandwidth(const QString &protocol, unsigned int port);
+    void recvBandwidth(const QString &protocol, unsigned int port, quint64 threads_count);
 
     void sendBandwidth(const QString &protocol,
                        const QString &addr,
@@ -54,7 +54,8 @@ public:
                        quint64 duration,
                        const QString &data_filename,
                        quint64 data_size,
-                       bool zero_copy);
+                       bool zero_copy,
+                       quint64 threads_count);
 
     virtual std::optional<QMap<int, int>> getCPUDistribution(CPUDistributionSource source)=0;
     virtual std::optional<QMap<QString, DropsInfo>> getDevsDropsInfo()=0;
