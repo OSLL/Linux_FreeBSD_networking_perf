@@ -8,6 +8,8 @@
 #include <QString>
 #include <QMap>
 
+#define DEFAULT_NOT_ZERO_DATASIZE 1000
+
 const QMap<QString, QString> default_args = {
         {"protocol", "tcp"},
         {"port", "31415"},

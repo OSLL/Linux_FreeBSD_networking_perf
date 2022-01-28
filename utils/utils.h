@@ -9,7 +9,11 @@
 #include <string>
 #include <sstream>
 #include <optional>
+
 #include <QString>
+#include <QFile>
+#include <QTemporaryFile>
+#include <memory>
 
 std::vector<std::string> split(const std::string &s, char delim);
 
@@ -22,12 +26,6 @@ int timespeccmp(timespec &ts1, timespec &ts2);
 // Проверяет, что время - не пустое. В качетсве пустого принимается время, сикунды и наносекунды которого равны нулю.
 // Используется для того, что бы понять, поддерживается ли системой определенный timestamp.
 bool is_timespec_empty(timespec &tsp);
-
-// Функция, которая вычисляет разницу междк from и to, после чего прибавляет в res разницу, поделенное на total_count
-// Используется в функциях вида getInSystemTime для вычисления средней разницы для всех пакетов
-void timespec_avg_add(timespec &res, timespec &from, timespec &to, unsigned int total_count);
-
-bool is_timespec_equal(timespec &tsc1, timespec &tsc2);
 
 std::optional<quint64> get_int_from_file(const QString &filename);
 
@@ -60,5 +58,10 @@ quint64 get_average_o(QVector<T> &v, std::function<std::optional<quint64>(T&)> f
     if (size) return avg/v.size();
     else return 0;
 }
+
+// Получение файла с длиной. Нужно, что бы жопустить использование таких файлов, как /dev/urandom вместе с sendfile
+// Получает файл, открывает и проверяет длину. Если длина существует (не равна 0), то возвращает файл. Иначе, создает
+// временный файл с заданной длиной.
+std::optional<std::unique_ptr<QFile>> get_file(const QString &filename, quint64 data_size);
 
 #endif //LFNP_UTILS_H

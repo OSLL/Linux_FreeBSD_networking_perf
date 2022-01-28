@@ -50,7 +50,7 @@ public:
 
     void run() override {
 
-        int err = 0;
+        int err;
 
         while (!QThread::currentThread()->isInterruptionRequested()) {
             err = sock->receiveMsg(msg, MSG_WAITALL);

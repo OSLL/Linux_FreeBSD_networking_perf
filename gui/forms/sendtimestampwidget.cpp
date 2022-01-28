@@ -64,23 +64,19 @@ void SendTimestampWidget::onStartClicked() {
     const int packets_count = ui->packetsCountComboBox->value();
     const MeasureType measure_type = measure_type_enum.fromString(ui->measureTypeComboBox->currentText()).value();
     const QString filename = ui->fileLineEdit->text();
-    int data_size = ui->dataSizeSpinBox->value();
+    quint64 data_size = ui->dataSizeSpinBox->value();
     const bool is_us = ui->accuracyComboBox->currentText() == "us";
     const bool zero_copy = ui->zeroCopyCheckBox->checkState() == Qt::CheckState::Checked;
 
-    auto *file = new QFile(filename);
-
-    if (!file->open(QIODevice::ReadOnly)) {
+    auto o_file = get_file(filename, data_size ? data_size : DEFAULT_NOT_ZERO_DATASIZE);
+    if (!o_file) {
         QMessageBox::warning(this, tr("LFNP"), tr(("Error: can't open " + filename).toLocal8Bit().data()));
         return;
     }
+    auto file = std::move(*o_file);
 
     if (!data_size) {
-        if (filename == default_args["data"]) {
-            data_size = 1000;
-        } else {
-            data_size = file->size();
-        }
+        data_size = file->size();
     }
 
     auto *sock = new Socket(protocol);

@@ -37,23 +37,6 @@ bool is_timespec_empty(timespec &tsp) {
     return (tsp.tv_sec == 0 && tsp.tv_nsec == 0);
 }
 
-void timespec_avg_add(timespec &res, timespec &from, timespec &to, unsigned int total_count) {
-
-    // Так как from и to - время. поулченное от системы и from - от сокета, то они могут быть пустыми (то есть
-    // timestamp не поддерживается системой). В таком случае timespecsub не должно быть вызвано, так как получим
-    // отрицательное время
-    if (!is_timespec_empty(from) && !is_timespec_empty(to)) {
-        auto diff = timespecsub(to, from);
-        res.tv_sec += diff.tv_sec / total_count;
-        res.tv_nsec += diff.tv_nsec / total_count;
-    }
-
-}
-
-bool is_timespec_equal(timespec &tsc1, timespec &tsc2) {
-    return tsc1.tv_nsec == tsc2.tv_nsec && tsc1.tv_sec == tsc2.tv_sec;
-}
-
 int timespeccmp(timespec &ts1, timespec &ts2) {
     if (ts1.tv_sec == ts2.tv_sec) {
         return ts1.tv_nsec - ts2.tv_nsec;
@@ -72,4 +55,31 @@ std::optional<quint64> get_int_from_file(const QString &filename) {
     }
 
     return file.readLine().toUInt();
+}
+
+#include <QDebug>
+std::optional<std::unique_ptr<QFile>> get_file(const QString &filename, quint64 data_size) {
+    auto file = std::make_unique<QFile>(filename);
+
+    if (!file->open(QIODevice::ReadOnly)) {
+        std::cout << "Can't open " << filename.toStdString() << std::endl;
+        return std::nullopt;
+    }
+
+    auto file_size = file->size();
+    if (!file_size) {
+        auto tmp_file = std::make_unique<QTemporaryFile>();
+
+        if (!tmp_file->open()) {
+            std::cout << "Can't open " << tmp_file->fileName().toStdString() << std::endl;
+            return std::nullopt;
+        }
+
+        tmp_file->write(file->read(data_size));
+        tmp_file->close();
+        tmp_file->open();
+        return tmp_file;
+    }
+
+    return file;
 }

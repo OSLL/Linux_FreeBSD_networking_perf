@@ -7,6 +7,7 @@
 
 
 #include <QString>
+#include <memory>
 #include "../../utils/sockets.h"
 #include "../../types/InSystemTimeInfo.h"
 
@@ -17,7 +18,7 @@ class TimestampsSender {
 protected:
 
     Socket &sock;
-    const QFile &file;
+    std::unique_ptr<QFile> file;
     QByteArray data;
     quint64 data_size;
     bool zero_copy;
@@ -27,7 +28,8 @@ protected:
 
 public:
 
-    TimestampsSender(Socket &sock, QFile &file, quint64 data_size, bool zero_copy, SendProcessFunc &func);
+    TimestampsSender(Socket &_sock, std::unique_ptr<QFile> &_file, quint64 _data_size, bool _zero_copy,
+                     SendProcessFunc &_func);
 
     std::optional<SendTimestamp> sendOne(void);
     const QVector<SendTimestamp>& getInfo();

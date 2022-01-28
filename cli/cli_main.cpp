@@ -68,10 +68,6 @@ int cli_main(int argc, char *argv[]) {
         }
     } else if (argc > 1 && args[1] == "measure") {
 
-        if (data_filename == "/dev/urandom" && !data_size) {
-            data_size = 1000;
-        }
-
         if (argc > 2 && args[2] == "rx-timings") {
 
             auto o_rx_time = ds->recvTimestamps(protocol, port, packets_count);

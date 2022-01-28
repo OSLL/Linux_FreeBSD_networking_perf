@@ -28,8 +28,8 @@ private:
 
 public:
 
-    BandwidthSender(Socket *_sock, QByteArray _data, int _fd, quint64 _ds, bool _zc):
-    sock(_sock), data(_data), file_descriptor(_fd), zero_copy(_zc), data_size(_ds), packets_count(0), bytes_sent(0) {
+    BandwidthSender(Socket *_sock, std::unique_ptr<QFile> &_file, quint64 _ds, bool _zc):
+    sock(_sock), file_descriptor(_file->handle()), zero_copy(_zc), data_size(_ds), packets_count(0), bytes_sent(0) {
 
         iov = {
                 .iov_base = &data,
@@ -44,6 +44,10 @@ public:
                 .msg_control = nullptr,
                 .msg_controllen = 0
         };
+
+        if (!zero_copy) {
+            data = _file->read(data_size);
+        }
 
     }
 

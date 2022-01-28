@@ -8,6 +8,7 @@
 #include "bandwidth/BandwidthSender.h"
 #include "bandwidth/BandwidthReceiver.h"
 #include "../types/BandwidthResult.h"
+#include "../utils/default_args.h"
 #include <QThreadPool>
 
 using namespace std::placeholders;
@@ -43,15 +44,14 @@ BaseDataSource::sendTimestamps(const QString &protocol, const QString &addr, uns
                                unsigned int packets_count, const QString &measure_type, unsigned int delay,
                                const QString &data_filename, quint64 data_size, bool zero_copy) {
 
-    QFile file(data_filename);
-
-    if (!file.open(QIODevice::ReadOnly)) {
-        std::cout << "Can't open " << data_filename.toStdString() << std::endl;
+    auto o_file = get_file(data_filename, data_size ? data_size : DEFAULT_NOT_ZERO_DATASIZE);
+    if (!o_file) {
         return std::nullopt;
     }
+    auto file = std::move(*o_file);
 
     if (!data_size) {
-        data_size = file.size();
+        data_size = file->size();
     }
 
     Socket sock(protocol);
@@ -83,17 +83,15 @@ BaseDataSource::sendTimestamps(const QString &protocol, const QString &addr, uns
 std::optional<BandwidthResult> BaseDataSource::sendBandwidth(const QString &protocol, const QString &addr, unsigned int port, quint64 duration,
                                    const QString &data_filename, quint64 data_size, bool zero_copy, quint64 threads_count) {
 
-    QFile file(data_filename);
-
-    if (!file.open(QIODevice::ReadOnly)) {
-        std::cout << "Can't open " << data_filename.toStdString() << std::endl;
+    auto o_file = get_file(data_filename, data_size ? data_size : DEFAULT_NOT_ZERO_DATASIZE);
+    if (!o_file) {
         return std::nullopt;
     }
+    auto file = std::move(*o_file);
 
     if (!data_size) {
-        data_size = file.size();
+        data_size = file->size();
     }
-    auto data = file.read(data_size);
 
     Socket sock(protocol);
 
@@ -114,7 +112,7 @@ std::optional<BandwidthResult> BaseDataSource::sendBandwidth(const QString &prot
             return std::nullopt;
         }
 
-        auto sender = new BandwidthSender(connection_sock, data, file.handle(), data_size, zero_copy);
+        auto sender = new BandwidthSender(connection_sock, file, data_size, zero_copy);
         senders.push_back(sender);
         sender->start();
     }

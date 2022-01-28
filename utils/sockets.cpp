@@ -189,11 +189,7 @@ std::optional<TimeRange> Socket::sendFileTS(int file_descriptor, size_t data_siz
     int err;
 
     clock_gettime(CLOCK_REALTIME, &res.from);
-#ifdef __linux__
-    err = sendfile(file_descriptor, sock_descriptor, nullptr, data_size);
-#else
-    err = sendfile(file_descriptor, sock_descriptor, 0, data_size, nullptr, nullptr, 0);
-#endif
+    err = sendFile(file_descriptor, data_size);
     clock_gettime(CLOCK_REALTIME, &res.to);
 
     if (err < 0) {
@@ -209,9 +205,10 @@ QStringList Socket::getSupportedProtocols() {
 }
 
 int Socket::sendFile(int file_descriptor, size_t data_size) {
+    off_t offset = 0;
 #ifdef __linux__
-    return sendfile(file_descriptor, sock_descriptor, nullptr, data_size);
+    return sendfile(sock_descriptor,file_descriptor,  &offset, data_size);
 #else
-    return sendfile(file_descriptor, sock_descriptor, 0, data_size, nullptr, nullptr, 0);
+    return sendfile(file_descriptor, sock_descriptor, offset, data_size, nullptr, nullptr, 0);
 #endif
 }
