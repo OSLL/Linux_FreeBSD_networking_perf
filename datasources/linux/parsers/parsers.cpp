@@ -68,26 +68,25 @@ std::optional<ProtocolsStats> parseProtocolsStatsFile(const QString& filename) {
 
 }
 
-std::optional <SocketsList> parseProtocolSocketsListFile(const std::string& filename) {
+std::optional <SocketsList> parseProtocolSocketsListFile(const QString& filename) {
 
-    std::vector<std::map<std::string, std::string>> sockets_list;
+    SocketsList sockets_list;
 
-    std::ifstream file(filename);
+    QFile file(filename);
 
-    if (!file) {
-        std::cout << "Can't open " << filename << std::endl;
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        std::cout << "Can't open " << filename.toStdString() << std::endl;
         return std::nullopt;
     }
 
-    std::string line;
-    getline(file, line);
+    QString line = file.readLine().trimmed();
+    auto header = line.split(' ', Qt::SkipEmptyParts);
 
-    auto header = split(line, ' ');
+    while (!file.atEnd()) {
+        line = file.readLine().trimmed();
+        auto values = line.split(' ', Qt::SkipEmptyParts);
 
-    while (getline(file, line)) {
-        auto values = split(line, ' ');
-
-        std::map<std::string, std::string> socket;
+        QMap<QString, QString> socket;
 
         int header_index = 0, value_index = 0;
 
@@ -102,7 +101,7 @@ std::optional <SocketsList> parseProtocolSocketsListFile(const std::string& file
         while (header_index < header.size()) {
 
             if (header[header_index] == "tx_queue" || header[header_index] == "tr") {
-                auto split_val = split(values[value_index], ':');
+                auto split_val = values[value_index].split(':', Qt::SkipEmptyParts);
 
                 socket[header[header_index]] = split_val[0];
                 socket[header[header_index+1]] = split_val[1];

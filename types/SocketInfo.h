@@ -12,21 +12,21 @@ class SocketInfo {
 
 public:
 
-    const std::string local_address;
-    const std::string foreign_address;
+    const QString local_address;
+    const QString foreign_address;
 
-    const int local_port;
-    const int foreign_port;
+    const unsigned int local_port;
+    const unsigned int foreign_port;
 
-    const int rx_queue_size;
-    const int tx_queue_size;
+    const unsigned int rx_queue_size;
+    const unsigned int tx_queue_size;
 
     const int ref;
     const int drops;
 
-    SocketInfo(std::string local_address, std::string foreign_address,
-               int local_port, int foreign_port,
-               int rx_queue_size, int tx_queue_size,
+    SocketInfo(QString local_address, QString foreign_address,
+               unsigned int local_port, unsigned int foreign_port,
+               unsigned int rx_queue_size, unsigned int tx_queue_size,
                int ref, int drops)
             : local_address(std::move(local_address)), foreign_address(std::move(foreign_address)),
               local_port(local_port), foreign_port(foreign_port),

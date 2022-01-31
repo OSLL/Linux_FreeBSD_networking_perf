@@ -5,7 +5,6 @@
 #ifndef LFNP_BASEDATASOURCE_H
 #define LFNP_BASEDATASOURCE_H
 
-#include <vector>
 #include <optional>
 
 #include <QtCore/QString>
@@ -28,7 +27,7 @@ public:
     //TODO: Описание в Linux, объединение названий общих для FreeBSD и Linux значений
     virtual std::optional<QMap<QString, int>> getProtocolStats(const QString &protocol)=0;
 
-    virtual std::vector<SocketInfo> getSockets(std::string protocol)=0;
+    virtual QVector<SocketInfo> getSockets(QString protocol)=0;
 
     //TODO: Проверить hardware timestamps
     //TODO: В FreeBSD значение Total огромное. Почему?
@@ -69,6 +68,8 @@ public:
     virtual void setSendSockOpt(Socket &sock, MeasureType measure_type)=0;
     virtual void
     processSendTimestamp(Socket &sock, SendTimestamp &res, TimeRange &timestamps)=0;
+
+    virtual QStringList getSupportedSocketsListProtocols()=0;
 };
 
 

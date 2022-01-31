@@ -19,7 +19,7 @@
 #include "../../utils/utils.h"
 #include "../../types/BandwidthResult.h"
 
-void printSocketsInfoList(const std::vector<SocketInfo>& sockets_info_list);
+void printSocketsInfoList(const QVector<SocketInfo>& sockets_info_list);
 
 void printTimestamp(const quint64 &ts, bool in_ms);
 

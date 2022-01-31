@@ -7,17 +7,7 @@
 
 #include "TimeRange.h"
 
-class ITimestamp {
-
-public:
-
-    virtual quint64 getInCallTime() const = 0;
-    virtual quint64 getTotalTime() const = 0;
-    virtual std::optional<quint64> getSoftwareTime() const = 0;
-    virtual std::optional<quint64> getHardwareTime() const = 0;
-};
-
-class ReceiveTimestamp: public ITimestamp{
+class ReceiveTimestamp {
 
 public:
 
@@ -27,10 +17,10 @@ public:
     std::optional<timespec> hardware_recv;
     timespec before_send;
 
-    quint64 getInCallTime() const override { return TimeRange(before_recv, after_recv).getRangeNS(); }
-    quint64 getTotalTime() const override { return TimeRange(before_send, after_recv).getRangeNS(); }
+    quint64 getInCallTime() const { return TimeRange(before_recv, after_recv).getRangeNS(); }
+    quint64 getTotalTime() const { return TimeRange(before_send, after_recv).getRangeNS(); }
 
-    std::optional<quint64> getSoftwareTime() const override {
+    std::optional<quint64> getSoftwareTime() const {
         if (software_recv) {
             return TimeRange(software_recv.value(), after_recv).getRangeNS();
         } else {
@@ -38,7 +28,7 @@ public:
         }
     }
 
-    std::optional<quint64> getHardwareTime() const override {
+    std::optional<quint64> getHardwareTime() const {
         if (hardware_recv) {
             return TimeRange(hardware_recv.value(), after_recv).getRangeNS();
         } else {
@@ -48,7 +38,7 @@ public:
 
 };
 
-class SendTimestamp: public ITimestamp{
+class SendTimestamp {
 
 public:
 
@@ -57,10 +47,10 @@ public:
     std::optional<timespec> software_send;
     std::optional<timespec> hardware_send;
 
-    quint64 getInCallTime() const override { return TimeRange(before_send, after_send).getRangeNS(); }
-    quint64 getTotalTime() const override { return 0; }
+    quint64 getInCallTime() const { return TimeRange(before_send, after_send).getRangeNS(); }
+    quint64 getTotalTime() const { return 0; }
 
-    std::optional<quint64> getSoftwareTime() const override {
+    std::optional<quint64> getSoftwareTime() const {
         if (software_send) {
             return TimeRange(software_send.value(), after_send).getRangeNS();
         } else {

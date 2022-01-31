@@ -5,7 +5,7 @@
 #include "FreeBSDDataSource.h"
 #include <QDebug>
 
-std::map<std::string, std::string> FreeBSDDataSource::protocol_sockets_sysctl_names = {
+QMap<QString, QString> FreeBSDDataSource::protocol_sockets_sysctl_names = {
         {"tcp", "net.inet.tcp.pcblist"},
         {"udp", "net.inet.udp.pcblist"},
         {"raw", "net.inet.raw.pcblist"}
@@ -47,10 +47,10 @@ std::optional<QMap<QString, int>> FreeBSDDataSource::getProtocolStats(const QStr
     return protocol_stats;
 }
 
-std::vector<SocketInfo> FreeBSDDataSource::getSockets(std::string protocol) {
+QVector<SocketInfo> FreeBSDDataSource::getSockets(QString protocol) {
 
     size_t size;
-    std::vector<SocketInfo> sockets_info_list;
+    QVector<SocketInfo> sockets_info_list;
 
      auto iter = FreeBSDDataSource::protocol_sockets_sysctl_names.find(protocol);
 
@@ -58,12 +58,12 @@ std::vector<SocketInfo> FreeBSDDataSource::getSockets(std::string protocol) {
         std::cout << "Unsupported protocol" << std::endl;
         return sockets_info_list;
     }
-    auto sysctl_name = iter->second;
+    auto sysctl_name = iter.value();
 
-    sysctlbyname(sysctl_name.c_str(), nullptr, &size, nullptr, 0);
+    sysctlbyname(sysctl_name.toLocal8Bit().data(), nullptr, &size, nullptr, 0);
 
     char *buf = new char[size];
-    sysctlbyname(sysctl_name.c_str(), buf, &size, nullptr, 0);
+    sysctlbyname(sysctl_name.toLocal8Bit().data(), buf, &size, nullptr, 0);
 
     struct xtcpcb *tp;
     struct xinpcb *inp;
@@ -93,12 +93,12 @@ std::vector<SocketInfo> FreeBSDDataSource::getSockets(std::string protocol) {
         char for_addr[INET_ADDRSTRLEN];
         inet_ntop(AF_INET, &inp->inp_faddr.s_addr, for_addr, INET_ADDRSTRLEN);
 
-        sockets_info_list.emplace_back(
-                std::string(loc_addr), std::string(for_addr),
-                ntohs(inp->inp_lport), ntohs(inp->inp_fport),
-                so->so_rcv.sb_cc, so->so_snd.sb_cc,
-                0, 0
-        );
+        sockets_info_list.push_back({
+                                            QString(loc_addr), QString(for_addr),
+                                            ntohs(inp->inp_lport), ntohs(inp->inp_fport),
+                                            so->so_rcv.sb_cc, so->so_snd.sb_cc,
+                                            0, 0
+                                    });
     }
     return sockets_info_list;
 }
@@ -229,4 +229,8 @@ QVector<QPair<QString, DropsInfo>> FreeBSDDataSource::getDropsInfo() {
     drops_info.push_back({"udp", DropsInfo(udp_stats.udps_fullsock)});
 
     return drops_info;
+}
+
+QStringList FreeBSDDataSource::getSupportedSocketsListProtocols() {
+    return FreeBSDDataSource::protocol_sockets_sysctl_names.keys();
 }

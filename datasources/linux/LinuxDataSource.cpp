@@ -5,7 +5,7 @@
 #include <QDir>
 #include "LinuxDataSource.h"
 
-std::map<std::string, std::string> LinuxDataSource::protocol_sockets_files  = {
+QMap<QString, QString> LinuxDataSource::protocol_sockets_files  = {
         {"tcp",      "/proc/net/tcp"},
         {"tcp6",     "/proc/net/tcp6"},
         {"udp",      "/proc/net/udp"},
@@ -39,9 +39,9 @@ std::optional<QMap<QString, int>> LinuxDataSource::getProtocolStats(const QStrin
 
 }
 
-std::vector<SocketInfo> LinuxDataSource::getSockets(std::string protocol) {
+QVector<SocketInfo> LinuxDataSource::getSockets(QString protocol) {
 
-    std::vector<SocketInfo> sockets_info_list;
+    QVector<SocketInfo> sockets_info_list;
 
     auto iter = LinuxDataSource::protocol_sockets_files.find(protocol);
 
@@ -50,42 +50,45 @@ std::vector<SocketInfo> LinuxDataSource::getSockets(std::string protocol) {
         return sockets_info_list;
     }
 
-    auto filename = iter->second;
+    auto filename = iter.value();
     auto sockets_list = parseProtocolSocketsListFile(filename);
 
-    if (!sockets_list) {
+    if (!sockets_list || sockets_list.value().empty()) {
         return sockets_info_list;
     }
 
+    // В файлах для ipv4 и ipv6 используются разные заголовки для удаленного адреса
+    auto remote_address_key = protocol.endsWith('6') ?  "remote_address" : "rem_address";
+
     for (auto &socket: *sockets_list) {
 
-        auto v_loc_addr_port = split(socket["local_address"], ':');
-        auto v_for_addr_port = split(socket["rem_address"], ':');
+        auto v_loc_addr_port = socket["local_address"].split(':', Qt::SkipEmptyParts);
+        auto v_for_addr_port = socket[remote_address_key].split(':', Qt::SkipEmptyParts);
 
         char loc_addr[INET_ADDRSTRLEN];
         char for_addr[INET_ADDRSTRLEN];
 
-        unsigned int i_loc_addr = std::stol(v_loc_addr_port[0], nullptr, 16);
-        unsigned int loc_port = std::stoi(v_loc_addr_port[1], nullptr, 16);
+        auto i_loc_addr = v_loc_addr_port[0].toUInt(nullptr, 16);
+        auto loc_port = v_loc_addr_port[1].toUInt(nullptr, 16);
         inet_ntop(AF_INET, &i_loc_addr, loc_addr, INET_ADDRSTRLEN);
 
-        unsigned int i_for_addr = std::stol(v_for_addr_port[0], nullptr, 16);
-        unsigned int for_port = std::stoi(v_for_addr_port[1], nullptr, 16);
+        auto i_for_addr = v_for_addr_port[0].toUInt(nullptr, 16);
+        auto for_port = v_for_addr_port[1].toUInt(nullptr, 16);
         inet_ntop(AF_INET, &i_for_addr, for_addr, INET_ADDRSTRLEN);
 
-        int rx_queue = std::stoi(socket["rx_queue"]);
-        int tx_queue = std::stoi(socket["tx_queue"]);
+        auto rx_queue = socket["rx_queue"].toUInt();
+        auto tx_queue = socket["tx_queue"].toUInt();
 
-        int ref = std::stoi(socket["ref"]);
+        auto ref = socket["ref"].toInt();
 
         // В /proc/net/tcp нет информации о сброшенных пакетах. Предполагаю, что это из=за того, что tcp контролирует
         // доставку всей информации
-        int drops = protocol == "tcp" ? 0 : std::stoi(socket["drops"]);
+        int drops = protocol == "tcp" ? 0 : socket["drops"].toInt();
 
-        sockets_info_list.emplace_back(
-                std::string(loc_addr), std::string(for_addr), loc_port, for_port,
-                rx_queue, tx_queue, ref, drops
-        );
+        sockets_info_list.push_back({
+                                            QString(loc_addr), QString(for_addr), loc_port, for_port,
+                                            rx_queue, tx_queue, ref, drops
+                                    });
 
     }
 
@@ -353,4 +356,8 @@ QVector<QPair<QString, DropsInfo>> LinuxDataSource::getDropsInfo() {
     }
 
     return drops_info;
+}
+
+QStringList LinuxDataSource::getSupportedSocketsListProtocols() {
+    return LinuxDataSource::protocol_sockets_files.keys();
 }

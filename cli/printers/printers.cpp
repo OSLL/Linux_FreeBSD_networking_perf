@@ -23,8 +23,8 @@ void printHeader() {
 }
 
 void printSocketInfo(const SocketInfo &si) {
-    std::cout << std::left << std::setw(ADDRESS_WIDTH) << si.local_address + ":"  + std::to_string(si.local_port);
-    std::cout << std::left << std::setw(ADDRESS_WIDTH) << si.foreign_address + ":"  + std::to_string(si.foreign_port);
+    std::cout << std::left << std::setw(ADDRESS_WIDTH) << (si.local_address + ":"  + QString::number(si.local_port)).toStdString();
+    std::cout << std::left << std::setw(ADDRESS_WIDTH) << (si.foreign_address + ":"  + QString::number(si.foreign_port)).toStdString();
     std::cout << std::left << std::setw(QUEUE_WIDTH) << si.rx_queue_size;
     std::cout << std::left << std::setw(QUEUE_WIDTH) << si.tx_queue_size;
 
@@ -36,7 +36,7 @@ void printSocketInfo(const SocketInfo &si) {
     std::cout << std::endl;
 }
 
-void printSocketsInfoList(const std::vector<SocketInfo>& sockets_info_list) {
+void printSocketsInfoList(const QVector<SocketInfo>& sockets_info_list) {
 
     printHeader();
     for (const auto &si: sockets_info_list) {

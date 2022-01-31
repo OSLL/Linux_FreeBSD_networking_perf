@@ -5,20 +5,13 @@
 #ifndef LFNP_UTILS_H
 #define LFNP_UTILS_H
 
-#include <vector>
-#include <string>
-#include <sstream>
 #include <optional>
+#include <memory>
+#include <iostream>
 
 #include <QString>
 #include <QFile>
 #include <QTemporaryFile>
-#include <memory>
-
-std::vector<std::string> split(const std::string &s, char delim);
-
-// Здесь tsp - время события, которое произошло позже, чем usp. То есть usp < tsp.
-timespec timespecsub(timespec &tsp, timespec &usp);
 
 // Сравнение времен. 1 - ts1 > ts2, -1 - ts1 < ts2, 0 - ts1 == ts2
 int timespeccmp(timespec &ts1, timespec &ts2);

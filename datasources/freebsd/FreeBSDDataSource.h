@@ -47,7 +47,7 @@ class FreeBSDDataSource: public BaseDataSource {
 
 private:
 
-    static std::map<std::string, std::string> protocol_sockets_sysctl_names;
+    static QMap<QString, QString> protocol_sockets_sysctl_names;
     static QMap<QString, std::tuple<QString, size_t>> protocol_stats_sysctl_names;
     static QMap<QString, QVector<QString>> protocols_stats_descriptions;
 
@@ -55,7 +55,7 @@ public:
 
     std::optional<QMap<QString, int>> getProtocolStats(const QString &protocol) override;
 
-    std::vector<SocketInfo> getSockets(std::string protocol) override;
+    QVector<SocketInfo> getSockets(QString protocol) override;
 
     std::optional<QMap<int, int>> getCPUDistribution(CPUDistributionSource source) override;
 
@@ -70,6 +70,8 @@ public:
     void setSendSockOpt(Socket &sock, const MeasureType measure_type) override;
     void
     processSendTimestamp(Socket &sock, SendTimestamp &res, TimeRange &timestamps) override;
+
+    QStringList getSupportedSocketsListProtocols() override;
 };
 
 
