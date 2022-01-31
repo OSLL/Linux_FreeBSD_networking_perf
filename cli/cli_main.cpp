@@ -4,6 +4,8 @@
 
 #include "cli_main.h"
 #include "../utils/default_args.h"
+#include "../datasources/bandwidth/LinuxPktgen.h"
+#include <QThread>
 
 int cli_main(int argc, char *argv[]) {
     QStringList args(argv, argv+argc);
@@ -30,7 +32,9 @@ int cli_main(int argc, char *argv[]) {
 #endif
                     },
                     {"duration", "Duration of bandwidth measure", "duration", default_args["duration"]},
-                    {"threads", "Count of threads to use", "threads", default_args["threads"]}
+                    {"threads", "Count of threads to use", "threads", default_args["threads"]},
+                    {"mac", "MAC address to send data", "mac", default_args["mac"]},
+                    {{"i", "interface"}, "Interface to send data", "interface", default_args["interface"]}
             });
 
     parser.process(args);
@@ -51,6 +55,9 @@ int cli_main(int argc, char *argv[]) {
 
     auto duration = parser.value("duration").toULongLong();
     auto threads_count = parser.value("threads").toULongLong();
+
+    auto mac_addr = parser.value("mac");
+    auto interface = parser.value("interface");
 
 #ifdef __linux__
     BaseDataSource *ds = new LinuxDataSource();
@@ -98,6 +105,11 @@ int cli_main(int argc, char *argv[]) {
         }
     } else if (argc > 1 && args[1] == "get-drops-info") {
         printDropsInfo(ds->getDropsInfo());
+    } else if (argc > 1 && args[1] == "pktgen") {
+        auto pktgen = LinuxPktgen(protocol, interface, addr, port, mac_addr, threads_count);
+        pktgen.start();
+        QThread::sleep(1);
+        printBandwidthResult(pktgen.getResult());
     }
 
     return 0;

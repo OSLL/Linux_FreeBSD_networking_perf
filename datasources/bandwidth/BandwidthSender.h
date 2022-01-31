@@ -10,6 +10,8 @@
 #include <QDebug>
 #include "../../utils/sockets.h"
 
+//TODO: CPU affinity
+//TODO: Графический интерфейс
 class BandwidthSender: public QThread {
 
 private:

@@ -20,7 +20,9 @@ const QMap<QString, QString> default_args = {
         {"data", "/dev/urandom"},
         {"data-size", "0"},
         {"threads", "1"},
-        {"duration", "10"}
+        {"duration", "10"},
+        {"mac", "00:00:00:00:00:00"},
+        {"interface", "lo"}
 };
 
 #endif //LFNP_DEFAULT_ARGS_H
