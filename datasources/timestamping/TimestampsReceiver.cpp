@@ -8,11 +8,12 @@
 TimestampsReceiver::TimestampsReceiver(Socket &sock, RecvProcessFunc &func):
 sock(sock), recv_process_func(func) {
 
-    sock.receiveData(&data_size);
+    // Объявление iov должно быть до receiveData. В противном случае, при нажатии на кнопку "Стоп" может быть вызван
+    // деструктор, но iov еще не объявлен, а значит происходит освобождение некорректного адреса - segfault
 
     iov = {
-            .iov_base = new char[data_size],
-            .iov_len = data_size
+            .iov_base = nullptr,
+            .iov_len = 0
     };
 
     msg = {
@@ -23,6 +24,12 @@ sock(sock), recv_process_func(func) {
             .msg_control = new char[CONTROL_SIZE],
             .msg_controllen = CONTROL_SIZE
     };
+
+    sock.receiveData(&data_size);
+
+    iov.iov_base = new char[data_size];
+    iov.iov_len = data_size;
+
 }
 
 ReceiveTimestamp TimestampsReceiver::recvOne() {

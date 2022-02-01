@@ -3,16 +3,17 @@
 #include "ui_sendtimestampwidget.h"
 
 SendTimestampWidget::SendTimestampWidget(BaseDataSource *ds, QWidget *parent) :
-    QWidget(parent),
-    ui(new Ui::SendTimestampWidget),
-    data_source(ds),
-    chart(nullptr),
-    sender(nullptr),
-    software_series(nullptr),
-    hardware_series(nullptr),
-    in_call_series(nullptr)
+        QWidget(parent),
+        ui(new Ui::SendTimestampWidget),
+        data_source(ds),
+        chart(nullptr),
+        sender_thread(nullptr),
+        software_series(nullptr),
+        hardware_series(nullptr),
+        in_call_series(nullptr)
 {
     ui->setupUi(this);
+    ui->stopButton->setDisabled(true);
 
     ui->protocolComboBox->addItems(Socket::getSupportedProtocols());
     ui->protocolComboBox->setCurrentText(default_args["protocol"]);
@@ -34,6 +35,7 @@ SendTimestampWidget::SendTimestampWidget(BaseDataSource *ds, QWidget *parent) :
     ui->zeroCopyCheckBox->setCheckState(Qt::CheckState::Unchecked);
 
     QObject::connect(ui->startButton, &QPushButton::clicked, this, &SendTimestampWidget::onStartClicked);
+    QObject::connect(ui->stopButton, &QPushButton::clicked, this, &SendTimestampWidget::onStopClicked);
 
     chart_view.setRenderHint(QPainter::Antialiasing);
     ui->resultLayout->addWidget(&chart_view);
@@ -65,6 +67,7 @@ void SendTimestampWidget::onStartClicked() {
     const MeasureType measure_type = measure_type_enum.fromString(ui->measureTypeComboBox->currentText()).value();
     const QString filename = ui->fileLineEdit->text();
     quint64 data_size = ui->dataSizeSpinBox->value();
+    quint64 delay = ui->delaySpinBox->value();
     const bool is_us = ui->accuracyComboBox->currentText() == "us";
     const bool zero_copy = ui->zeroCopyCheckBox->checkState() == Qt::CheckState::Checked;
 
@@ -91,12 +94,15 @@ void SendTimestampWidget::onStartClicked() {
 
     recreateChart(packets_count, is_us);
 
-    delete sender;
-    sender = new TimestampsSenderThread(sock, file, data_size, zero_copy, send_func, packets_count);
-    sender->start();
-    ui->startButton->setDisabled(true);
+    sender_thread = new TimestampsSenderThread(sock, file, data_size, zero_copy, send_func, packets_count, delay);
 
-    QObject::connect(sender, &TimestampsSenderThread::packetSent, this, &SendTimestampWidget::onPacketSent);
+    ui->startButton->setDisabled(true);
+    ui->stopButton->setDisabled(false);
+
+    QObject::connect(sender_thread, &TimestampsSenderThread::packetSent, this, &SendTimestampWidget::onPacketSent);
+    QObject::connect(sender_thread, &TimestampsSenderThread::finished, this, &SendTimestampWidget::onThreadFinished);
+    sender_thread->start();
+
 }
 
 void SendTimestampWidget::recreateChart(quint64 packets_count, bool is_us) {
@@ -125,5 +131,22 @@ void SendTimestampWidget::onPacketSent(std::optional<SendTimestamp> o_timestamp)
         in_call_series->append(timestamp.getInCallTime());
 
     }
+
+}
+
+void SendTimestampWidget::onStopClicked() {
+
+    sender_thread->requestInterruption();
+    sender_thread->wait();
+
+}
+
+void SendTimestampWidget::onThreadFinished() {
+
+    ui->startButton->setDisabled(false);
+    ui->stopButton->setDisabled(true);
+
+    delete sender_thread;
+    sender_thread = nullptr;
 
 }

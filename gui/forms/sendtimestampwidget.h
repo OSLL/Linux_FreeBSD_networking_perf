@@ -22,7 +22,7 @@ class SendTimestampWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit SendTimestampWidget(BaseDataSource *ds, QWidget *parent = nullptr);
+    SendTimestampWidget(BaseDataSource *ds, QWidget *parent = nullptr);
     ~SendTimestampWidget();
 
 protected:
@@ -31,12 +31,14 @@ protected:
 
 protected slots:
     void onStartClicked();
+    void onStopClicked();
+    void onThreadFinished();
     void onPacketSent(std::optional<SendTimestamp> timestamp);
 
 private:
 
     Ui::SendTimestampWidget *ui;
-    TimestampsSenderThread *sender;
+    TimestampsSenderThread *sender_thread;
     BaseDataSource *data_source;
     TimestampsChart *chart;
 

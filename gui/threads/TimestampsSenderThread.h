@@ -15,9 +15,10 @@ class TimestampsSenderThread: public QThread {
 
 public:
 
-    TimestampsSenderThread(Socket *_sock, std::unique_ptr<QFile> &_file, quint64 _data_size, bool _zc, SendProcessFunc _func,
-                           quint64 _packets_count):
-            sock(_sock), file(std::move(_file)), data_size(_data_size), zero_copy(_zc), func(_func), packets_count(_packets_count)
+    TimestampsSenderThread(Socket *_sock, std::unique_ptr<QFile> &_file, quint64 _data_size, bool _zc,
+                           SendProcessFunc _func, quint64 _packets_count, quint64 _delay) :
+            sock(_sock), file(std::move(_file)), data_size(_data_size), zero_copy(_zc), func(_func),
+            packets_count(_packets_count), delay(_delay)
             {}
 
     ~TimestampsSenderThread() {
@@ -30,6 +31,7 @@ protected:
     Socket *sock;
     std::unique_ptr<QFile> file;
     quint64 data_size;
+    quint64 delay;
     bool zero_copy;
     SendProcessFunc func;
 
@@ -40,7 +42,8 @@ protected:
 
         sender = new TimestampsSender(*sock, file, data_size, zero_copy, func);
 
-        for (int i=0; i<packets_count; i++) {
+        for (int i=0; i<packets_count && !QThread::isInterruptionRequested(); i++) {
+            QThread::msleep(delay);
             emit packetSent(sender->sendOne());
         }
     }

@@ -46,6 +46,8 @@ private:
 protected slots:
 
     void onStartClicked();
+    void onStopClicked();
+    void onThreadFinished();
     void onPacketReceived(const ReceiveTimestamp recv_ts);
 };
 

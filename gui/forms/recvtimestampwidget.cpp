@@ -8,6 +8,7 @@ RecvTimestampWidget::RecvTimestampWidget(BaseDataSource *ds, QWidget *parent) :
     receiver_thread(nullptr)
 {
     ui->setupUi(this);
+    ui->stopButton->setDisabled(true);
 
     ui->protocolComboBox->addItems(Socket::getSupportedProtocols());
     ui->protocolComboBox->setCurrentText(default_args["protocol"]);
@@ -19,6 +20,7 @@ RecvTimestampWidget::RecvTimestampWidget(BaseDataSource *ds, QWidget *parent) :
     ui->accuracyComboBox->setCurrentText("us");
 
     QObject::connect(ui->startButton, &QPushButton::clicked, this, &RecvTimestampWidget::onStartClicked);
+    QObject::connect(ui->stopButton, &QPushButton::clicked, this, &RecvTimestampWidget::onStopClicked);
 
     chart_view.setRenderHint(QPainter::Antialiasing);
     ui->resultLayout->addWidget(&chart_view);
@@ -26,6 +28,7 @@ RecvTimestampWidget::RecvTimestampWidget(BaseDataSource *ds, QWidget *parent) :
 
 RecvTimestampWidget::~RecvTimestampWidget()
 {
+    delete receiver_thread;
     delete ui;
 }
 
@@ -62,9 +65,11 @@ void RecvTimestampWidget::onStartClicked() {
     receiver_thread = new TimestampsReceiverThread(sock, recv_func, packets_count);
 
     QObject::connect(receiver_thread, &TimestampsReceiverThread::packetReceived, this, &RecvTimestampWidget::onPacketReceived);
+    QObject::connect(receiver_thread, &TimestampsReceiverThread::finished, this, &RecvTimestampWidget::onThreadFinished);
     receiver_thread->start();
 
     ui->startButton->setDisabled(true);
+    ui->stopButton->setDisabled(false);
 }
 
 void RecvTimestampWidget::onPacketReceived(const ReceiveTimestamp recv_ts) {
@@ -119,4 +124,21 @@ void RecvTimestampWidget::recreateChart(bool is_us) {
     hardware_series->attachAxis(x_axis);
     in_call_series->attachAxis(x_axis);
     total_series->attachAxis(x_axis);
+}
+
+void RecvTimestampWidget::onStopClicked() {
+
+    receiver_thread->terminate();
+    receiver_thread->wait();
+
+}
+
+void RecvTimestampWidget::onThreadFinished() {
+
+    ui->startButton->setDisabled(false);
+    ui->stopButton->setDisabled(true);
+
+    delete receiver_thread;
+    receiver_thread = nullptr;
+
 }
