@@ -17,6 +17,10 @@
 #include "netinet/igmp_var.h"
 #include "netinet/icmp_var.h"
 
+#include "netinet6/ip6_var.h"
+#include "netinet6/raw_ip6.h"
+#include "netinet/icmp6.h"
+
 #define ADD_STAT(title, name) stats[#title] = data->name
 
 ProtocolStats ip_stats(char *_data);
@@ -24,5 +28,8 @@ ProtocolStats tcp_stats(char *_data);
 ProtocolStats udp_stats(char *_data);
 ProtocolStats icmp_stats(char *_data);
 ProtocolStats igmp_stats(char *_data);
+ProtocolStats ip6_stats(char *_data);
+ProtocolStats rip6_stats(char *_data);
+ProtocolStats icmp6_stats(char *_data);
 
 #endif //LFNP_PROTOCOLS_STATS_FUNCS_H

@@ -26,6 +26,10 @@
 #include "netinet/icmp_var.h"
 #include "netinet/ip_var.h"
 
+#include "netinet6/ip6_var.h"
+#include "netinet6/raw_ip6.h"
+#include "netinet/icmp6.h"
+
 #include "net/netisr.h"
 
 #include "../../utils/sockets.h"

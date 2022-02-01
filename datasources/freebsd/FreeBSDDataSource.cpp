@@ -18,6 +18,9 @@ QMap<QString, std::tuple<QString, size_t, std::function<ProtocolStats(char*)>>> 
         {"udp", {"net.inet.udp.stats", sizeof(udpstat), &udp_stats}},
         {"icmp", {"net.inet.icmp.stats", sizeof(icmpstat), &icmp_stats}},
         {"igmp", {"net.inet.igmp.stats", sizeof(igmpstat), &igmp_stats}},
+        {"ip6", {"net.inet.igmp.stats", sizeof(ip6stat), &ip6_stats}},
+        {"raw6", {"net.inet.igmp.stats", sizeof(rip6stat), &rip6_stats}},
+        {"icmp6", {"net.inet.igmp.stats", sizeof(icmp6stat), &icmp6_stats}},
 };
 
 std::optional<QMap<QString, int>> FreeBSDDataSource::getProtocolStats(const QString &protocol) {

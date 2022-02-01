@@ -227,3 +227,101 @@ ProtocolStats igmp_stats(char *_data) {
 
     return stats;
 }
+
+ProtocolStats ip6_stats(char *_data) {
+
+    ProtocolStats stats;
+    ip6stat *data = (ip6stat*)_data;
+
+    ADD_STAT(Ip6sTotal, ip6s_total);
+    ADD_STAT(Ip6sTooshort, ip6s_tooshort);
+    ADD_STAT(Ip6sToosmall, ip6s_toosmall);
+    ADD_STAT(Ip6sFragments, ip6s_fragments);
+    ADD_STAT(Ip6sFragdropped, ip6s_fragdropped);
+    ADD_STAT(Ip6sFragtimeout, ip6s_fragtimeout);
+    ADD_STAT(Ip6sFragoverflow, ip6s_fragoverflow);
+    ADD_STAT(Ip6sForward, ip6s_forward);
+    ADD_STAT(Ip6sCantforward, ip6s_cantforward);
+    ADD_STAT(Ip6sRedirectsent, ip6s_redirectsent);
+    ADD_STAT(Ip6sDelivered, ip6s_delivered);
+    ADD_STAT(Ip6sLocalout, ip6s_localout);
+    ADD_STAT(Ip6sOdropped, ip6s_odropped);
+    ADD_STAT(Ip6sReassembled, ip6s_reassembled);
+    ADD_STAT(Ip6sAtomicfrags, ip6s_atomicfrags);
+    ADD_STAT(Ip6sFragmented, ip6s_fragmented);
+    ADD_STAT(Ip6sOfragments, ip6s_ofragments);
+    ADD_STAT(Ip6sCantfrag, ip6s_cantfrag);
+    ADD_STAT(Ip6sBadoptions, ip6s_badoptions);
+    ADD_STAT(Ip6sNoroute, ip6s_noroute);
+    ADD_STAT(Ip6sBadvers, ip6s_badvers);
+    ADD_STAT(Ip6sRawout, ip6s_rawout);
+    ADD_STAT(Ip6sBadscope, ip6s_badscope);
+    ADD_STAT(Ip6sNotmember, ip6s_notmember);
+    ADD_STAT(Ip6sM1, ip6s_m1);
+    ADD_STAT(Ip6sMext1, ip6s_mext1);
+    ADD_STAT(Ip6sMext2m, ip6s_mext2m);
+    ADD_STAT(Ip6sExthdrtoolong, ip6s_exthdrtoolong);
+    ADD_STAT(Ip6sNogif, ip6s_nogif);
+    ADD_STAT(Ip6sToomanyhdr, ip6s_toomanyhdr);
+
+    return stats;
+}
+
+ProtocolStats rip6_stats(char *_data) {
+
+    ProtocolStats stats;
+    rip6stat *data = (rip6stat*)_data;
+
+    ADD_STAT(Rip6sIpackets, rip6s_ipackets);
+    ADD_STAT(Rip6sIsum, rip6s_isum);
+    ADD_STAT(Rip6sBadsum, rip6s_badsum);
+    ADD_STAT(Rip6sNosock, rip6s_nosock);
+    ADD_STAT(Rip6sNosockmcast, rip6s_nosockmcast);
+    ADD_STAT(Rip6sFullsock, rip6s_fullsock);
+    ADD_STAT(Rip6sOpackets, rip6s_opackets);
+
+    return stats;
+}
+
+ProtocolStats icmp6_stats(char *_data) {
+
+    ProtocolStats stats;
+    icmp6stat *data = (icmp6stat*)_data;
+
+    ADD_STAT(Icp6sError, icp6s_error);
+    ADD_STAT(Icp6sCanterror, icp6s_canterror);
+    ADD_STAT(Icp6sToofreq, icp6s_toofreq);
+    ADD_STAT(Icp6sBadcode, icp6s_badcode);
+    ADD_STAT(Icp6sTooshort, icp6s_tooshort);
+    ADD_STAT(Icp6sChecksum, icp6s_checksum);
+    ADD_STAT(Icp6sBadlen, icp6s_badlen);
+    ADD_STAT(Icp6sReflect, icp6s_reflect);
+    ADD_STAT(Icp6sNdToomanyopt, icp6s_nd_toomanyopt);
+    ADD_STAT(Icp6sPmtuchg, icp6s_pmtuchg);
+    ADD_STAT(Icp6sNdBadopt, icp6s_nd_badopt);
+    ADD_STAT(Icp6sBadns, icp6s_badns);
+    ADD_STAT(Icp6sBadna, icp6s_badna);
+    ADD_STAT(Icp6sBadrs, icp6s_badrs);
+    ADD_STAT(Icp6sBadra, icp6s_badra);
+    ADD_STAT(Icp6sBadredirect, icp6s_badredirect);
+    ADD_STAT(Icp6sOverflowdefrtr, icp6s_overflowdefrtr);
+    ADD_STAT(Icp6sOverflowprfx, icp6s_overflowprfx);
+    ADD_STAT(Icp6sOverflownndp, icp6s_overflownndp);
+    ADD_STAT(Icp6sOverflowredirect, icp6s_overflowredirect);
+    ADD_STAT(Icp6sInvlhlim, icp6s_invlhlim);
+    ADD_STAT(Icp6sOdstUnreachNoroute, icp6s_odst_unreach_noroute);
+    ADD_STAT(Icp6sOdstUnreachAdmin, icp6s_odst_unreach_admin);
+    ADD_STAT(Icp6sOdstUnreachBeyondscope, icp6s_odst_unreach_beyondscope);
+    ADD_STAT(Icp6sOdstUnreachAddr, icp6s_odst_unreach_addr);
+    ADD_STAT(Icp6sOdstUnreachNoport, icp6s_odst_unreach_noport);
+    ADD_STAT(Icp6sOpacketTooBig, icp6s_opacket_too_big);
+    ADD_STAT(Icp6sOtimeExceedTransit, icp6s_otime_exceed_transit);
+    ADD_STAT(Icp6sOtimeExceedReassembly, icp6s_otime_exceed_reassembly);
+    ADD_STAT(Icp6sOparamprobHeader, icp6s_oparamprob_header);
+    ADD_STAT(Icp6sOparamprobNextheader, icp6s_oparamprob_nextheader);
+    ADD_STAT(Icp6sOparamprobOption, icp6s_oparamprob_option);
+    ADD_STAT(Icp6sOredirect, icp6s_oredirect);
+    ADD_STAT(Icp6sOunknown, icp6s_ounknown);
+
+    return stats;
+}
