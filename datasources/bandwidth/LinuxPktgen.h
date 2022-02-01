@@ -77,11 +77,16 @@ private:
         return true;
     }
 
+    void pg_set(QFile &file, const QString cmd) {
+        file.reset();
+        file.write(cmd.toLocal8Bit(), cmd.size()+1);
+    }
+
 public:
 
     LinuxPktgen(const QString &protocol, const QString &_interface, const QString &dst_ip, const unsigned int dst_port,
-                const QString &dst_mac, const quint64 _cpu_count): pktgen_dir("/proc/net/pktgen"),
-                cpu_count(_cpu_count), interface(_interface) {
+                const QString &dst_mac, const quint64 _cpu_count, const quint64 data_size, const quint64 packets_count):
+                pktgen_dir("/proc/net/pktgen"), cpu_count(_cpu_count), interface(_interface) {
 
         if (!pktgen_dir.exists()) {
             std::cout << "Directory /proc/net/pktgen don't exist. Try to use \"modprobe pktgen\"" << std::endl;
@@ -104,6 +109,26 @@ public:
 
             cpu_i++;
             if (cpu_i == cpu_count) break;
+        }
+
+        for (const auto &device_entry: pktgen_dir.entryList({interface+"@*"})) {
+            QFile file(pktgen_dir.filePath(device_entry));
+            if (!file.open(QIODevice::WriteOnly)) {
+                std::cout << "Can't open " << file.fileName().toStdString() << std::endl;
+                return;
+            }
+
+            pg_set(file, "count " + QString::number(packets_count));
+            pg_set(file, "pkt_size " + QString::number(data_size));
+            pg_set(file, "dst_mac " + dst_mac);
+            pg_set(file, "udp_dst_min " + QString::number(dst_port));
+            pg_set(file, "udp_dst_max " + QString::number(dst_port));
+
+            if (protocol.endsWith('6')) {
+                pg_set(file, "dst6 " + dst_ip);
+            } else {
+                pg_set(file, "dst " + dst_ip);
+            }
         }
     }
 
