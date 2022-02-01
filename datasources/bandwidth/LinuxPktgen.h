@@ -10,6 +10,7 @@
 #include <iostream>
 #include <QDebug>
 
+//TODO: CPU affinity
 class LinuxPktgen {
 
 private:

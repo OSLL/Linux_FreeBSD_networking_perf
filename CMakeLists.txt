@@ -25,7 +25,7 @@ add_executable(lfnp main.cpp datasources/BaseDataSource.h utils/utils.h utils/ut
         gui/forms/sendtimestampwidget.h gui/forms/sendtimestampwidget.cpp gui/forms/sendtimestampwidget.ui
         gui/threads/TimestampsSenderThread.h types/TimestampsChart.h datasources/bandwidth/BandwidthSender.h
         datasources/bandwidth/BandwidthReceiver.h types/BandwidthResult.h gui/forms/socketslistwidget.h
-        gui/forms/socketslistwidget.cpp gui/forms/socketslistwidget.ui gui/tables/SocketsListModel.h datasources/bandwidth/LinuxPktgen.h)
+        gui/forms/socketslistwidget.cpp gui/forms/socketslistwidget.ui gui/tables/SocketsListModel.h datasources/bandwidth/LinuxPktgen.h datasources/freebsd/protocols_stats_funcs.h datasources/freebsd/protocols_stats_funcs.cpp)
 
 target_link_libraries(lfnp
         Qt5::Core

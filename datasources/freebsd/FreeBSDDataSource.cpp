@@ -12,16 +12,13 @@ QMap<QString, QString> FreeBSDDataSource::protocol_sockets_sysctl_names = {
 };
 
 //TODO: icmp6 и ip6
-QMap<QString, std::tuple<QString, size_t>> FreeBSDDataSource::protocol_stats_sysctl_names = {
-        {"tcp", {"net.inet.tcp.stats", sizeof(tcpstat)}},
-        {"udp", {"net.inet.udp.stats", sizeof(udpstat)}},
-        {"icmp", {"net.inet.icmp.stats", sizeof(icmpstat)}},
-        {"igmp", {"net.inet.igmp.stats", sizeof(igmpstat)}},
-        {"ip", {"net.inet.ip.stats", sizeof(ipstat)}},
+QMap<QString, std::tuple<QString, size_t, std::function<ProtocolStats(char*)>>> FreeBSDDataSource::protocol_stats_sysctl_names = {
+        {"ip", {"net.inet.ip.stats", sizeof(ipstat), &ip_stats}},
+        {"tcp", {"net.inet.tcp.stats", sizeof(tcpstat), &tcp_stats}},
+        {"udp", {"net.inet.udp.stats", sizeof(udpstat), &udp_stats}},
+        {"icmp", {"net.inet.icmp.stats", sizeof(icmpstat), &icmp_stats}},
+        {"igmp", {"net.inet.igmp.stats", sizeof(igmpstat), &igmp_stats}},
 };
-
-QMap<QString, QVector<QString>> FreeBSDDataSource::protocols_stats_descriptions =
-#include "protocols_stats_descriptions.h"
 
 std::optional<QMap<QString, int>> FreeBSDDataSource::getProtocolStats(const QString &protocol) {
 
@@ -30,21 +27,13 @@ std::optional<QMap<QString, int>> FreeBSDDataSource::getProtocolStats(const QStr
         return std::nullopt;
     }
 
-    auto [sysctl_name, size] = FreeBSDDataSource::protocol_stats_sysctl_names.value(protocol);
-    size /= sizeof(uint64_t);
+    auto [sysctl_name, size, stats_func] = FreeBSDDataSource::protocol_stats_sysctl_names.value(protocol);
 
-    QVector<uint64_t> protocol_stats_vals(size);
+    auto protocol_stats = new char[size];
 
-    sysctlbyname(sysctl_name.toLocal8Bit().data(), protocol_stats_vals.data(), &size, nullptr, 0);
+    sysctlbyname(sysctl_name.toLocal8Bit().data(), protocol_stats, nullptr, nullptr, 0);
 
-    auto protocol_stats_names = FreeBSDDataSource::protocols_stats_descriptions.value(protocol);
-    QMap<QString, int> protocol_stats;
-
-    for (int i=0; i<protocol_stats_names.size(); i++) {
-        protocol_stats[protocol_stats_names[i]] = protocol_stats_vals[i];
-    }
-
-    return protocol_stats;
+    return stats_func(protocol_stats);
 }
 
 QVector<SocketInfo> FreeBSDDataSource::getSockets(QString protocol) {
@@ -222,7 +211,7 @@ QVector<QPair<QString, DropsInfo>> FreeBSDDataSource::getDropsInfo() {
 
     drops_info.push_back({"poll", DropsInfo(poll_drops)});
 
-    auto [udp_stats_name, udp_stats_size] = FreeBSDDataSource::protocol_stats_sysctl_names["udp"];
+    auto [udp_stats_name, udp_stats_size, _] = FreeBSDDataSource::protocol_stats_sysctl_names["udp"];
     udpstat udp_stats;
     sysctlbyname(udp_stats_name.toLocal8Bit().data(), &udp_stats, &udp_stats_size, nullptr, 0);
 

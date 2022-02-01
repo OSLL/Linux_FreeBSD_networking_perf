@@ -11,6 +11,7 @@
 #include "../threads/TimestampsSenderThread.h"
 #include "../../types/TimestampsChart.h"
 
+//TODO: На графике softwate только в начале. Почему?
 namespace Ui {
 class SendTimestampWidget;
 }

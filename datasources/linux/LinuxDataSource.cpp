@@ -29,7 +29,7 @@ QMap<QString, std::tuple<std::optional<QString>, std::optional<QString>>> LinuxD
         {"mptcp", {std::nullopt, "MPTcpExt"}}
 };
 
-std::optional<QMap<QString, int>> LinuxDataSource::getProtocolStats(const QString &protocol) {
+std::optional<ProtocolStats> LinuxDataSource::getProtocolStats(const QString &protocol) {
 
     if (protocol.endsWith('6')) {
         return this->_getProtocolV6Stats(protocol);

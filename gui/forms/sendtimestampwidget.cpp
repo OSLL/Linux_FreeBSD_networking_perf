@@ -131,7 +131,6 @@ void SendTimestampWidget::onPacketSent(std::optional<SendTimestamp> o_timestamp)
         in_call_series->append(timestamp.getInCallTime());
 
     }
-
 }
 
 void SendTimestampWidget::onStopClicked() {

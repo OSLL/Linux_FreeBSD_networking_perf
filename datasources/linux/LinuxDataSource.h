@@ -37,7 +37,7 @@ private:
 
 public:
 
-    std::optional<QMap<QString, int>> getProtocolStats(const QString &protocol) override;
+    std::optional<ProtocolStats> getProtocolStats(const QString &protocol) override;
 
     QVector<SocketInfo> getSockets(QString protocol) override;
 

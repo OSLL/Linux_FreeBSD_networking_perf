@@ -30,6 +30,7 @@
 
 #include "../../utils/sockets.h"
 #include "../../utils/utils.h"
+#include "protocols_stats_funcs.h"
 
 #include <sys/sysctl.h>
 #include <net/if.h>
@@ -48,12 +49,11 @@ class FreeBSDDataSource: public BaseDataSource {
 private:
 
     static QMap<QString, QString> protocol_sockets_sysctl_names;
-    static QMap<QString, std::tuple<QString, size_t>> protocol_stats_sysctl_names;
-    static QMap<QString, QVector<QString>> protocols_stats_descriptions;
+    static QMap<QString, std::tuple<QString, size_t, std::function<ProtocolStats(char*)>>> protocol_stats_sysctl_names;
 
 public:
 
-    std::optional<QMap<QString, int>> getProtocolStats(const QString &protocol) override;
+    std::optional<ProtocolStats> getProtocolStats(const QString &protocol) override;
 
     QVector<SocketInfo> getSockets(QString protocol) override;
 

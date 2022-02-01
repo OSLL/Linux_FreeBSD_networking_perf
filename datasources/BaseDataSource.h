@@ -20,12 +20,14 @@
 #include "../types/enums/MeasureType.h"
 #include "../types/BandwidthResult.h"
 
+typedef QMap<QString, int> ProtocolStats;
+
 class BaseDataSource {
 
 public:
 
     //TODO: Описание в Linux, объединение названий общих для FreeBSD и Linux значений
-    virtual std::optional<QMap<QString, int>> getProtocolStats(const QString &protocol)=0;
+    virtual std::optional<ProtocolStats> getProtocolStats(const QString &protocol)=0;
 
     virtual QVector<SocketInfo> getSockets(QString protocol)=0;
 
