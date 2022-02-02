@@ -72,6 +72,7 @@ public:
     processSendTimestamp(Socket &sock, SendTimestamp &res, TimeRange &timestamps)=0;
 
     virtual QStringList getSupportedSocketsListProtocols()=0;
+    virtual QStringList getSupportedStatsProtocols()=0;
 };
 
 

@@ -361,3 +361,7 @@ QVector<QPair<QString, DropsInfo>> LinuxDataSource::getDropsInfo() {
 QStringList LinuxDataSource::getSupportedSocketsListProtocols() {
     return LinuxDataSource::protocol_sockets_files.keys();
 }
+
+QStringList LinuxDataSource::getSupportedStatsProtocols() {
+    return LinuxDataSource::protocol_stats_names.keys();
+}

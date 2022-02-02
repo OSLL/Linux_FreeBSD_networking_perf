@@ -23,6 +23,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ACTION("Receive timestamps", RecvTimestampWidget);
     ACTION("Send timestamps", SendTimestampWidget);
     ACTION("Sockets list", SocketsListWidget);
+    ACTION("Protocols stats", ProtocolsStatsWidget);
 }
 
 MainWindow::~MainWindow()

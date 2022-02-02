@@ -76,6 +76,7 @@ public:
     processSendTimestamp(Socket &sock, SendTimestamp &res, TimeRange &timestamps) override;
 
     QStringList getSupportedSocketsListProtocols() override;
+    QStringList getSupportedStatsProtocols() override;
 };
 
 

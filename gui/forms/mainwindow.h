@@ -9,6 +9,7 @@
 #include "recvtimestampwidget.h"
 #include "sendtimestampwidget.h"
 #include "socketslistwidget.h"
+#include "protocolsstatswidget.h"
 
 #ifdef __linux__
 #include "../../datasources/linux/LinuxDataSource.h"

@@ -226,3 +226,7 @@ QVector<QPair<QString, DropsInfo>> FreeBSDDataSource::getDropsInfo() {
 QStringList FreeBSDDataSource::getSupportedSocketsListProtocols() {
     return FreeBSDDataSource::protocol_sockets_sysctl_names.keys();
 }
+
+QStringList FreeBSDDataSource::getSupportedStatsProtocols() {
+    return FreeBSDDataSource::protocol_stats_sysctl_names.keys();
+}
