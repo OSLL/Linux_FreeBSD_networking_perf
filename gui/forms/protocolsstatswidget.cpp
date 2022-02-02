@@ -1,6 +1,7 @@
 #include "protocolsstatswidget.h"
 #include "ui_protocolsstatswidget.h"
 #include "../tables/TableContextMenu.h"
+#include "trackvaluewidget.h"
 
 ProtocolsStatsWidget::ProtocolsStatsWidget(BaseDataSource *ds, MainTabWidget *_tab_widget, QWidget *parent) :
     QWidget(parent),
@@ -31,7 +32,7 @@ ProtocolsStatsWidget::ProtocolsStatsWidget(BaseDataSource *ds, MainTabWidget *_t
     update_timer->start();
 
     auto *menu = new TableContextMenu(table_view);
-    menu->addAction("Track in new tab", [](){});
+    menu->addAction("Track in new tab", this,&ProtocolsStatsWidget::onTrackInTab);
 }
 
 ProtocolsStatsWidget::~ProtocolsStatsWidget()
@@ -74,5 +75,14 @@ void ProtocolsStatsWidget::onProtocolChanged(const QString &_protocol) {
 void ProtocolsStatsWidget::onTimeout() {
 
     updateStats();
+
+}
+
+void ProtocolsStatsWidget::onTrackInTab(bool _) {
+
+    int index = tab_widget->addTab(new TrackValueWidget([]() {
+        return 0;
+    }), "Track 0");
+    tab_widget->setCurrentIndex(index);
 
 }

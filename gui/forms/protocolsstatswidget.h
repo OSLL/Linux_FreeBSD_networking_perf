@@ -42,6 +42,7 @@ private:
 protected slots:
     void onProtocolChanged(const QString &_protocol);
     void onTimeout();
+    void onTrackInTab(bool _);
 };
 
 #endif // PROTOCOLSTATSWIDGET_H

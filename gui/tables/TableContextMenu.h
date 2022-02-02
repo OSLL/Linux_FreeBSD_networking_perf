@@ -13,6 +13,7 @@ class TableContextMenu: public QMenu {
 protected:
 
     QTableView *table_view;
+    QModelIndex index;
 
 public:
 
@@ -23,9 +24,12 @@ public:
 
     }
 
+    QModelIndex getIndex() { return index; }
+
 private:
 
     void onMenuRequested(const QPoint &pos) {
+        index = table_view->indexAt(pos);
         this->popup(table_view->viewport()->mapToGlobal(pos));
     }
 
