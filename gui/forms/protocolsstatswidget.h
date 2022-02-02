@@ -6,10 +6,12 @@
 #include <QHeaderView>
 #include <QMessageBox>
 #include <QTimer>
+#include <QMenu>
 
 #include "../../datasources/BaseDataSource.h"
 #include "../tables/ProtocolStatsModel.h"
 #include "../../utils/default_args.h"
+#include "../../types/MainTabWidget.h"
 
 namespace Ui {
 class ProtocolsStatsWidget;
@@ -20,7 +22,7 @@ class ProtocolsStatsWidget : public QWidget
     Q_OBJECT
 
 public:
-    ProtocolsStatsWidget(BaseDataSource *ds, QWidget *parent = nullptr);
+    ProtocolsStatsWidget(BaseDataSource *ds, MainTabWidget *_tab_widget, QWidget *parent = nullptr);
     ~ProtocolsStatsWidget();
 
 protected:
@@ -31,6 +33,7 @@ private:
     Ui::ProtocolsStatsWidget *ui;
     BaseDataSource *data_source;
     QTableView *table_view;
+    MainTabWidget *tab_widget;
     ProtocolStatsModel *stats_model;
     std::unique_ptr<QTimer> update_timer;
 

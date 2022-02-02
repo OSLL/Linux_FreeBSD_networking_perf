@@ -27,7 +27,7 @@ add_executable(lfnp main.cpp datasources/BaseDataSource.h utils/utils.h utils/ut
         datasources/bandwidth/BandwidthReceiver.h types/BandwidthResult.h gui/forms/socketslistwidget.h
         gui/forms/socketslistwidget.cpp gui/forms/socketslistwidget.ui gui/tables/SocketsListModel.h
         datasources/bandwidth/LinuxPktgen.h gui/forms/protocolsstatswidget.h gui/forms/protocolsstatswidget.cpp
-        gui/forms/protocolsstatswidget.ui gui/tables/ProtocolStatsModel.h)
+        gui/forms/protocolsstatswidget.ui gui/tables/ProtocolStatsModel.h gui/tables/TableContextMenu.h types/MainTabWidget.h)
 
 target_link_libraries(lfnp
         Qt5::Core

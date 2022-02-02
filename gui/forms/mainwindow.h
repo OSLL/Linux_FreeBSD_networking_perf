@@ -13,9 +13,13 @@
 
 #ifdef __linux__
 #include "../../datasources/linux/LinuxDataSource.h"
+#include "../../types/MainTabWidget.h"
 #else
 #include "../../datasources/freebsd/FreeBSDDataSource.h"
 #endif
+
+#define ACTION(name, widget) ui->menu->addAction(tr(name), this, tabWidget->getAddFunction<widget>(name))
+#define TAB_ACTION(name, widget) ui->menu->addAction(tr(name), this, tabWidget->getAddFunctionWithTab<widget>(name))
 
 namespace Ui {
 class MainWindow;
@@ -32,12 +36,9 @@ public:
 protected:
     void changeEvent(QEvent *e);
 
-    template<class T>
-    void addTab(const char *name);
-
 private:
     Ui::MainWindow *ui;
-    QTabWidget *tabWidget;
+    MainTabWidget *tabWidget;
     BaseDataSource *data_source;
 };
 

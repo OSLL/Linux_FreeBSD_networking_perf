@@ -4,7 +4,7 @@
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
-    tabWidget(new QTabWidget),
+    tabWidget(nullptr),
 #ifdef __linux__
     data_source(new LinuxDataSource)
 #else
@@ -13,15 +13,14 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    tabWidget->setTabsClosable(true);
-    QObject::connect(tabWidget->tabBar(), &QTabBar::tabCloseRequested, tabWidget, &QTabWidget::removeTab);
+    tabWidget = new MainTabWidget(data_source, this);
     ui->verticalLayout->addWidget(tabWidget);
 
-    addTab<CPUDistributionWidget>("CPU Distribution");
-    addTab<RecvTimestampWidget>("Receive timestamps");
-    addTab<SendTimestampWidget>("Send timestamps");
-    addTab<SocketsListWidget>("Sockets list");
-    addTab<ProtocolsStatsWidget>("Protocols stats");
+    ACTION("CPU Distribution", CPUDistributionWidget);
+    ACTION("Receive timestamps", RecvTimestampWidget);
+    ACTION("Send timestamps", SendTimestampWidget);
+    ACTION("Sockets list", SocketsListWidget);
+    TAB_ACTION("Protocols stats", ProtocolsStatsWidget);
 }
 
 MainWindow::~MainWindow()
@@ -39,12 +38,4 @@ void MainWindow::changeEvent(QEvent *e)
     default:
         break;
     }
-}
-
-template<class T>
-void MainWindow::addTab(const char *name) {
-    ui->menu->addAction(tr(name), this, [this, name]() {
-        int index = this->tabWidget->addTab(new T(this->data_source), tr(name));
-        this->tabWidget->setCurrentIndex(index);
-    });
 }
