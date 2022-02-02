@@ -12,6 +12,7 @@
 #include "../tables/ProtocolStatsModel.h"
 #include "../../utils/default_args.h"
 #include "../../types/MainTabWidget.h"
+#include "../tables/TableContextMenu.h"
 
 namespace Ui {
 class ProtocolsStatsWidget;
@@ -35,14 +36,16 @@ private:
     QTableView *table_view;
     MainTabWidget *tab_widget;
     ProtocolStatsModel *stats_model;
+
     std::unique_ptr<QTimer> update_timer;
+    TableContextMenu menu;
 
     QString protocol;
 
 protected slots:
     void onProtocolChanged(const QString &_protocol);
     void onTimeout();
-    void onTrackInTab(bool _);
+    void onTrackInTab();
 };
 
 #endif // PROTOCOLSTATSWIDGET_H

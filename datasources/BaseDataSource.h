@@ -73,6 +73,8 @@ public:
 
     virtual QStringList getSupportedSocketsListProtocols()=0;
     virtual QStringList getSupportedStatsProtocols()=0;
+
+    int getOneStat(const QString &protocol, const QString &stat_name);
 };
 
 

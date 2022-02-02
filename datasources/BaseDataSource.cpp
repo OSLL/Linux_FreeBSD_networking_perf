@@ -187,3 +187,10 @@ std::optional<BandwidthResult> BaseDataSource::recvBandwidth(const QString &prot
 
     return res;
 }
+
+int BaseDataSource::getOneStat(const QString &protocol, const QString &stat_name) {
+
+    auto stats = getProtocolStats(protocol);
+    return stats->value(stat_name);
+
+}

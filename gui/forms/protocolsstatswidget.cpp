@@ -10,7 +10,8 @@ ProtocolsStatsWidget::ProtocolsStatsWidget(BaseDataSource *ds, MainTabWidget *_t
     table_view(new QTableView),
     tab_widget(_tab_widget),
     stats_model(new ProtocolStatsModel),
-    update_timer(std::make_unique<QTimer>())
+    update_timer(std::make_unique<QTimer>()),
+    menu(table_view)
 {
     ui->setupUi(this);
     ui->controlLayout->setAlignment(Qt::AlignmentFlag::AlignLeft);
@@ -31,8 +32,7 @@ ProtocolsStatsWidget::ProtocolsStatsWidget(BaseDataSource *ds, MainTabWidget *_t
     QObject::connect(ui->protocolComboBox, &QComboBox::currentTextChanged, this, &ProtocolsStatsWidget::onProtocolChanged);
     update_timer->start();
 
-    auto *menu = new TableContextMenu(table_view);
-    menu->addAction("Track in new tab", this,&ProtocolsStatsWidget::onTrackInTab);
+    menu.addAction("Track in new tab", this,&ProtocolsStatsWidget::onTrackInTab);
 }
 
 ProtocolsStatsWidget::~ProtocolsStatsWidget()
@@ -78,11 +78,15 @@ void ProtocolsStatsWidget::onTimeout() {
 
 }
 
-void ProtocolsStatsWidget::onTrackInTab(bool _) {
+void ProtocolsStatsWidget::onTrackInTab() {
 
-    int index = tab_widget->addTab(new TrackValueWidget([]() {
-        return 0;
-    }), "Track 0");
-    tab_widget->setCurrentIndex(index);
+    auto index = menu.getIndex();
+    auto name_index = table_view->model()->index(index.row(), 0);
+    auto prop_name = table_view->model()->data(name_index).toString();
+
+    int tab_index = tab_widget->addTab(new TrackValueWidget(
+            std::bind(&BaseDataSource::getOneStat, data_source, protocol, prop_name)),
+                                       "Track " + prop_name);
+    tab_widget->setCurrentIndex(tab_index);
 
 }
