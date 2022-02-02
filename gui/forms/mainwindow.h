@@ -32,6 +32,9 @@ public:
 protected:
     void changeEvent(QEvent *e);
 
+    template<class T>
+    void addTab(const char *name);
+
 private:
     Ui::MainWindow *ui;
     QTabWidget *tabWidget;

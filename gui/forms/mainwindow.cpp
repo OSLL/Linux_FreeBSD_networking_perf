@@ -1,8 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-#define ACTION(name, widget) ui->menu->addAction(tr(name), this, [this]() {this->tabWidget->addTab(new widget(this->data_source), tr(name));})
-
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
@@ -19,11 +17,11 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(tabWidget->tabBar(), &QTabBar::tabCloseRequested, tabWidget, &QTabWidget::removeTab);
     ui->verticalLayout->addWidget(tabWidget);
 
-    ACTION("CPU Distribution", CPUDistributionWidget);
-    ACTION("Receive timestamps", RecvTimestampWidget);
-    ACTION("Send timestamps", SendTimestampWidget);
-    ACTION("Sockets list", SocketsListWidget);
-    ACTION("Protocols stats", ProtocolsStatsWidget);
+    addTab<CPUDistributionWidget>("CPU Distribution");
+    addTab<RecvTimestampWidget>("Receive timestamps");
+    addTab<SendTimestampWidget>("Send timestamps");
+    addTab<SocketsListWidget>("Sockets list");
+    addTab<ProtocolsStatsWidget>("Protocols stats");
 }
 
 MainWindow::~MainWindow()
@@ -41,4 +39,12 @@ void MainWindow::changeEvent(QEvent *e)
     default:
         break;
     }
+}
+
+template<class T>
+void MainWindow::addTab(const char *name) {
+    ui->menu->addAction(tr(name), this, [this, name]() {
+        int index = this->tabWidget->addTab(new T(this->data_source), tr(name));
+        this->tabWidget->setCurrentIndex(index);
+    });
 }

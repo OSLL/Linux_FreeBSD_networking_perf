@@ -66,7 +66,6 @@ void ProtocolsStatsWidget::onProtocolChanged(const QString &_protocol) {
 
 }
 
-#include <QDebug>
 void ProtocolsStatsWidget::onTimeout() {
 
     updateStats();
