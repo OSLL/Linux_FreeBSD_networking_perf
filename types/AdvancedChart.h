@@ -70,7 +70,6 @@ protected:
 
             auto_scroll = false;
             auto_range = false;
-            qDebug() << "Move";
 
             QPointF delta = event->pos() - last_mouse_pos;
             scroll(-delta.x(), delta.y());

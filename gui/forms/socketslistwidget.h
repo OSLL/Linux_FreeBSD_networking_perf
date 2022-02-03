@@ -5,10 +5,12 @@
 #include <QHeaderView>
 #include <QTableView>
 #include <QTimer>
+
 #include "../../datasources/BaseDataSource.h"
 #include "../tables/SocketsListModel.h"
-#include "../tables/SocketsListModel.h"
+#include "../tables/TableContextMenu.h"
 #include "../../utils/default_args.h"
+#include "../../types/MainTabWidget.h"
 
 namespace Ui {
 class SocketsListWidget;
@@ -16,13 +18,12 @@ class SocketsListWidget;
 
 //TODO: Подстветка подозрительных строк
 //TODO: Поиск, фильтрация и сортировка в таблице
-//TODO: Построение графиков для выбранных значений (пкм -> построить график в новом окне)
 class SocketsListWidget : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit SocketsListWidget(BaseDataSource *ds, QWidget *parent = nullptr);
+    SocketsListWidget(BaseDataSource *ds, MainTabWidget *_tab_widget, QWidget *parent = nullptr);
     ~SocketsListWidget();
 
 protected:
@@ -32,14 +33,17 @@ protected:
 private:
     Ui::SocketsListWidget *ui;
     BaseDataSource *data_source;
-    QTableView *table;
+    QTableView *table_view;
     SocketsListModel *model;
     QString protocol;
     QTimer *update_timer;
+    MainTabWidget *tab_widget;
+    TableContextMenu menu;
 
 protected slots:
     void onProtocolChanged(const QString &_protocol);
     void onTimeout();
+    void onTrackInTab();
 };
 
 #endif // SOCKETSLISTWIDGET_H

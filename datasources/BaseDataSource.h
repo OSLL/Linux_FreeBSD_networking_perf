@@ -75,6 +75,8 @@ public:
     virtual QStringList getSupportedStatsProtocols()=0;
 
     int getOneStat(const QString &protocol, const QString &stat_name);
+    std::optional<SocketInfo> getOneSocket(const QString &protocol, const QString &local_address, unsigned int local_port,
+                                           const QString &foreign_address, unsigned int foreign_port);
 };
 
 

@@ -82,6 +82,9 @@ public:
         values = _values;
     }
 
+    SocketInfo dataByRow(int row) {
+        return values[row];
+    }
 };
 
 

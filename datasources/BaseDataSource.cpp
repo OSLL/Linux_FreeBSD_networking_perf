@@ -194,3 +194,18 @@ int BaseDataSource::getOneStat(const QString &protocol, const QString &stat_name
     return stats->value(stat_name);
 
 }
+
+std::optional<SocketInfo> BaseDataSource::getOneSocket(const QString &protocol, const QString &local_address, unsigned int local_port,
+                                                       const QString &foreign_address, unsigned int foreign_port) {
+    auto sockets_list = getSockets(protocol);
+    for (const auto &si: sockets_list) {
+        if (si.local_address == local_address && si.foreign_address == foreign_address &&
+            si.local_port == local_port && si.foreign_port == foreign_port) {
+
+            return si;
+
+        }
+    }
+
+    return std::nullopt;
+}
