@@ -85,7 +85,7 @@ void ProtocolsStatsWidget::onTrackInTab() {
     auto prop_name = table_view->model()->data(name_index).toString();
 
     int tab_index = tab_widget->addTab(new TrackValueWidget(
-            std::bind(&BaseDataSource::getOneStat, data_source, protocol, prop_name)),
+            std::bind(&BaseDataSource::getOneStat, data_source, protocol, prop_name), prop_name),
                                        "Track " + prop_name);
     tab_widget->setCurrentIndex(tab_index);
 

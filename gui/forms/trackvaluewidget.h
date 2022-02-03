@@ -17,7 +17,7 @@ class TrackValueWidget : public QWidget
     Q_OBJECT
 
 public:
-    TrackValueWidget(std::function<int()> _get_value_func, QWidget *parent = nullptr);
+    TrackValueWidget(std::function<int()> _get_value_func, const QString &prop_name, QWidget *parent = nullptr);
     ~TrackValueWidget();
 
 protected:

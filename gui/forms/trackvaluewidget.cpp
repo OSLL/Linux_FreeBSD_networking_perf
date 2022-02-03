@@ -3,8 +3,9 @@
 #include <utility>
 #include "ui_trackvaluewidget.h"
 #include "../../types/DynamicAxisChart.h"
+#include "../../types/AdvancedChart.h"
 
-TrackValueWidget::TrackValueWidget(std::function<int()> _get_value_func, QWidget *parent) :
+TrackValueWidget::TrackValueWidget(std::function<int()> _get_value_func, const QString &prop_name, QWidget *parent) :
     QWidget(parent),
     ui(new Ui::TrackValueWidget),
     get_value_func(std::move(_get_value_func)),
@@ -13,12 +14,10 @@ TrackValueWidget::TrackValueWidget(std::function<int()> _get_value_func, QWidget
     ui->setupUi(this);
     value = get_value_func();
 
-    auto chart = new DynamicYAxisChart();
+    auto chart = new AdvancedChart(value-1, value+1);
     chart->addSeries(series);
-    auto x_axis = new QValueAxis();
-    chart->addAxis(x_axis, Qt::AlignBottom);
-    series->attachAxis(x_axis);
     series->append(value);
+    series->setName(prop_name);
 
     chart_view.setChart(chart);
     ui->chartLayout->addWidget(&chart_view);
