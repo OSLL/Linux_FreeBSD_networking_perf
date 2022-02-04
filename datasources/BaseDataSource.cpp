@@ -146,8 +146,8 @@ std::optional<BandwidthResult> BaseDataSource::recvBandwidth(const QString &prot
         return std::nullopt;
     }
 
-    // Так как сервер запустит threads_count accept-ов, то нужно слушать threads_count + основной, через который будут получены
-    // duration и data_size
+    // Так как сервер запустит threads_count accept-ов, то нужно слушать threads_count + основной, через который будут
+    // получены duration и data_size
     if (sock.listenFor(threads_count + 1) < 0) {
         std::cout << "Listen failed" << std::endl;
         return std::nullopt;
@@ -171,7 +171,7 @@ std::optional<BandwidthResult> BaseDataSource::recvBandwidth(const QString &prot
     QThread::sleep(duration);
 
     for (auto receiver: receivers) {
-        receiver->requestInterruption();
+        receiver->terminate();
     }
     for (auto receiver: receivers) {
         receiver->wait();

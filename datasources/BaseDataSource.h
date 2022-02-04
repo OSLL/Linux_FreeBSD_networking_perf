@@ -48,6 +48,7 @@ public:
             quint64 data_size,
             bool zero_copy);
 
+    //TODO: как реализовать многопоточность для udp и udplite?
     std::optional<BandwidthResult> recvBandwidth(const QString &protocol, unsigned int port, quint64 threads_count);
 
     std::optional<BandwidthResult> sendBandwidth(const QString &protocol,

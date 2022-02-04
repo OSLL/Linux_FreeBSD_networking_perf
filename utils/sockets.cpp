@@ -93,7 +93,10 @@ int Socket::listenFor(int conn_num) {
 }
 
 Socket *Socket::acceptConnection() {
-    int accept_descriptor = accept(this->sock_descriptor, NULL, NULL);
+    int accept_descriptor = this->sock_descriptor;
+    if (sock_type == SOCK_STREAM) {
+        accept_descriptor = accept(this->sock_descriptor, NULL, NULL);
+    }
     return new Socket(accept_descriptor, protocol);
 }
 

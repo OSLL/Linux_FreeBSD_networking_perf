@@ -66,46 +66,44 @@ void SocketsListWidget::onTimeout() {
     updateSocketsList();
 }
 
-#include <QDebug>
 void SocketsListWidget::onTrackInTab() {
 
     auto index = menu.getIndex();
     auto column = index.column();
-    auto model = dynamic_cast<SocketsListModel*>(table_view->model());
-    if (model) {
-        SocketInfo socket = model->dataByRow(index.row());
 
-        // Лучше скопировать по значению, так как при изменении протокола в this, не будет найден сокет
-        auto _data_source = data_source;
-        QString _protocol = this->protocol;
+    SocketInfo socket = model->dataByRow(index.row());
 
-        // В зависимости от того, на какую клетку нажали, нужно отслеживать разные параметры сокета
-        QPair<QString, std::function<int(SocketInfo&)>> column_args;
-        if (column <= 4) {
-            column_args = {"TX Queue", [](SocketInfo &socket) {return socket.tx_queue_size;}};
-        } else if (column == 5) {
-            column_args = {"RX Queue", [](SocketInfo &socket) {return socket.rx_queue_size;}};
-        } else if (column == 6) {
-            column_args = {"Refs", [](SocketInfo &socket) {return socket.ref;}};
-        } else if (column == 7) {
-            column_args = {"Drops", [](SocketInfo &socket) {return socket.drops;}};
-        }
+    // Лучше скопировать по значению, так как при изменении протокола в this, не будет найден сокет
+    auto _data_source = data_source;
+    QString _protocol = this->protocol;
 
-        int index = tab_widget->addTab(new TrackValueWidget(
-                [_data_source, _protocol, socket, column_args]() {
-                auto new_socket = _data_source->getOneSocket(_protocol,
-                                                             socket.local_address, socket.local_port,
-                                                             socket.foreign_address,socket.foreign_port);
-                if (new_socket) {
-                    return column_args.second(new_socket.value());
-                } else {
-                    return 0;
-                }
-            }, column_args.first),
-                           column_args.first + " (" +
-                           QString::number(socket.local_port) + "-" + QString::number(socket.foreign_port) + ")");
-
-        tab_widget->setCurrentIndex(index);
+    // В зависимости от того, на какую клетку нажали, нужно отслеживать разные параметры сокета
+    QPair<QString, std::function<int(SocketInfo&)>> column_args;
+    if (column <= 4) {
+        column_args = {"TX Queue", [](SocketInfo &socket) {return socket.tx_queue_size;}};
+    } else if (column == 5) {
+        column_args = {"RX Queue", [](SocketInfo &socket) {return socket.rx_queue_size;}};
+    } else if (column == 6) {
+        column_args = {"Refs", [](SocketInfo &socket) {return socket.ref;}};
+    } else if (column == 7) {
+        column_args = {"Drops", [](SocketInfo &socket) {return socket.drops;}};
     }
 
+    int tab_index = tab_widget->addTab(new TrackValueWidget(
+            [_data_source, _protocol, socket, column_args]() {
+
+            auto new_socket = _data_source->getOneSocket(_protocol,
+                                                         socket.local_address, socket.local_port,
+                                                         socket.foreign_address,socket.foreign_port);
+            if (new_socket) {
+                return column_args.second(new_socket.value());
+            } else {
+                return 0;
+            }
+
+        }, column_args.first),
+                       column_args.first + " (" +
+                       QString::number(socket.local_port) + "-" + QString::number(socket.foreign_port) + ")");
+
+    tab_widget->setCurrentIndex(tab_index);
 }
