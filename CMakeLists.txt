@@ -9,6 +9,9 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+find_package(Threads REQUIRED)
+
 add_executable(lfnp main.cpp datasources/BaseDataSource.h utils/utils.h utils/utils.cpp types/SocketInfo.h
         datasources/linux/parsers/parsers.h datasources/linux/parsers/parsers.cpp cli/printers/printers.cpp
         cli/printers/printers.h types/InSystemTimeInfo.h utils/sockets.cpp utils/sockets.h
@@ -34,6 +37,7 @@ target_link_libraries(lfnp
         Qt5::Core
         Qt5::Widgets
         Qt5::Charts)
+target_link_libraries(lfnp Threads::Threads)
 
 if (${CMAKE_SYSTEM_NAME} MATCHES Linux)
     target_sources(lfnp PUBLIC datasources/linux/LinuxDataSource.h datasources/linux/LinuxDataSource.cpp)

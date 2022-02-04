@@ -30,7 +30,7 @@ private:
 
 public:
 
-    BandwidthSender(Socket *_sock, std::unique_ptr<QFile> &_file, quint64 _ds, bool _zc):
+    BandwidthSender(Socket *_sock, std::unique_ptr<QFile> &_file, quint64 _ds, bool _zc, int cpu_index=-1):
     sock(_sock), file_descriptor(_file->handle()), zero_copy(_zc), data_size(_ds), packets_count(0), bytes_sent(0) {
 
         iov = {
@@ -49,6 +49,14 @@ public:
 
         if (!zero_copy) {
             data = _file->read(data_size);
+        }
+
+        if (cpu_index >= 0) {
+            cpu_set_t cpuset;
+            CPU_ZERO(&cpuset);
+            CPU_SET(cpu_index, &cpuset);
+            pthread_t current_thread = pthread_self();
+            pthread_setaffinity_np(current_thread, sizeof(cpu_set_t), &cpuset);
         }
 
     }

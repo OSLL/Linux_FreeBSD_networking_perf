@@ -49,7 +49,8 @@ public:
             bool zero_copy);
 
     //TODO: как реализовать многопоточность для udp и udplite?
-    std::optional<BandwidthResult> recvBandwidth(const QString &protocol, unsigned int port, quint64 threads_count);
+    std::optional<BandwidthResult> recvBandwidth(const QString &protocol, unsigned int port,
+                                                 quint64 threads_count, bool cpu_affinity);
 
     std::optional<BandwidthResult> sendBandwidth(const QString &protocol,
                        const QString &addr,
@@ -58,7 +59,8 @@ public:
                        const QString &data_filename,
                        quint64 data_size,
                        bool zero_copy,
-                       quint64 threads_count);
+                       quint64 threads_count,
+                       bool cpu_affinity);
 
     virtual std::optional<QMap<int, int>> getCPUDistribution(CPUDistributionSource source)=0;
     virtual std::optional<QMap<QString, DropsInfo>> getDevsDropsInfo()=0;

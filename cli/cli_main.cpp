@@ -34,7 +34,8 @@ int cli_main(int argc, char *argv[]) {
                     {"duration", "Duration of bandwidth measure", "duration", default_args["duration"]},
                     {"threads", "Count of threads to use", "threads", default_args["threads"]},
                     {"mac", "MAC address to send data", "mac", default_args["mac"]},
-                    {{"i", "interface"}, "Interface to send data", "interface", default_args["interface"]}
+                    {{"i", "interface"}, "Interface to send data", "interface", default_args["interface"]},
+                    {"cpu-affinity", "If set, bind relevant threads of receiver and sender to one cpu"}
             });
 
     parser.process(args);
@@ -58,6 +59,7 @@ int cli_main(int argc, char *argv[]) {
 
     auto mac_addr = parser.value("mac");
     auto interface = parser.value("interface");
+    auto cpu_affinity = parser.isSet("cpu-affinity");
 
 #ifdef __linux__
     BaseDataSource *ds = new LinuxDataSource();
@@ -87,9 +89,9 @@ int cli_main(int argc, char *argv[]) {
             printTimestampsAverage(o_tx_time, in_ms);
 
         } else if (argc > 2 && args[2] == "tx-bandwidth") {
-            printBandwidthResult(ds->sendBandwidth(protocol, addr, port, duration, data_filename, data_size, zero_copy, threads_count));
+            printBandwidthResult(ds->sendBandwidth(protocol, addr, port, duration, data_filename, data_size, zero_copy, threads_count, cpu_affinity));
         } else if (argc > 2 && args[2] == "rx-bandwidth") {
-            printBandwidthResult(ds->recvBandwidth(protocol, port, threads_count));
+            printBandwidthResult(ds->recvBandwidth(protocol, port, threads_count, cpu_affinity));
         }
 
     } else if (argc > 2 && args[1] == "iperf3") {

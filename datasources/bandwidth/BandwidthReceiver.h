@@ -25,7 +25,7 @@ private:
 
 public:
 
-    BandwidthReceiver(Socket *_sock, quint64 _ds):
+    BandwidthReceiver(Socket *_sock, quint64 _ds, int cpu_index=-1):
     sock(_sock), data_size(_ds), packets_count(0), bytes_sent(0) {
 
         iov = {
@@ -41,6 +41,14 @@ public:
                 .msg_control = nullptr,
                 .msg_controllen = 0
         };
+
+        if (cpu_index >= 0) {
+            cpu_set_t cpuset;
+            CPU_ZERO(&cpuset);
+            CPU_SET(cpu_index, &cpuset);
+            pthread_t current_thread = pthread_self();
+            pthread_setaffinity_np(current_thread, sizeof(cpu_set_t), &cpuset);
+        }
     }
 
     ~BandwidthReceiver() {
