@@ -7,13 +7,13 @@ SendTimestampWidget::SendTimestampWidget(BaseDataSource *ds, QWidget *parent) :
         ui(new Ui::SendTimestampWidget),
         data_source(ds),
         chart(nullptr),
+        start_stop(new StartStopWidget),
         sender_thread(nullptr),
         software_series(nullptr),
         hardware_series(nullptr),
         in_call_series(nullptr)
 {
     ui->setupUi(this);
-    ui->stopButton->setDisabled(true);
 
     ui->protocolComboBox->addItems(Socket::getSupportedProtocols());
     ui->protocolComboBox->setCurrentText(default_args["protocol"]);
@@ -34,8 +34,9 @@ SendTimestampWidget::SendTimestampWidget(BaseDataSource *ds, QWidget *parent) :
     ui->delaySpinBox->setValue(default_args["delay"].toInt());
     ui->zeroCopyCheckBox->setCheckState(Qt::CheckState::Unchecked);
 
-    QObject::connect(ui->startButton, &QPushButton::clicked, this, &SendTimestampWidget::onStartClicked);
-    QObject::connect(ui->stopButton, &QPushButton::clicked, this, &SendTimestampWidget::onStopClicked);
+    QObject::connect(start_stop, &StartStopWidget::start, this, &SendTimestampWidget::onStartClicked);
+    QObject::connect(start_stop, &StartStopWidget::stop, this, &SendTimestampWidget::onStopClicked);
+    ui->controlWidget->layout()->addWidget(start_stop);
 
     chart_view.setRenderHint(QPainter::Antialiasing);
     ui->resultLayout->addWidget(&chart_view);
@@ -96,9 +97,6 @@ void SendTimestampWidget::onStartClicked() {
 
     sender_thread = new TimestampsSenderThread(sock, file, data_size, zero_copy, send_func, packets_count, delay);
 
-    ui->startButton->setDisabled(true);
-    ui->stopButton->setDisabled(false);
-
     QObject::connect(sender_thread, &TimestampsSenderThread::packetSent, this, &SendTimestampWidget::onPacketSent);
     QObject::connect(sender_thread, &TimestampsSenderThread::finished, this, &SendTimestampWidget::onThreadFinished);
     sender_thread->start();
@@ -142,8 +140,7 @@ void SendTimestampWidget::onStopClicked() {
 
 void SendTimestampWidget::onThreadFinished() {
 
-    ui->startButton->setDisabled(false);
-    ui->stopButton->setDisabled(true);
+    start_stop->setStartState();
 
     delete sender_thread;
     sender_thread = nullptr;

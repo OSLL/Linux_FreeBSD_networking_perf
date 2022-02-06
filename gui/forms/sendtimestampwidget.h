@@ -10,6 +10,7 @@
 #include "../../datasources/BaseDataSource.h"
 #include "../threads/TimestampsSenderThread.h"
 #include "../../types/TimestampsChart.h"
+#include "startstopwidget.h"
 
 //TODO: На графике softwate только в начале. Почему?
 namespace Ui {
@@ -42,6 +43,8 @@ private:
     TimestampsSenderThread *sender_thread;
     BaseDataSource *data_source;
     TimestampsChart *chart;
+    StartStopWidget *start_stop;
+
 
     TimeSeries<QLineSeries> *software_series;
     TimeSeries<QLineSeries> *hardware_series;

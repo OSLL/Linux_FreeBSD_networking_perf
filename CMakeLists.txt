@@ -31,7 +31,10 @@ add_executable(lfnp main.cpp datasources/BaseDataSource.h utils/utils.h utils/ut
         gui/forms/socketslistwidget.cpp gui/forms/socketslistwidget.ui gui/tables/SocketsListModel.h
         datasources/bandwidth/LinuxPktgen.h gui/forms/protocolsstatswidget.h gui/forms/protocolsstatswidget.cpp
         gui/forms/protocolsstatswidget.ui gui/tables/ProtocolStatsModel.h gui/tables/TableContextMenu.h
-        types/MainTabWidget.h gui/forms/trackvaluewidget.h gui/forms/trackvaluewidget.cpp gui/forms/trackvaluewidget.ui types/AdvancedChart.h)
+        types/MainTabWidget.h gui/forms/trackvaluewidget.h gui/forms/trackvaluewidget.cpp gui/forms/trackvaluewidget.ui
+        types/AdvancedChart.h gui/forms/recvbandwidthwidget.h gui/forms/recvbandwidthwidget.cpp
+        gui/forms/recvbandwidthwidget.ui gui/forms/startstopwidget.h gui/forms/startstopwidget.cpp
+        gui/forms/startstopwidget.ui)
 
 target_link_libraries(lfnp
         Qt5::Core

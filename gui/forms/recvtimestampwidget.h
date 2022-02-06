@@ -12,6 +12,8 @@
 #include "../threads/TimestampsReceiverThread.h"
 #include "../../utils/default_args.h"
 
+#include "startstopwidget.h"
+
 namespace Ui {
 class RecvTimestampWidget;
 }
@@ -35,6 +37,7 @@ private:
     BaseDataSource *data_source;
 
     QChartView chart_view;
+    StartStopWidget *start_stop;
 
     TimeSeries<QLineSeries> *software_series;
     TimeSeries<QLineSeries> *hardware_series;

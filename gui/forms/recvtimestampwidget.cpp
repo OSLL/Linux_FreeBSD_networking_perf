@@ -4,11 +4,11 @@
 RecvTimestampWidget::RecvTimestampWidget(BaseDataSource *ds, QWidget *parent) :
     QWidget(parent),
     ui(new Ui::RecvTimestampWidget),
+    start_stop(new StartStopWidget),
     data_source(ds),
     receiver_thread(nullptr)
 {
     ui->setupUi(this);
-    ui->stopButton->setDisabled(true);
 
     ui->protocolComboBox->addItems(Socket::getSupportedProtocols());
     ui->protocolComboBox->setCurrentText(default_args["protocol"]);
@@ -19,11 +19,12 @@ RecvTimestampWidget::RecvTimestampWidget(BaseDataSource *ds, QWidget *parent) :
     ui->accuracyComboBox->addItems({"us", "ns"});
     ui->accuracyComboBox->setCurrentText("us");
 
-    QObject::connect(ui->startButton, &QPushButton::clicked, this, &RecvTimestampWidget::onStartClicked);
-    QObject::connect(ui->stopButton, &QPushButton::clicked, this, &RecvTimestampWidget::onStopClicked);
-
     chart_view.setRenderHint(QPainter::Antialiasing);
     ui->resultLayout->addWidget(&chart_view);
+
+    QObject::connect(start_stop, &StartStopWidget::start, this, &RecvTimestampWidget::onStartClicked);
+    QObject::connect(start_stop, &StartStopWidget::stop, this, &RecvTimestampWidget::onStopClicked);
+    ui->startStopLayout->addWidget(start_stop);
 }
 
 RecvTimestampWidget::~RecvTimestampWidget()
@@ -67,9 +68,6 @@ void RecvTimestampWidget::onStartClicked() {
     QObject::connect(receiver_thread, &TimestampsReceiverThread::packetReceived, this, &RecvTimestampWidget::onPacketReceived);
     QObject::connect(receiver_thread, &TimestampsReceiverThread::finished, this, &RecvTimestampWidget::onThreadFinished);
     receiver_thread->start();
-
-    ui->startButton->setDisabled(true);
-    ui->stopButton->setDisabled(false);
 }
 
 void RecvTimestampWidget::onPacketReceived(const ReceiveTimestamp recv_ts) {
@@ -135,8 +133,7 @@ void RecvTimestampWidget::onStopClicked() {
 
 void RecvTimestampWidget::onThreadFinished() {
 
-    ui->startButton->setDisabled(false);
-    ui->stopButton->setDisabled(true);
+    start_stop->setStartState();
 
     delete receiver_thread;
     receiver_thread = nullptr;

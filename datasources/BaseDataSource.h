@@ -33,6 +33,7 @@ public:
 
     //TODO: Проверить hardware timestamps
     //TODO: В FreeBSD значение Total огромное. Почему?
+    //TODO: CPU affinity для timestamp'ов
     std::optional<QVector<ReceiveTimestamp>> recvTimestamps(
             const QString &protocol, unsigned int port, unsigned int packets_count);
 
