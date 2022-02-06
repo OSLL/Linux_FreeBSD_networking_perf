@@ -34,7 +34,7 @@ add_executable(lfnp main.cpp datasources/BaseDataSource.h utils/utils.h utils/ut
         types/MainTabWidget.h gui/forms/trackvaluewidget.h gui/forms/trackvaluewidget.cpp gui/forms/trackvaluewidget.ui
         types/AdvancedChart.h gui/forms/recvbandwidthwidget.h gui/forms/recvbandwidthwidget.cpp
         gui/forms/recvbandwidthwidget.ui gui/forms/startstopwidget.h gui/forms/startstopwidget.cpp
-        gui/forms/startstopwidget.ui)
+        gui/forms/startstopwidget.ui gui/threads/BandwidthReceiverThread.h)
 
 target_link_libraries(lfnp
         Qt5::Core

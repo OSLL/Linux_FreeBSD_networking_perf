@@ -70,6 +70,10 @@ public:
 
     quint64 getPacketsCount() { return packets_count; }
     quint64 getBytesSent() { return bytes_sent; }
+    void resetCount() {
+        packets_count = 0;
+        bytes_sent = 0;
+    }
 
 };
 

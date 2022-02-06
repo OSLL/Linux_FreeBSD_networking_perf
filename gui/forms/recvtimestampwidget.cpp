@@ -4,7 +4,6 @@
 RecvTimestampWidget::RecvTimestampWidget(BaseDataSource *ds, QWidget *parent) :
     QWidget(parent),
     ui(new Ui::RecvTimestampWidget),
-    start_stop(new StartStopWidget),
     data_source(ds),
     receiver_thread(nullptr)
 {
@@ -22,9 +21,9 @@ RecvTimestampWidget::RecvTimestampWidget(BaseDataSource *ds, QWidget *parent) :
     chart_view.setRenderHint(QPainter::Antialiasing);
     ui->resultLayout->addWidget(&chart_view);
 
-    QObject::connect(start_stop, &StartStopWidget::start, this, &RecvTimestampWidget::onStartClicked);
-    QObject::connect(start_stop, &StartStopWidget::stop, this, &RecvTimestampWidget::onStopClicked);
-    ui->startStopLayout->addWidget(start_stop);
+    QObject::connect(&start_stop, &StartStopWidget::start, this, &RecvTimestampWidget::onStartClicked);
+    QObject::connect(&start_stop, &StartStopWidget::stop, this, &RecvTimestampWidget::onStopClicked);
+    ui->startStopLayout->addWidget(&start_stop);
 }
 
 RecvTimestampWidget::~RecvTimestampWidget()
@@ -133,7 +132,7 @@ void RecvTimestampWidget::onStopClicked() {
 
 void RecvTimestampWidget::onThreadFinished() {
 
-    start_stop->setStartState();
+    start_stop.setStartState();
 
     delete receiver_thread;
     receiver_thread = nullptr;

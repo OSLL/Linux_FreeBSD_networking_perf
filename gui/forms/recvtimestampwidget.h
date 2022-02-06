@@ -37,7 +37,7 @@ private:
     BaseDataSource *data_source;
 
     QChartView chart_view;
-    StartStopWidget *start_stop;
+    StartStopWidget start_stop;
 
     TimeSeries<QLineSeries> *software_series;
     TimeSeries<QLineSeries> *hardware_series;

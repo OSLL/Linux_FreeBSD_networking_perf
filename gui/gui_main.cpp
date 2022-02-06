@@ -8,6 +8,7 @@ int gui_main(int argc, char **argv) {
 
     qRegisterMetaType<ReceiveTimestamp>("ReceiveTimestamp");
     qRegisterMetaType<std::optional<SendTimestamp>>("std::optional<SendTimestamp>");
+    qRegisterMetaType<BandwidthResult>("BandwidthResult");
 
     QApplication a(argc, argv);
 

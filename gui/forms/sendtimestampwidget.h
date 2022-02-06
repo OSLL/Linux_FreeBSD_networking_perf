@@ -43,7 +43,7 @@ private:
     TimestampsSenderThread *sender_thread;
     BaseDataSource *data_source;
     TimestampsChart *chart;
-    StartStopWidget *start_stop;
+    StartStopWidget start_stop;
 
 
     TimeSeries<QLineSeries> *software_series;

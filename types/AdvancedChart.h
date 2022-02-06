@@ -10,6 +10,8 @@
 
 //TODO: линии сверху и снизу
 //TODO: поддержка datetimeseries
+//TODO: выбор отображаемых series в ПКМ
+//TODO: Функция отчистки
 class AdvancedChart: public QChart {
 
 private:

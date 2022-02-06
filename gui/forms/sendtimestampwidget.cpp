@@ -7,7 +7,6 @@ SendTimestampWidget::SendTimestampWidget(BaseDataSource *ds, QWidget *parent) :
         ui(new Ui::SendTimestampWidget),
         data_source(ds),
         chart(nullptr),
-        start_stop(new StartStopWidget),
         sender_thread(nullptr),
         software_series(nullptr),
         hardware_series(nullptr),
@@ -34,9 +33,9 @@ SendTimestampWidget::SendTimestampWidget(BaseDataSource *ds, QWidget *parent) :
     ui->delaySpinBox->setValue(default_args["delay"].toInt());
     ui->zeroCopyCheckBox->setCheckState(Qt::CheckState::Unchecked);
 
-    QObject::connect(start_stop, &StartStopWidget::start, this, &SendTimestampWidget::onStartClicked);
-    QObject::connect(start_stop, &StartStopWidget::stop, this, &SendTimestampWidget::onStopClicked);
-    ui->controlWidget->layout()->addWidget(start_stop);
+    QObject::connect(&start_stop, &StartStopWidget::start, this, &SendTimestampWidget::onStartClicked);
+    QObject::connect(&start_stop, &StartStopWidget::stop, this, &SendTimestampWidget::onStopClicked);
+    ui->controlWidget->layout()->addWidget(&start_stop);
 
     chart_view.setRenderHint(QPainter::Antialiasing);
     ui->resultLayout->addWidget(&chart_view);
@@ -140,7 +139,7 @@ void SendTimestampWidget::onStopClicked() {
 
 void SendTimestampWidget::onThreadFinished() {
 
-    start_stop->setStartState();
+    start_stop.setStartState();
 
     delete sender_thread;
     sender_thread = nullptr;

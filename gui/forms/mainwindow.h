@@ -10,6 +10,7 @@
 #include "sendtimestampwidget.h"
 #include "socketslistwidget.h"
 #include "protocolsstatswidget.h"
+#include "recvbandwidthwidget.h"
 
 #ifdef __linux__
 #include "../../datasources/linux/LinuxDataSource.h"
