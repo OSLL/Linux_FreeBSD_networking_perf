@@ -22,6 +22,10 @@ public:
         T::append(func(val));
     }
 
+    void setFunc(const std::function<H(V)> &_func) {
+        func = _func;
+    }
+
 };
 
 #endif //LFNP_FUNCSERIES_H

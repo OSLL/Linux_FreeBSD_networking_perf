@@ -15,8 +15,9 @@ class TimeSeries: public BaseSeries<T, quint64>{
 
 public:
     TimeSeries();
-    void append(quint64 y) override;
+    void append(quint64 y);
     quint64 getCounter();
+    void resetCounter();
 
 private:
 
@@ -36,6 +37,11 @@ void TimeSeries<T>::append(quint64 y) {
 template<typename T>
 quint64 TimeSeries<T>::getCounter() {
     return counter;
+}
+
+template<typename T>
+void TimeSeries<T>::resetCounter() {
+    counter = 0;
 }
 
 #endif //LFNP_TIMESERIES_H

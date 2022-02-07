@@ -6,7 +6,7 @@
 
 #include "../../datasources/BaseDataSource.h"
 #include "../../types/series/TimeSeries.h"
-#include "../../types/DynamicAxisChart.h"
+#include "../../types/AdvancedChart.h"
 
 namespace Ui {
 class CPUDistributionWidget;
@@ -29,7 +29,6 @@ private:
     QVector<TimeSeries<QLineSeries>*> series;
     BaseDataSource *data_source;
     QChartView *chart_view;
-    QValueAxis *x_axis;
 
 private slots:
     void onTimerTimeout();

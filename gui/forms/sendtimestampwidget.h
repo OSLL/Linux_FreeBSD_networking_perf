@@ -46,9 +46,9 @@ private:
     StartStopWidget start_stop;
 
 
-    TimeSeries<QLineSeries> *software_series;
-    TimeSeries<QLineSeries> *hardware_series;
-    TimeSeries<QLineSeries> *in_call_series;
+    TimestampSeries *software_series;
+    TimestampSeries *hardware_series;
+    TimestampSeries *in_call_series;
 
     QChartView chart_view;
 };

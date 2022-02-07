@@ -18,6 +18,13 @@ RecvTimestampWidget::RecvTimestampWidget(BaseDataSource *ds, QWidget *parent) :
     ui->accuracyComboBox->addItems({"us", "ns"});
     ui->accuracyComboBox->setCurrentText("us");
 
+    chart = new TimestampsChart(default_args["packets-count"].toInt(), true);
+    chart->addSeries(&software_series);
+    chart->addSeries(&hardware_series);
+    chart->addSeries(&in_call_series);
+    chart->addSeries(&total_series);
+
+    chart_view.setChart(chart);
     chart_view.setRenderHint(QPainter::Antialiasing);
     ui->resultLayout->addWidget(&chart_view);
 
@@ -51,7 +58,7 @@ void RecvTimestampWidget::onStartClicked() {
     const int packets_count = ui->packetsCountComboBox->value();
     const bool is_us = ui->accuracyComboBox->currentText() == "us";
 
-    recreateChart(is_us);
+    recreateChart(packets_count, is_us);
 
     Socket *sock = new Socket(protocol);
     data_source->setRecvSockOpt(*sock);
@@ -78,49 +85,12 @@ void RecvTimestampWidget::onPacketReceived(const ReceiveTimestamp recv_ts) {
 
 }
 
-void RecvTimestampWidget::recreateChart(bool is_us) {
+void RecvTimestampWidget::recreateChart(quint64 packets_count, bool is_us) {
 
-    auto prev_chart = chart_view.chart();
-    auto chart = new DynamicYAxisChart();
-    chart_view.setChart(chart);
-    delete prev_chart;
+    chart->clear();
+    chart->setPacketsCount(packets_count);
+    chart->setUS(is_us);
 
-    auto x_axis = new QValueAxis();
-    x_axis->setRange(0, 100);
-    chart_view.chart()->addAxis(x_axis, Qt::AlignBottom);
-
-    if (is_us) {
-
-        std::function<qreal(quint64)> to_us = [](quint64 ns_val) {return ns_val/1000;};
-
-        software_series = new FuncSeries<TimeSeries<QLineSeries>, qreal, quint64>(to_us);
-        hardware_series = new FuncSeries<TimeSeries<QLineSeries>, qreal, quint64>(to_us);
-        in_call_series = new FuncSeries<TimeSeries<QLineSeries>, qreal, quint64>(to_us);
-        total_series = new FuncSeries<TimeSeries<QLineSeries>, qreal, quint64>(to_us);
-
-    } else {
-
-        software_series = new TimeSeries<QLineSeries>();
-        hardware_series = new TimeSeries<QLineSeries>();
-        in_call_series = new TimeSeries<QLineSeries>();
-        total_series = new TimeSeries<QLineSeries>();
-
-    }
-
-    software_series->setName("Software");
-    hardware_series->setName("Hardware");
-    in_call_series->setName("In call");
-    total_series->setName("Total");
-
-    chart->addSeries(software_series);
-    chart->addSeries(hardware_series);
-    chart->addSeries(in_call_series);
-    chart->addSeries(total_series);
-
-    software_series->attachAxis(x_axis);
-    hardware_series->attachAxis(x_axis);
-    in_call_series->attachAxis(x_axis);
-    total_series->attachAxis(x_axis);
 }
 
 void RecvTimestampWidget::onStopClicked() {

@@ -8,7 +8,7 @@
 #include "../../datasources/BaseDataSource.h"
 #include "../../types/series/TimeSeries.h"
 #include "../../types/series/FuncSeries.h"
-#include "../../types/DynamicAxisChart.h"
+#include "../../types/TimestampsChart.h"
 #include "../threads/TimestampsReceiverThread.h"
 #include "../../utils/default_args.h"
 
@@ -30,19 +30,20 @@ public:
 
 protected:
     void changeEvent(QEvent *e);
-    void recreateChart(bool is_us);
+    void recreateChart(quint64 packets_count, bool is_us);
 
 private:
     Ui::RecvTimestampWidget *ui;
     BaseDataSource *data_source;
 
     QChartView chart_view;
+    TimestampsChart *chart;
     StartStopWidget start_stop;
 
-    TimeSeries<QLineSeries> *software_series;
-    TimeSeries<QLineSeries> *hardware_series;
-    TimeSeries<QLineSeries> *in_call_series;
-    TimeSeries<QLineSeries> *total_series;
+    TimestampSeries *software_series;
+    TimestampSeries *hardware_series;
+    TimestampSeries *in_call_series;
+    TimestampSeries *total_series;
 
     TimestampsReceiverThread *receiver_thread;
 

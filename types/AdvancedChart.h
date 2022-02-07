@@ -102,6 +102,24 @@ public:
         series->attachAxis(x_axis);
     }
 
+    void clear() {
+
+        for (auto series: QChart::series()) {
+            if (series->type() == QtCharts::QAbstractSeries::SeriesTypeLine) {
+                auto line_series = dynamic_cast<QLineSeries*>(series);
+                line_series->clear();
+            }
+        }
+    }
+
+    QAbstractAxis *getXAxis() const {
+        return x_axis;
+    }
+
+    QAbstractAxis *getYAxis() const {
+        return y_axis;
+    }
+
 };
 
 #endif //LFNP_ADVANCEDCHART_H

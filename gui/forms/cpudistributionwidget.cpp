@@ -16,18 +16,14 @@ CPUDistributionWidget::CPUDistributionWidget(BaseDataSource *ds, QWidget *parent
     if (o_cpu_distribution) {
         auto cpu_distribution = o_cpu_distribution.value();
 
-        auto *chart = new DynamicYAxisChart();
-        x_axis = new QValueAxis();
-        x_axis->setRange(0, 100);
-
-        chart->addAxis(x_axis, Qt::AlignBottom);
+        auto *chart = new AdvancedChart();
+        chart->getXAxis()->setRange(0, 100);
 
         for (auto it=cpu_distribution.begin(); it != cpu_distribution.end(); it++) {
             series.push_back(new TimeSeries<QLineSeries>());
             series.last()->append(it.value());
             series.last()->setName("CPU"+QString::number(it.key()));
             chart->addSeries(series.last());
-            series.last()->attachAxis(x_axis);
         }
 
         chart_view = new QChartView(chart);
@@ -68,10 +64,5 @@ void CPUDistributionWidget::onTimerTimeout() {
         for (; cpu_it != cpu_distribution.end(); cpu_it++, series_it++) {
             (*series_it)->append(cpu_it.value());
         }
-    }
-
-    quint64 counter = series.first()->getCounter();
-    if (counter > x_axis->max()) {
-        chart_view->chart()->scroll(series.first()->getCounter(), 0);
     }
 }

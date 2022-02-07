@@ -5,40 +5,66 @@
 #ifndef LFNP_TIMESTAMPSCHART_H
 #define LFNP_TIMESTAMPSCHART_H
 
-#include "DynamicAxisChart.h"
 #include "series/TimeSeries.h"
 #include "series/FuncSeries.h"
+#include "AdvancedChart.h"
 
-class TimestampsChart: public DynamicYAxisChart {
+typedef FuncSeries<TimeSeries<QLineSeries>, qreal, quint64> TimestampSeries;
+
+class TimestampsChart: public AdvancedChart {
 
 private:
 
     bool in_us;
-    QValueAxis *x_axis;
+
+    std::function<qreal(quint64)> to_us = [](quint64 ns_val) {return ns_val/1000;};
+    std::function<qreal(quint64)> id = [](quint64 ns_val) {return ns_val;};
 
 public:
 
-    TimestampsChart(quint64 packets_count, bool in_us): DynamicYAxisChart(), in_us(in_us) {
+    TimestampsChart(quint64 packets_count, bool in_us): AdvancedChart(), in_us(in_us) {
 
-        x_axis = new QValueAxis();
-        QChart::addAxis(x_axis, Qt::AlignBottom);
         if (packets_count) {
-            x_axis->setRange(0, packets_count);
+            getXAxis()->setRange(0, packets_count);
         } else {
-            x_axis->setRange(0, 100);
+            getXAxis()->setRange(0, 100);
         }
 
     }
 
-    void addSeries(QXYSeries **series) {
-        if (in_us) {
-            std::function<qreal(quint64)> to_us = [](quint64 ns_val) {return ns_val/1000;};
-            *series = new FuncSeries<TimeSeries<QLineSeries>, qreal, quint64>(to_us);
+    void setPacketsCount(quint64 packets_count) {
+
+        if (packets_count) {
+            getXAxis()->setRange(0, packets_count);
         } else {
-            *series = new TimeSeries<QLineSeries>();
+            getXAxis()->setRange(0, 100);
         }
-        DynamicYAxisChart::addSeries(*series);
-        (*series)->attachAxis(x_axis);
+
+    }
+
+    void setUS(bool _in_us) {
+        in_us = _in_us;
+        for (auto *series: series()) {
+            auto timestamp_series = dynamic_cast<TimestampSeries*>(series);
+            if (timestamp_series) {
+                timestamp_series->setFunc(in_us ? to_us : id);
+            }
+        }
+    }
+
+    void addSeries(TimestampSeries **series) {
+        *series = new TimestampSeries(in_us ? to_us : id);
+        AdvancedChart::addSeries(*series);
+    }
+
+    void clear() {
+        AdvancedChart::clear();
+        for (auto *series: series()) {
+            auto timestamp_series = dynamic_cast<TimestampSeries*>(series);
+            if (timestamp_series) {
+                timestamp_series->resetCounter();
+            }
+        }
     }
 
 };

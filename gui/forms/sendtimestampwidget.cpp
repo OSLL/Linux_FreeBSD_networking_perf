@@ -37,6 +37,13 @@ SendTimestampWidget::SendTimestampWidget(BaseDataSource *ds, QWidget *parent) :
     QObject::connect(&start_stop, &StartStopWidget::stop, this, &SendTimestampWidget::onStopClicked);
     ui->controlWidget->layout()->addWidget(&start_stop);
 
+    chart = new TimestampsChart(default_args["packets-count"].toInt(), true);
+    chart_view.setChart(chart);
+
+    chart->addSeries(&software_series);
+    chart->addSeries(&hardware_series);
+    chart->addSeries(&in_call_series);
+
     chart_view.setRenderHint(QPainter::Antialiasing);
     ui->resultLayout->addWidget(&chart_view);
 }
@@ -74,6 +81,7 @@ void SendTimestampWidget::onStartClicked() {
     auto o_file = get_file(filename, data_size ? data_size : DEFAULT_NOT_ZERO_DATASIZE);
     if (!o_file) {
         QMessageBox::warning(this, tr("LFNP"), tr(("Error: can't open " + filename).toLocal8Bit().data()));
+        start_stop.setStartState();
         return;
     }
     auto file = std::move(*o_file);
@@ -87,6 +95,7 @@ void SendTimestampWidget::onStartClicked() {
 
     if (sock->connectTo(ip_addr, port) < 0) {
         QMessageBox::warning(this, tr("LFNP"), tr("Error: Can't connect"));
+        start_stop.setStartState();
         return;
     }
 
@@ -104,18 +113,10 @@ void SendTimestampWidget::onStartClicked() {
 
 void SendTimestampWidget::recreateChart(quint64 packets_count, bool is_us) {
 
-    auto new_chart = new TimestampsChart(packets_count, is_us);
-    chart_view.setChart(new_chart);
-    delete chart;
-    chart = new_chart;
+    chart->clear();
+    chart->setPacketsCount(packets_count);
+    chart->setUS(is_us);
 
-    chart->addSeries(reinterpret_cast<QXYSeries **>(&software_series));
-    chart->addSeries(reinterpret_cast<QXYSeries **>(&hardware_series));
-    chart->addSeries(reinterpret_cast<QXYSeries **>(&in_call_series));
-
-    software_series->setName("Software");
-    hardware_series->setName("Hardware");
-    in_call_series->setName("In call");
 }
 
 void SendTimestampWidget::onPacketSent(std::optional<SendTimestamp> o_timestamp) {

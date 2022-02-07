@@ -2,7 +2,6 @@
 
 #include <utility>
 #include "ui_trackvaluewidget.h"
-#include "../../types/DynamicAxisChart.h"
 #include "../../types/AdvancedChart.h"
 
 TrackValueWidget::TrackValueWidget(std::function<int()> _get_value_func, const QString &prop_name, QWidget *parent) :
