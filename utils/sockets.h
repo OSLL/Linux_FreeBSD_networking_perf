@@ -40,6 +40,8 @@ private:
     // Для TCP прием сообщения происходит не с помощью полученного сокета, а с помощью сокета, полученного после
     // вызова accept
     int recv_sock_descriptor;
+
+    const QString addr;
     const QString protocol;
 
     static QMap<QString, std::tuple<int, int, int>> protocol_socket_args;
@@ -54,6 +56,8 @@ public:
     const QString& getProtocol();
 
     int bindToAny(unsigned int port);
+    unsigned int getPort();
+    QString getAddr();
 
     int listenFor(int conn_num);
     Socket *acceptConnection();
@@ -67,9 +71,9 @@ public:
     int connectTo(const QString &ip_addr, unsigned int port);
 
     template <typename T>
-    int sendData(T* data) { return send(sock_descriptor, data, sizeof(T), 0); }
-    int sendData(const void *data, size_t data_size) { return send(sock_descriptor, data, data_size, 0); }
-    int sendMsg(const msghdr &msg, int flags=0) { return sendmsg(sock_descriptor, &msg, flags); }
+    int sendData(T* data) { return send(recv_sock_descriptor, data, sizeof(T), 0); }
+    int sendData(const void *data, size_t data_size) { return send(recv_sock_descriptor, data, data_size, 0); }
+    int sendMsg(const msghdr &msg, int flags=0) { return sendmsg(recv_sock_descriptor, &msg, flags); }
 
     int sendFile(int file_descriptor, size_t data_size);
     std::optional<TimeRange> sendDataTS(const void *data, size_t data_size);

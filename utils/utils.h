@@ -33,7 +33,6 @@ quint64 get_average(QVector<T> &v, std::function<quint64(T&)> func) {
     return avg/v.size();
 }
 
-
 template<typename T>
 quint64 get_average_o(QVector<T> &v, std::function<std::optional<quint64>(T&)> func) {
     quint64 avg = 0;
@@ -41,15 +40,20 @@ quint64 get_average_o(QVector<T> &v, std::function<std::optional<quint64>(T&)> f
 
     for (auto e:v) {
         auto o_val = func(e);
-
         if (o_val) {
-            avg += *o_val;
             size++;
         }
     }
 
-    if (size) return avg/v.size();
-    else return 0;
+    if (size) {
+        for (auto e:v) {
+            auto o_val = func(e);
+            if (o_val) {
+                avg += *o_val/size;
+            }
+        }
+        return avg;
+    } else return 0;
 }
 
 // Получение файла с длиной. Нужно, что бы жопустить использование таких файлов, как /dev/urandom вместе с sendfile

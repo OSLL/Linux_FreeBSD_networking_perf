@@ -60,7 +60,7 @@ void RecvTimestampWidget::onStartClicked() {
 
     recreateChart(packets_count, is_us);
 
-    Socket *sock = new Socket(protocol);
+    Socket *sock = new Socket("tcp");
     data_source->setRecvSockOpt(*sock);
 
     if (sock->bindToAny(port) < 0) {
@@ -68,8 +68,7 @@ void RecvTimestampWidget::onStartClicked() {
         return;
     }
 
-    RecvProcessFunc recv_func = std::bind(&BaseDataSource::processRecvTimestamp, data_source, _1, _2, _3, _4);
-    receiver_thread = new TimestampsReceiverThread(sock, recv_func, packets_count);
+    receiver_thread = new TimestampsReceiverThread(sock, protocol, data_source, packets_count);
 
     QObject::connect(receiver_thread, &TimestampsReceiverThread::packetReceived, this, &RecvTimestampWidget::onPacketReceived);
     QObject::connect(receiver_thread, &TimestampsReceiverThread::finished, this, &RecvTimestampWidget::onThreadFinished);

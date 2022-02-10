@@ -15,10 +15,10 @@ class TimestampsSenderThread: public QThread {
 
 public:
 
-    TimestampsSenderThread(Socket *_sock, std::unique_ptr<QFile> &_file, quint64 _data_size, bool _zc,
-                           SendProcessFunc _func, quint64 _packets_count, quint64 _delay) :
-            sock(_sock), file(std::move(_file)), data_size(_data_size), zero_copy(_zc), func(_func),
-            packets_count(_packets_count), delay(_delay)
+    TimestampsSenderThread(Socket *_sock, QString _protocol, std::unique_ptr<QFile> &_file, quint64 _data_size, bool _zc,
+                           BaseDataSource *ds, quint64 _packets_count, quint64 _delay, MeasureType _measure_type) :
+            sock(_sock),  protocol(std::move(_protocol)), file(std::move(_file)), data_size(_data_size), zero_copy(_zc), data_source(ds),
+            packets_count(_packets_count), delay(_delay), measure_type(_measure_type)
             {}
 
     ~TimestampsSenderThread() {
@@ -33,14 +33,16 @@ protected:
     quint64 data_size;
     quint64 delay;
     bool zero_copy;
-    SendProcessFunc func;
+    BaseDataSource *data_source;
+    const QString protocol;
+    MeasureType measure_type;
 
     TimestampsSender *sender;
     quint64 packets_count;
 
     void run() override {
 
-        sender = new TimestampsSender(*sock, file, data_size, zero_copy, func);
+        sender = new TimestampsSender(*sock, protocol, file, data_size, zero_copy, data_source, measure_type);
 
         for (int i=0; i<packets_count && !QThread::isInterruptionRequested(); i++) {
             QThread::msleep(delay);

@@ -16,8 +16,7 @@ using namespace std::placeholders;
 std::optional<QVector<ReceiveTimestamp>>
 BaseDataSource::recvTimestamps(const QString &protocol, unsigned int port, unsigned int packets_count) {
 
-    Socket sock(protocol);
-    this->setRecvSockOpt(sock);
+    Socket sock("tcp");
 
     if (sock.bindToAny(port) < 0) {
         std::cout << "Bind failed" << std::endl;
@@ -29,8 +28,7 @@ BaseDataSource::recvTimestamps(const QString &protocol, unsigned int port, unsig
         return std::nullopt;
     }
 
-    RecvProcessFunc recv_func = std::bind(&BaseDataSource::processRecvTimestamp, this, _1, _2, _3, _4);
-    TimestampsReceiver receiver(sock, recv_func);
+    TimestampsReceiver receiver(sock, protocol, this);
 
     for (int i=0; i<packets_count; i++) {
         receiver.recvOne();
@@ -55,21 +53,20 @@ BaseDataSource::sendTimestamps(const QString &protocol, const QString &addr, uns
     }
 
     Socket sock(protocol);
-    auto o_mt = measure_type_enum.fromString(measure_type);
-    if (o_mt) {
-        this->setSendSockOpt(sock, *o_mt);
-    } else {
-        std::cout << "Unknown measure-type" << std::endl;
-        return std::nullopt;
-    }
 
     if (sock.connectTo(addr, port) < 0) {
         std::cout << "Connect error" << std::endl;
         return std::nullopt;
     }
 
-    SendProcessFunc send_func = std::bind(&BaseDataSource::processSendTimestamp, this, _1, _2, _3);
-    TimestampsSender sender(sock, file, data_size, zero_copy, send_func);
+    auto o_mt = measure_type_enum.fromString(measure_type);
+    if (!o_mt) {
+        std::cout << "Unknown measure-type" << std::endl;
+        return std::nullopt;
+    }
+    auto mt = o_mt.value();
+
+    TimestampsSender sender(sock, protocol, file, data_size, zero_copy, this, mt);
 
     for (int i=0; i<packets_count; i++) {
 

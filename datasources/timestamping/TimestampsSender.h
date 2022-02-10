@@ -10,28 +10,28 @@
 #include <memory>
 #include "../../utils/sockets.h"
 #include "../../types/InSystemTimeInfo.h"
-
-typedef std::function<void(Socket &sock, SendTimestamp &res, TimeRange &timestamps)> SendProcessFunc;
+#include "../BaseDataSource.h"
 
 class TimestampsSender {
 
 protected:
 
-    Socket &sock;
+    Socket &control_sock;
+    Socket send_sock;
     std::unique_ptr<QFile> file;
     QByteArray data;
     quint64 data_size;
     bool zero_copy;
 
     QVector<SendTimestamp> time_info;
-    SendProcessFunc &send_process_func;
+    BaseDataSource *data_source;
 
 public:
 
-    TimestampsSender(Socket &_sock, std::unique_ptr<QFile> &_file, quint64 _data_size, bool _zero_copy,
-                     SendProcessFunc &_func);
+    TimestampsSender(Socket &_sock, const QString &protocol, std::unique_ptr<QFile> &_file, quint64 _data_size, bool _zero_copy,
+                     BaseDataSource *ds, MeasureType measure_type);
 
-    std::optional<SendTimestamp> sendOne(void);
+    std::optional<SendTimestamp> sendOne();
     const QVector<SendTimestamp>& getInfo();
 };
 

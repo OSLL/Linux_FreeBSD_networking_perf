@@ -39,6 +39,7 @@ template <typename T>
 void printTimestampsAverage(std::optional<QVector<T>> &o_time_info, bool in_ms) {
 
     if (o_time_info) {
+        std::cout << "Size: " << o_time_info->size() << std::endl;
 
         //TODO: как переписать по нормальному?
         auto avg_software = get_average_o<T>(*o_time_info, [](T &timestamp) { return timestamp.getSoftwareTime(); });

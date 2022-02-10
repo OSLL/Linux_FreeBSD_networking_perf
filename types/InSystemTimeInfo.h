@@ -52,7 +52,7 @@ public:
 
     std::optional<quint64> getSoftwareTime() const {
         if (software_send) {
-            return TimeRange(software_send.value(), after_send).getRangeNS();
+            return TimeRange(before_send, software_send.value()).getRangeNS();
         } else {
             return std::nullopt;
         }
@@ -60,7 +60,7 @@ public:
 
     std::optional<quint64> getHardwareTime() const {
         if (hardware_send) {
-            return TimeRange(hardware_send.value(), after_send).getRangeNS();
+            return TimeRange(before_send, hardware_send.value()).getRangeNS();
         } else {
             return std::nullopt;
         }

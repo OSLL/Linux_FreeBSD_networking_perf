@@ -3,10 +3,9 @@
 //
 
 #include "TimestampsReceiver.h"
-#include <QDebug>
 
-TimestampsReceiver::TimestampsReceiver(Socket &sock, RecvProcessFunc &func):
-sock(sock), recv_process_func(func) {
+TimestampsReceiver::TimestampsReceiver(Socket &sock, const QString &protocol, BaseDataSource *ds):
+        control_sock(sock), receive_sock(protocol), data_source(ds) {
 
     // Объявление iov должно быть до receiveData. В противном случае, при нажатии на кнопку "Стоп" может быть вызван
     // деструктор, но iov еще не объявлен, а значит происходит освобождение некорректного адреса - segfault
@@ -25,7 +24,14 @@ sock(sock), recv_process_func(func) {
             .msg_controllen = CONTROL_SIZE
     };
 
-    sock.receiveData(&data_size);
+    control_sock.receiveData(&data_size);
+    data_source->setRecvSockOpt(receive_sock);
+    receive_sock.bindToAny(0);
+
+    auto receive_port = receive_sock.getPort();
+
+    control_sock.sendData(&receive_port);
+    receive_sock.listenFor(1);
 
     iov.iov_base = new char[data_size];
     iov.iov_len = data_size;
@@ -34,9 +40,12 @@ sock(sock), recv_process_func(func) {
 
 ReceiveTimestamp TimestampsReceiver::recvOne() {
 
+    bool is_next;
+    control_sock.receiveData(&is_next);
+
     ReceiveTimestamp timestamp;
-    auto o_in_call_time = sock.receiveMsgTS(msg, MSG_WAITALL);
-    sock.receiveData(&timestamp.before_send);
+    auto o_in_call_time = receive_sock.receiveMsgTS(msg, MSG_WAITALL);
+    control_sock.receiveData(&timestamp.before_send);
 
     if (o_in_call_time) {
 
@@ -44,7 +53,7 @@ ReceiveTimestamp TimestampsReceiver::recvOne() {
         timestamp.after_recv = o_in_call_time->to;
     }
 
-    recv_process_func(msg, timestamp, o_in_call_time->to, sock.getProtocol());
+    data_source->processRecvTimestamp(msg, timestamp, o_in_call_time->to, control_sock.getProtocol());
     time_info.push_back(timestamp);
     return timestamp;
 }

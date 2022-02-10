@@ -15,8 +15,8 @@ class TimestampsReceiverThread: public QThread {
 
 public:
 
-    TimestampsReceiverThread(Socket *_sock, RecvProcessFunc _func, quint64 _packets_count):
-    sock(_sock), func(_func), packets_count(_packets_count), receiver(nullptr) {}
+    TimestampsReceiverThread(Socket *_sock, QString _protocol, BaseDataSource *ds, quint64 _packets_count):
+    sock(_sock), protocol(std::move(_protocol)), data_source(ds), packets_count(_packets_count), receiver(nullptr) {}
 
     ~TimestampsReceiverThread() {
         delete sock;
@@ -27,9 +27,11 @@ protected:
 
     Socket *sock;
     RecvProcessFunc func;
+    const QString protocol;
 
     TimestampsReceiver *receiver;
     quint64 packets_count;
+    BaseDataSource *data_source;
 
     void run() override {
 
@@ -37,7 +39,7 @@ protected:
             return;
         }
 
-        receiver = new TimestampsReceiver(*sock, func);
+        receiver = new TimestampsReceiver(*sock, protocol, data_source);
 
         for (int i=0; i<packets_count && !QThread::isInterruptionRequested(); i++) {
             emit packetReceived(receiver->recvOne());

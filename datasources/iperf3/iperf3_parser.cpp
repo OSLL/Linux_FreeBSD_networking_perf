@@ -4,8 +4,6 @@
 
 #include "iperf3_parser.h"
 
-
-
 std::optional<QJsonArray> parseIperf3Output(const QString &filename) {
 
     QFile file(filename);

@@ -99,11 +99,9 @@ void SendTimestampWidget::onStartClicked() {
         return;
     }
 
-    SendProcessFunc send_func = std::bind(&BaseDataSource::processSendTimestamp, data_source, _1, _2, _3);
-
     recreateChart(packets_count, is_us);
 
-    sender_thread = new TimestampsSenderThread(sock, file, data_size, zero_copy, send_func, packets_count, delay);
+    sender_thread = new TimestampsSenderThread(sock, protocol, file, data_size, zero_copy, data_source, packets_count, delay, measure_type);
 
     QObject::connect(sender_thread, &TimestampsSenderThread::packetSent, this, &SendTimestampWidget::onPacketSent);
     QObject::connect(sender_thread, &TimestampsSenderThread::finished, this, &SendTimestampWidget::onThreadFinished);

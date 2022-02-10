@@ -229,18 +229,22 @@ void LinuxDataSource::setSendSockOpt(Socket &sock, const MeasureType measure_typ
 
     unsigned int val;
 
-    if (measure_type == SCHEDULE) {
-        val = SOF_TIMESTAMPING_TX_SCHED | SOF_TIMESTAMPING_SOFTWARE;
-    } else if (measure_type == SOFTWARE) {
-        val = SOF_TIMESTAMPING_TX_SOFTWARE | SOF_TIMESTAMPING_SOFTWARE;
-    } else if (measure_type == HARDWARE) {
-        val = SOF_TIMESTAMPING_TX_HARDWARE | SOF_TIMESTAMPING_RAW_HARDWARE;
-    } else if (measure_type == ACK) {
-        val = SOF_TIMESTAMPING_TX_ACK | SOF_TIMESTAMPING_SOFTWARE;
-    } else {
-        std::cout << "Unknown measure type, used software" << std::endl;
+    switch (measure_type) {
+        case SCHEDULE:
+            val = SOF_TIMESTAMPING_TX_SCHED | SOF_TIMESTAMPING_SOFTWARE;
+            break;
+        case SOFTWARE:
+            val = SOF_TIMESTAMPING_TX_SOFTWARE | SOF_TIMESTAMPING_SOFTWARE;
+            break;
+        case HARDWARE:
+            val = SOF_TIMESTAMPING_TX_HARDWARE | SOF_TIMESTAMPING_RAW_HARDWARE;
+            break;
+        case ACK:
+            val = SOF_TIMESTAMPING_TX_ACK | SOF_TIMESTAMPING_SOFTWARE;
+            break;
     }
 
+    val |= SOF_TIMESTAMPING_OPT_ID;
     sock.setOpt(SOL_SOCKET, SO_TIMESTAMPING, &val, sizeof(val));
 }
 
@@ -248,13 +252,6 @@ void LinuxDataSource::processSendTimestamp(Socket &sock, SendTimestamp &res, Tim
 
     auto protocol = sock.getProtocol();
     if (!(protocol == "tcp" || protocol == "udp")) return;
-
-    // Далее происходит работа с очередью ошибок. Так как в ней не гарантируется правильная последовательность пакетов
-    // то возникают некоторые проблемы. 1. При обработке нужно найти timestamp для текущего времени. Он должен находится
-    // между вызовом send и выхода из него (находятся в аргументе timestamps). 2. Иногда timestamp'ы просто исчезают и не удается
-    // найти нужный, думаю, они отбрасываются при обработке прошлых пакетов. Так что здесь возвращается true/false.
-    // Пакет обработан или нет. Если нет, то его так же не нужно учитывать во всех временах и значит делить нужно
-    // не на packets_count. Это обрабатывается в sendTimestamps.
 
     char control[1000];
     memset(control, 0, sizeof(control));
@@ -269,22 +266,16 @@ void LinuxDataSource::processSendTimestamp(Socket &sock, SendTimestamp &res, Tim
 
     scm_timestamping *tmst = nullptr;
 
-    bool is_valid_timestamp = false;
-    while (!is_valid_timestamp) {
-        auto is_cmsg_exist = sock.receiveMsgTS(msg, MSG_ERRQUEUE | MSG_WAITALL);
-        if (!is_cmsg_exist) return;
+    // Далее происходит работа с очередью ошибок. Так как она всегда асинхронна, то receiveMsg не заблокируется.
+    // TODO: использовать poll или pselect
+    int is_cmsg_exist;
+    do {
+        is_cmsg_exist = sock.receiveMsg(msg, MSG_ERRQUEUE);
+    } while (is_cmsg_exist < 0);
 
-        for (cmsghdr *cmsg = CMSG_FIRSTHDR(&msg); cmsg; cmsg = CMSG_NXTHDR(&msg, cmsg)) {
-            if (cmsg->cmsg_level == SOL_SOCKET && cmsg->cmsg_type == SCM_TIMESTAMPING) {
-                tmst = (scm_timestamping *) &CMSG_DATA(cmsg);
-
-                int check_index = 0; // Software timestamps
-                if (is_timespec_empty(tmst->ts[0])) {
-                    check_index = 2; // Hardware timestamps
-                }
-                is_valid_timestamp = timespeccmp(tmst->ts[check_index], timestamps.from) > 0 &&
-                        timespeccmp(tmst->ts[check_index], timestamps.to) < 0;
-            }
+    for (cmsghdr *cmsg = CMSG_FIRSTHDR(&msg); cmsg; cmsg = CMSG_NXTHDR(&msg, cmsg)) {
+        if (cmsg->cmsg_level == SOL_SOCKET && cmsg->cmsg_type == SCM_TIMESTAMPING) {
+            tmst = (scm_timestamping *) &CMSG_DATA(cmsg);
         }
     }
 

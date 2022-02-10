@@ -8,6 +8,7 @@
 #include <QFile>
 #include "../../utils/sockets.h"
 #include "../../types/InSystemTimeInfo.h"
+#include "../BaseDataSource.h"
 
 #define CONTROL_SIZE 1024
 
@@ -18,18 +19,19 @@ class TimestampsReceiver {
 
 private:
 
-    Socket &sock;
+    Socket &control_sock;
+    Socket receive_sock;
     quint64 data_size;
 
     iovec iov;
     msghdr msg;
 
     QVector<ReceiveTimestamp> time_info;
-    RecvProcessFunc &recv_process_func;
+    BaseDataSource *data_source;
 
 public:
 
-    TimestampsReceiver(Socket &sock, RecvProcessFunc &func);
+    TimestampsReceiver(Socket &sock, const QString &protocol, BaseDataSource *ds);
     ~TimestampsReceiver();
 
     ReceiveTimestamp recvOne();

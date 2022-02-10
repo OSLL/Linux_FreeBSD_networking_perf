@@ -215,3 +215,25 @@ int Socket::sendFile(int file_descriptor, size_t data_size) {
     return sendfile(file_descriptor, sock_descriptor, offset, data_size, nullptr, nullptr, 0);
 #endif
 }
+
+
+//TODO: IPV6?
+unsigned int Socket::getPort() {
+
+    sockaddr addr;
+    socklen_t len;
+    getsockname(sock_descriptor, &addr, &len);
+    if (sock_domain == AF_INET6) {
+        auto *ipaddr6 = (sockaddr_in6*)&addr;
+        return ntohs(ipaddr6->sin6_port);
+    } else if (sock_domain == AF_INET) {
+        auto *ipaddr = (sockaddr_in*)&addr;
+        return ntohs(ipaddr->sin_port);
+    }
+
+    return 0;
+}
+
+QString Socket::getAddr() {
+    return addr;
+}
