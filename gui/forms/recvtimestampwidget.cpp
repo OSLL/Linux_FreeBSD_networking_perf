@@ -24,6 +24,11 @@ RecvTimestampWidget::RecvTimestampWidget(BaseDataSource *ds, QWidget *parent) :
     chart->addSeries(&in_call_series);
     chart->addSeries(&total_series);
 
+    software_series->setName(tr("Software"));
+    hardware_series->setName(tr("Hardware"));
+    in_call_series->setName(tr("In call"));
+    total_series->setName(tr("Total"));
+
     chart_view.setChart(chart);
     chart_view.setRenderHint(QPainter::Antialiasing);
     ui->resultLayout->addWidget(&chart_view);

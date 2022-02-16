@@ -44,6 +44,10 @@ SendTimestampWidget::SendTimestampWidget(BaseDataSource *ds, QWidget *parent) :
     chart->addSeries(&hardware_series);
     chart->addSeries(&in_call_series);
 
+    software_series->setName(tr("Software"));
+    hardware_series->setName(tr("Hardware"));
+    in_call_series->setName(tr("In call"));
+
     chart_view.setRenderHint(QPainter::Antialiasing);
     ui->resultLayout->addWidget(&chart_view);
 }

@@ -17,6 +17,7 @@ class AdvancedChart: public QChart {
 private:
 
     qreal y_max, y_min, x_max;
+    const qreal start_max, start_min;
     QAbstractAxis *x_axis;
     QAbstractAxis *y_axis;
     QPointF last_mouse_pos;
@@ -86,8 +87,9 @@ protected:
 
 public:
 
-    explicit AdvancedChart(qreal min=0, qreal max=1, QAbstractAxis *x=new QValueAxis, QAbstractAxis *y=new QValueAxis ):
-            QChart(), y_min(min), y_max(max), y_axis(y), x_axis(x), auto_range(true), auto_scroll(true) {
+    AdvancedChart(qreal min=0, qreal max=1, QAbstractAxis *x=new QValueAxis, QAbstractAxis *y=new QValueAxis ):
+            QChart(), y_min(min), y_max(max), start_min(min), start_max(max), y_axis(y), x_axis(x),
+            auto_range(true), auto_scroll(true) {
         addAxis(y_axis, Qt::AlignmentFlag::AlignLeft);
         addAxis(x_axis, Qt::AlignmentFlag::AlignBottom);
     }
@@ -109,6 +111,8 @@ public:
                 auto line_series = dynamic_cast<QLineSeries*>(series);
                 line_series->clear();
             }
+            y_min = start_min;
+            y_max =start_max;
         }
     }
 

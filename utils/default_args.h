@@ -16,7 +16,7 @@ const QMap<QString, QString> default_args = {
         {"packets-count", "100"},
         {"address", "127.0.0.1"},
         {"measure-type", "software"},
-        {"delay", "0"},
+        {"delay", "50"},
         {"data", "/dev/urandom"},
         {"data-size", "0"},
         {"threads", "1"},
