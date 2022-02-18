@@ -31,6 +31,14 @@ public:
         }
     }
 
+    std::optional<QString> toString(const T val)const {
+        if (enum_string.contains(val)) {
+            return enum_string.value(val);
+        } else {
+            return std::nullopt;
+        }
+    }
+
     QStringList allStrings() const {
         return string_enum.keys();
     }

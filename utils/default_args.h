@@ -22,7 +22,9 @@ const QMap<QString, QString> default_args = {
         {"threads", "1"},
         {"duration", "10"},
         {"mac", "00:00:00:00:00:00"},
-        {"interface", "lo"}
+        {"interface", "lo"},
+        {"prefix", "Giga"},
+        {"unit", "bits/s"}
 };
 
 #endif //LFNP_DEFAULT_ARGS_H

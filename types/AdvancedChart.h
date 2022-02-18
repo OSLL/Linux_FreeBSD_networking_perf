@@ -11,7 +11,7 @@
 //TODO: линии сверху и снизу
 //TODO: поддержка datetimeseries
 //TODO: выбор отображаемых series в ПКМ
-//TODO: Функция отчистки
+//TODO: отображение среднего
 class AdvancedChart: public QChart {
 
 private:
@@ -46,7 +46,6 @@ protected:
                     value_axis->setRange(value_axis->min() + delta, value_axis->max() + delta);
                 }
             }
-
         }
     }
 

@@ -1,4 +1,3 @@
-#include <QMessageBox>
 #include "recvbandwidthwidget.h"
 #include "ui_recvbandwidthwidget.h"
 
@@ -7,7 +6,6 @@ RecvBandwidthWidget::RecvBandwidthWidget(BaseDataSource *ds, QWidget *parent) :
     ui(new Ui::RecvBandwidthWidget),
     start_stop(new StartStopWidget),
     data_source(ds),
-    bandwidth_series(new TimeSeries<QLineSeries>),
     receiver_thread(nullptr)
 {
     ui->setupUi(this);
@@ -18,9 +16,15 @@ RecvBandwidthWidget::RecvBandwidthWidget(BaseDataSource *ds, QWidget *parent) :
     ui->portSpinBox->setValue(default_args["port"].toInt());
     ui->threadsSpinBox->setValue(default_args["threads"].toInt());
 
-    auto *chart = new AdvancedChart();
+    ui->prefixComboBox->addItems(units_prefixes_enum.allStrings());
+    ui->prefixComboBox->setCurrentText(default_args["prefix"]);
+
+    ui->unitComboBox->addItems(bandwidth_units_enum.allStrings());
+    ui->prefixComboBox->setCurrentText(default_args["unit"]);
+
+    chart = new BandwidthChart(GIGA, BYTES);
+    chart->addSeries(&bandwidth_series);
     bandwidth_series->setName("Bandwidth");
-    chart->addSeries(bandwidth_series);
 
     chart_view.setChart(chart);
     chart_view.setRenderHint(QPainter::Antialiasing);
@@ -51,12 +55,20 @@ void RecvBandwidthWidget::changeEvent(QEvent *e)
 //TODO: отчистка графика
 void RecvBandwidthWidget::onStartClicked() {
 
+    chart->clear();
+
     auto protocol = ui->protocolComboBox->currentText();
     auto port = ui->portSpinBox->value();
     auto threads_count = ui->threadsSpinBox->value();
     auto cpu_affinity = ui->affinityCheckBox->checkState() == Qt::CheckState::Checked;
 
-    std::unique_ptr<Socket> sock = std::make_unique<Socket>(protocol);
+    auto prefix = units_prefixes_enum.fromString(ui->prefixComboBox->currentText()).value();
+    auto unit = bandwidth_units_enum.fromString(ui->unitComboBox->currentText()).value();
+
+    chart->setPrefix(prefix);
+    chart->setUnit(unit);
+
+    auto sock = std::make_unique<Socket>(protocol);
 
     if (sock->bindToAny(port) < 0) {
         QMessageBox::warning(this, tr("LFNP"), tr("Error: bind failed"));
@@ -76,7 +88,7 @@ void RecvBandwidthWidget::onStopClicked() {
 
 void RecvBandwidthWidget::onBandwidth(BandwidthResult result) {
 
-    bandwidth_series->append(result.bytes_count);
+    bandwidth_series->append(result);
 
 }
 

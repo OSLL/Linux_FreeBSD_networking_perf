@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QtCharts>
+#include <QMessageBox>
 
 #include "../../../utils/sockets.h"
 #include "../../../utils/default_args.h"
@@ -11,6 +12,9 @@
 #include "../../types/AdvancedChart.h"
 #include "../../types/series/TimeSeries.h"
 #include "../threads/BandwidthReceiverThread.h"
+#include "../../types/enums/UnitsPrefixes.h"
+#include "../../types/enums/BandwidthUnits.h"
+#include "../../types/BandwidthChart.h"
 
 namespace Ui {
 class RecvBandwidthWidget;
@@ -31,7 +35,8 @@ protected:
     QChartView chart_view;
     BaseDataSource *data_source;
 
-    TimeSeries<QLineSeries> *bandwidth_series;
+    BandwidthSeries *bandwidth_series;
+    BandwidthChart *chart;
 
 protected slots:
 

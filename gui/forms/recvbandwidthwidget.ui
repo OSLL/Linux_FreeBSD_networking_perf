@@ -87,6 +87,23 @@
         </layout>
        </item>
        <item>
+        <layout class="QHBoxLayout" name="formatLayout">
+         <item>
+          <widget class="QLabel" name="formatLabel">
+           <property name="text">
+            <string>Формат:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="prefixComboBox"/>
+         </item>
+         <item>
+          <widget class="QComboBox" name="unitComboBox"/>
+         </item>
+        </layout>
+       </item>
+       <item>
         <layout class="QHBoxLayout" name="affinityLayout">
          <item>
           <widget class="QCheckBox" name="affinityCheckBox">
