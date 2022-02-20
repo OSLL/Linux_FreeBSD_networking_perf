@@ -10,7 +10,6 @@
 #include <QDebug>
 #include "../../utils/sockets.h"
 
-//TODO: CPU affinity
 //TODO: Графический интерфейс
 class BandwidthSender: public QThread {
 
@@ -85,6 +84,10 @@ public:
 
     quint64 getPacketsCount() { return packets_count; }
     quint64 getBytesSent() { return bytes_sent; }
+    void resetCount() {
+        packets_count = 0;
+        bytes_sent = 0;
+    }
 
 };
 

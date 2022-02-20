@@ -22,6 +22,7 @@ MainWindow::MainWindow(QWidget *parent) :
     TAB_ACTION("Sockets list", SocketsListWidget);
     TAB_ACTION("Protocols stats", ProtocolsStatsWidget);
     ACTION("Receive bandwidth", RecvBandwidthWidget);
+    ACTION("Send bandwidth", SendBandwidthWidget);
 }
 
 MainWindow::~MainWindow()

@@ -11,6 +11,7 @@
 #include "socketslistwidget.h"
 #include "protocolsstatswidget.h"
 #include "recvbandwidthwidget.h"
+#include "sendbandwidthwidget.h"
 
 #ifdef __linux__
 #include "../../datasources/linux/LinuxDataSource.h"

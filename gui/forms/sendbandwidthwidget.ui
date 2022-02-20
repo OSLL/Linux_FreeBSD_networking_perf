@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>SendBandwidthWidget</class>
+ <widget class="QWidget" name="SendBandwidthWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>755</width>
+    <height>499</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,10">
+   <item>
+    <layout class="QVBoxLayout" name="controlLayout">
+     <property name="spacing">
+      <number>6</number>
+     </property>
+     <item>
+      <widget class="QWidget" name="controlWidget" native="true">
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout">
+        <item>
+         <layout class="QHBoxLayout" name="protocolLayout">
+          <item>
+           <widget class="QLabel" name="protocolLabel">
+            <property name="text">
+             <string>Протокол</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QComboBox" name="protocolComboBox"/>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QVBoxLayout" name="ipLayout">
+          <item>
+           <widget class="QLabel" name="ipLabel">
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>20</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Ip-адрес и порт:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="ipInputLayout">
+            <item>
+             <widget class="QLineEdit" name="ipEdit">
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>25</height>
+               </size>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QSpinBox" name="portSpinBox">
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>25</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>16777215</width>
+                <height>25</height>
+               </size>
+              </property>
+              <property name="maximum">
+               <number>65535</number>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="fileLayout">
+          <item>
+           <widget class="QLabel" name="fileLabel">
+            <property name="text">
+             <string>Файл:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="fileLineEdit">
+            <property name="text">
+             <string>/dev/urandom</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="dataSizeLayout">
+          <item>
+           <widget class="QLabel" name="dataSizeLabel">
+            <property name="text">
+             <string>Размер данных:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QSpinBox" name="dataSizeSpinBox">
+            <property name="maximum">
+             <number>99999999</number>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="durationLayout">
+          <item>
+           <widget class="QLabel" name="durationLabel">
+            <property name="text">
+             <string>Длительность:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QSpinBox" name="durationSpinBox"/>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="formatLayout">
+          <item>
+           <widget class="QLabel" name="formatLabel">
+            <property name="text">
+             <string>Формат:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QComboBox" name="prefixComboBox"/>
+          </item>
+          <item>
+           <widget class="QComboBox" name="unitComboBox"/>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="threadsLayout">
+          <item>
+           <widget class="QLabel" name="threadsLabel">
+            <property name="text">
+             <string>Число потоков:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QSpinBox" name="threadsSpinBox"/>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="checkBoxLayout">
+          <item>
+           <widget class="QCheckBox" name="zeroCopyCheckBox">
+            <property name="text">
+             <string>Zero-Copy</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="affinityCheckBox">
+            <property name="text">
+             <string>CPU Affinity</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="startStopLayout"/>
+        </item>
+       </layout>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QVBoxLayout" name="resultLayout"/>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

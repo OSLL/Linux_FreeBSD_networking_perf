@@ -52,7 +52,6 @@ void RecvBandwidthWidget::changeEvent(QEvent *e)
     }
 }
 
-//TODO: отчистка графика
 void RecvBandwidthWidget::onStartClicked() {
 
     chart->clear();
