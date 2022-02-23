@@ -71,17 +71,21 @@ void RecvBandwidthWidget::onStartClicked() {
 
     if (sock->bindToAny(port) < 0) {
         QMessageBox::warning(this, tr("LFNP"), tr("Error: bind failed"));
+        start_stop.setStartState();
+        return;
     }
 
     receiver_thread = new BandwidthReceiverThread(std::move(sock), threads_count, cpu_affinity);
     QObject::connect(receiver_thread, &BandwidthReceiverThread::bandwidth, this, &RecvBandwidthWidget::onBandwidth);
+    QObject::connect(receiver_thread, &BandwidthReceiverThread::durationReceived, this, &RecvBandwidthWidget::onDuration);
     QObject::connect(receiver_thread, &BandwidthReceiverThread::finished, this, &RecvBandwidthWidget::onFinished);
     receiver_thread->start();
 }
 
 void RecvBandwidthWidget::onStopClicked() {
 
-    receiver_thread->requestInterruption();
+    receiver_thread->terminate();
+    receiver_thread->wait();
 
 }
 
@@ -96,6 +100,12 @@ void RecvBandwidthWidget::onFinished() {
     delete receiver_thread;
     receiver_thread = nullptr;
     start_stop.setStartState();
+
+}
+
+void RecvBandwidthWidget::onDuration(quint64 duration) {
+
+    chart->getXAxis()->setRange(0, duration);
 
 }
 

@@ -80,6 +80,7 @@ void SendBandwidthWidget::onStartClicked() {
 
     chart->setPrefix(prefix);
     chart->setUnit(unit);
+    chart->getXAxis()->setRange(0, duration);
 
     auto o_file = get_file(filename, data_size ? data_size : DEFAULT_NOT_ZERO_DATASIZE);
     if (!o_file) {

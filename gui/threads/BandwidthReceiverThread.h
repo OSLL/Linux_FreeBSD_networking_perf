@@ -19,6 +19,10 @@ public:
     BandwidthReceiverThread(std::unique_ptr<Socket> _sock, int _threads_count, bool _cpu_affinity):
     sock(std::move(_sock)), threads_count(_threads_count), cpu_affinity(_cpu_affinity), duration(0), data_size(0) {}
 
+    ~BandwidthReceiverThread() {
+        receivers.clear();
+    }
+
 protected:
     void run() override {
 
@@ -29,6 +33,7 @@ protected:
 
         sock->receiveData(&duration);
         sock->receiveData(&data_size);
+        emit durationReceived(duration);
 
         for (int i=0; i < threads_count; i++) {
             auto accept_sock = sock->acceptConnection();
@@ -59,6 +64,7 @@ protected:
         for (auto receiver: receivers) {
             receiver->terminate();
         }
+
         for (auto receiver: receivers) {
             receiver->wait();
         }
@@ -76,6 +82,7 @@ protected:
 
 signals:
     void bandwidth(BandwidthResult result);
+    void durationReceived(quint64 duration);
 };
 
 #endif //LFNP_BANDWIDTHRECEIVERTHREAD_H

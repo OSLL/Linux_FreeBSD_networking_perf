@@ -44,6 +44,7 @@ protected slots:
     void onStopClicked();
     void onBandwidth(BandwidthResult result);
     void onFinished();
+    void onDuration(quint64 duration);
 
 private:
     Ui::RecvBandwidthWidget *ui;

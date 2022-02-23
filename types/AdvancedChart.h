@@ -34,7 +34,6 @@ protected:
             y_min = qMin(y_min, point_y);
             y_max = qMax(y_max, point_y);
             y_axis->setRange(y_min, y_max);
-            x_axis->setRange(0, 100);
         }
 
         if (auto_scroll) {
@@ -91,6 +90,8 @@ public:
             auto_range(true), auto_scroll(true) {
         addAxis(y_axis, Qt::AlignmentFlag::AlignLeft);
         addAxis(x_axis, Qt::AlignmentFlag::AlignBottom);
+
+        x_axis->setRange(0, 100);
     }
 
     void addSeries(QXYSeries *series) {
@@ -111,7 +112,8 @@ public:
                 line_series->clear();
             }
             y_min = start_min;
-            y_max =start_max;
+            y_max = start_max;
+            y_axis->setRange(y_min, y_max);
         }
     }
 

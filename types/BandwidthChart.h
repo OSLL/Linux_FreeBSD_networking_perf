@@ -46,7 +46,6 @@ private:
                 bandwidth_series->setFunc(get_value_func);
             }
         }
-
     }
 
     void initTitle() {
