@@ -44,7 +44,7 @@ protected:
             sender->start();
         }
 
-        for (int i=0; i<duration && !QThread::isInterruptionRequested(); i++) {
+        for (int i=0; i<=duration && !QThread::isInterruptionRequested(); i++) {
             QThread::sleep(1);
             BandwidthResult result;
             result.duration = 1;

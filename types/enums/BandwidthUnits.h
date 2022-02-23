@@ -9,13 +9,13 @@
 
 enum BandwidthUnits {
 
-    BYTES,
+    BITS,
     PKTS
 
 };
 
 const Enum<BandwidthUnits> bandwidth_units_enum({
-    {BYTES, "bits/s"},
+    {BITS, "bits/s"},
     {PKTS, "pkts/s"},
 });
 

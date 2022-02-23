@@ -30,7 +30,7 @@ private:
 
     void initValueFunc() {
         auto div_factor = division_factor[current_prefix];
-        auto get_unit_func = current_unit == BandwidthUnits::BYTES ? get_bytes : get_packets;
+        auto get_unit_func = current_unit == BandwidthUnits::BITS ? get_bits : get_packets;
         get_value_func = [div_factor, get_unit_func](BandwidthResult res) {
             return get_unit_func(res)/div_factor;
         };
@@ -61,7 +61,7 @@ private:
         }
     }
 
-    std::function<quint64(BandwidthResult)> get_bytes = [](BandwidthResult res) { return res.bytes_count; };
+    std::function<quint64(BandwidthResult)> get_bits = [](BandwidthResult res) { return res.bytes_count*8; };
     std::function<quint64(BandwidthResult)> get_packets = [](BandwidthResult res) { return res.packets_count; };
     std::function<quint64(BandwidthResult)> get_value_func;
 

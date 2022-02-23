@@ -29,7 +29,7 @@ SendBandwidthWidget::SendBandwidthWidget(BaseDataSource *ds, QWidget *parent) :
     ui->zeroCopyCheckBox->setCheckState(Qt::CheckState::Unchecked);
     ui->affinityCheckBox->setCheckState(Qt::CheckState::Unchecked);
 
-    chart = new BandwidthChart(GIGA, BYTES);
+    chart = new BandwidthChart(GIGA, BITS);
     chart->addSeries(&bandwidth_series);
     bandwidth_series->setName("Bandwidth");
 
