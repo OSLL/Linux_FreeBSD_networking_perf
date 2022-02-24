@@ -62,7 +62,7 @@ protected:
         }
 
         for (auto receiver: receivers) {
-            receiver->terminate();
+            receiver->requestInterruption();
         }
 
         for (auto receiver: receivers) {

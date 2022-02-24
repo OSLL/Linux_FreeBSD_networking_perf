@@ -59,8 +59,10 @@ protected:
         }
 
         for (auto sender: senders) {
-            sender->terminate();
+            // При использовании здесь terminate в SendBandwidthWidget не всегда приходит сигнал finish
+            sender->requestInterruption();
         }
+
         for (auto sender: senders) {
             sender->wait();
         }

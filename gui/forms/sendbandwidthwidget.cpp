@@ -111,7 +111,7 @@ void SendBandwidthWidget::onStartClicked() {
 
 void SendBandwidthWidget::onStopClicked() {
 
-    sender_thread->requestInterruption();
+    sender_thread->terminate();
 
 }
 
