@@ -93,9 +93,6 @@ int cli_main(int argc, char *argv[]) {
         } else if (argc > 2 && args[2] == "rx-bandwidth") {
             printBandwidthResult(ds->recvBandwidth(protocol, port, threads_count, cpu_affinity));
         }
-
-    } else if (argc > 2 && args[1] == "iperf3") {
-        printIperf3Data(parseIperf3Output(args[2]));
     } else if (argc > 2 && args[1] == "stats") {
         printProtocolStats(ds->getProtocolStats(args[2]));
     } else if (argc > 1 && args[1] == "get-cpu-distribution") {

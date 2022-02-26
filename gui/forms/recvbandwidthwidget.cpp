@@ -20,7 +20,7 @@ RecvBandwidthWidget::RecvBandwidthWidget(BaseDataSource *ds, QWidget *parent) :
     ui->prefixComboBox->setCurrentText(default_args["prefix"]);
 
     ui->unitComboBox->addItems(bandwidth_units_enum.allStrings());
-    ui->prefixComboBox->setCurrentText(default_args["unit"]);
+    ui->unitComboBox->setCurrentText(default_args["unit"]);
 
     chart = new BandwidthChart(GIGA, BITS);
     chart->addSeries(&bandwidth_series);

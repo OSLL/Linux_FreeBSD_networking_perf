@@ -21,8 +21,15 @@ MainWindow::MainWindow(QWidget *parent) :
     ACTION("Send timestamps", SendTimestampWidget);
     TAB_ACTION("Sockets list", SocketsListWidget);
     TAB_ACTION("Protocols stats", ProtocolsStatsWidget);
-    ACTION("Receive bandwidth", RecvBandwidthWidget);
-    ACTION("Send bandwidth", SendBandwidthWidget);
+
+
+    auto bandwidth_menu = ui->menu->addMenu(tr("Bandwidth"));
+    MENU_ACTION(bandwidth_menu, "Receive bandwidth", RecvBandwidthWidget);
+    MENU_ACTION(bandwidth_menu, "Send bandwidth", SendBandwidthWidget);
+
+    bandwidth_menu->addAction(tr("Iperf3 Visualize"), Iperf3::openFile(tabWidget));
+
+
 }
 
 MainWindow::~MainWindow()

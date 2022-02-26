@@ -15,7 +15,7 @@ find_package(Threads REQUIRED)
 add_executable(lfnp main.cpp datasources/BaseDataSource.h utils/utils.h utils/utils.cpp types/SocketInfo.h
         datasources/linux/parsers/parsers.h datasources/linux/parsers/parsers.cpp cli/printers/printers.cpp
         cli/printers/printers.h types/InSystemTimeInfo.h utils/sockets.cpp utils/sockets.h
-        datasources/iperf3/iperf3_parser.cpp datasources/iperf3/iperf3_parser.h datasources/BaseDataSource.cpp
+        datasources/iperf3/iperf3.cpp datasources/iperf3/iperf3.h datasources/BaseDataSource.cpp
         cli/cli_main.cpp cli/cli_main.h gui/gui_main.cpp gui/gui_main.h gui/forms/mainwindow.h
         gui/forms/mainwindow.cpp gui/forms/mainwindow.ui gui/forms/cpudistributionwidget.h
         gui/forms/cpudistributionwidget.cpp gui/forms/cpudistributionwidget.ui types/series/TimeSeries.h
@@ -36,7 +36,9 @@ add_executable(lfnp main.cpp datasources/BaseDataSource.h utils/utils.h utils/ut
         gui/forms/recvbandwidthwidget.ui gui/forms/startstopwidget.h gui/forms/startstopwidget.cpp
         gui/forms/startstopwidget.ui gui/threads/BandwidthReceiverThread.h types/enums/BandwidthUnits.h
         types/enums/UnitsPrefixes.h types/BandwidthChart.h gui/forms/sendbandwidthwidget.h
-        gui/forms/sendbandwidthwidget.cpp gui/forms/sendbandwidthwidget.ui gui/threads/BandwidthSenderThread.h)
+        gui/forms/sendbandwidthwidget.cpp gui/forms/sendbandwidthwidget.ui gui/threads/BandwidthSenderThread.h
+        gui/forms/bandwidthwidget.cpp gui/forms/bandwidthwidget.h gui/forms/bandwidthwidget.h
+        gui/forms/bandwidthwidget.cpp gui/forms/bandwidthwidget.ui)
 
 target_link_libraries(lfnp
         Qt5::Core

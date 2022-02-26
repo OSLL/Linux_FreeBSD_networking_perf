@@ -20,7 +20,7 @@ SendBandwidthWidget::SendBandwidthWidget(BaseDataSource *ds, QWidget *parent) :
     ui->prefixComboBox->setCurrentText(default_args["prefix"]);
 
     ui->unitComboBox->addItems(bandwidth_units_enum.allStrings());
-    ui->prefixComboBox->setCurrentText(default_args["unit"]);
+    ui->unitComboBox->setCurrentText(default_args["unit"]);
 
     ui->fileLineEdit->setText(default_args["data"]);
     ui->dataSizeSpinBox->setValue(default_args["data-size"].toInt());

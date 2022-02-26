@@ -19,7 +19,7 @@
 #endif
 
 #include "printers/printers.h"
-#include "../datasources/iperf3/iperf3_parser.h"
+#include "../datasources/iperf3/iperf3.h"
 
 int cli_main(int argc, char *argv[]);
 

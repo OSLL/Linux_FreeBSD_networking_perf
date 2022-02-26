@@ -12,6 +12,7 @@ namespace Ui {
 class CPUDistributionWidget;
 }
 
+//TODO: выбор источника
 class CPUDistributionWidget : public QWidget
 {
     Q_OBJECT

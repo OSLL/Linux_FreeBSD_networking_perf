@@ -53,38 +53,6 @@ void printTimestamp(const quint64 &ts, bool in_ms) {
     }
 }
 
-#define INTERVAL_COLUMN_WIDTH 20
-
-void printIperf3Data(const std::optional<QJsonArray> &o_json_data) {
-
-    if (o_json_data) {
-
-        for (int test_index=0; test_index<o_json_data->size(); test_index++) {
-            auto test = o_json_data.value()[test_index];
-            auto intervals = test["intervals"].toArray();
-
-            if (intervals.empty()) continue;
-
-            std::cout << "Test #" << test_index << std::endl;
-            std::cout << std::left << std::setw(INTERVAL_COLUMN_WIDTH) << "From";
-            std::cout << std::left << std::setw(INTERVAL_COLUMN_WIDTH) << "To";
-            std::cout << std::left << std::setw(INTERVAL_COLUMN_WIDTH) << "Bits/s" << std::endl;
-
-            std::cout << std::fixed << std::left;
-
-            for (const auto& interval: test["intervals"].toArray()) {
-                auto interval_sum = interval.toObject()["sum"].toObject();
-                std::cout << std::setw(INTERVAL_COLUMN_WIDTH) << std::setprecision(4) << interval_sum["start"].toDouble();
-                std::cout << std::setw(INTERVAL_COLUMN_WIDTH) << std::setprecision(4) << interval_sum["end"].toDouble();
-                std::cout << std::setw(INTERVAL_COLUMN_WIDTH) << std::setprecision(0) << interval_sum["bits_per_second"].toDouble() << std::endl;
-            }
-        }
-    } else {
-        std::cout << "Can't get iperf3 data" << std::endl;
-    }
-
-}
-
 void printProtocolStats(std::optional<QMap<QString, int>> o_protocol_stats) {
 
     if (!o_protocol_stats) {

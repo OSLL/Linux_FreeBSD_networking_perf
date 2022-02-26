@@ -23,8 +23,6 @@ void printSocketsInfoList(const QVector<SocketInfo>& sockets_info_list);
 
 void printTimestamp(const quint64 &ts, bool in_ms);
 
-void printIperf3Data(const std::optional<QJsonArray>& o_json_data);
-
 void printProtocolStats(std::optional<QMap<QString, int>> o_protocol_stats);
 
 void printSoftnetData(std::optional<QVector<QVector<int>>> o_cpus_sd);
