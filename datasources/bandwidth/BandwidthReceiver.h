@@ -10,6 +10,13 @@
 #include <QDebug>
 #include "../../utils/sockets.h"
 
+#ifdef __linux__
+#include "pthread.h"
+#else
+#include "pthread_np.h"
+#define cpu_set_t cpuset_t
+#endif
+
 class BandwidthReceiver: public QThread {
 
 private:
