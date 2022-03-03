@@ -11,13 +11,14 @@
 #include "BaseSeries.h"
 
 template <typename T>
-class TimeSeries: public BaseSeries<T, quint64>{
+class TimeSeries: public BaseSeries<T, qreal>{
 
 public:
     TimeSeries();
-    void append(quint64 y);
+    void append(qreal y);
     quint64 getCounter();
     void resetCounter();
+    void replace(QVector<qreal>);
 
 private:
 
@@ -29,7 +30,7 @@ template<typename T>
 TimeSeries<T>::TimeSeries(): counter(0) {}
 
 template<typename T>
-void TimeSeries<T>::append(quint64 y) {
+void TimeSeries<T>::append(qreal y) {
     T::append(counter, y);
     counter += 1;
 }
@@ -42,6 +43,18 @@ quint64 TimeSeries<T>::getCounter() {
 template<typename T>
 void TimeSeries<T>::resetCounter() {
     counter = 0;
+}
+
+template<typename T>
+void TimeSeries<T>::replace(QVector<qreal> values) {
+
+    QVector<QPointF> time_points;
+    for (int i=0; i<values.size(); i++) {
+        time_points.push_back(QPointF(i,values[i]));
+    }
+    qDebug() << time_points;
+    T::replace(time_points);
+
 }
 
 #endif //LFNP_TIMESERIES_H

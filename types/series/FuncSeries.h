@@ -13,17 +13,31 @@ class FuncSeries: public BaseSeries<T, V> {
 
 private:
     std::function<H(V)> func;
+    QVector<V> values;
 
 public:
 
     explicit FuncSeries(std::function<H(V)> _func): func(_func) {}
 
     void append(V val) override {
+        values.append(val);
         T::append(func(val));
     }
 
     void setFunc(const std::function<H(V)> &_func) {
+
         func = _func;
+
+    }
+
+    void replace(QVector<V> values) override {
+
+        QVector<H> func_values;
+        for (const auto& v: values) {
+            func_values.push_back(func(v));
+        }
+
+        T::replace(func_values);
     }
 
 };

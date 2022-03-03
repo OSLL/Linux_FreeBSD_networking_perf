@@ -18,7 +18,7 @@ class BandwidthWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit BandwidthWidget(const QVector<BandwidthResult>& result, const QVector<BandwidthUnits>& available_units,
+    explicit BandwidthWidget(const QVector<BandwidthResult>& _result, const QVector<BandwidthUnits>& available_units,
                              QWidget *parent = nullptr);
     ~BandwidthWidget();
 
@@ -28,9 +28,14 @@ protected:
     BandwidthSeries *bandwidth_series;
     BandwidthChart *chart;
     QChartView chart_view;
+    const QVector<BandwidthResult> result;
 
 private:
     Ui::BandwidthWidget *ui;
+    void recreateChart();
+
+public slots:
+    void prefixChanged(const QString &text);
 };
 
 #endif // BANDWIDTHWIDGET_H
