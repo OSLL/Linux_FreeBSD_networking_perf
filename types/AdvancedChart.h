@@ -115,6 +115,9 @@ public:
             y_max = start_max;
             y_axis->setRange(y_min, y_max);
         }
+
+        auto_range = true;
+        auto_scroll = true;
     }
 
     QAbstractAxis *getXAxis() const {
