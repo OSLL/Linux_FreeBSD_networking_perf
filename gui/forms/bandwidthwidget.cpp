@@ -31,6 +31,7 @@ BandwidthWidget::BandwidthWidget(const QVector<BandwidthResult>& _result, const 
     ui->chartLayout->addWidget(&chart_view);
 
     QObject::connect(ui->prefixComboBox, &QComboBox::currentTextChanged, this, &BandwidthWidget::prefixChanged);
+    QObject::connect(ui->unitComboBox, &QComboBox::currentTextChanged, this, &BandwidthWidget::unitChanged);
 }
 
 BandwidthWidget::~BandwidthWidget()
@@ -56,12 +57,16 @@ void BandwidthWidget::prefixChanged(const QString &text) {
     recreateChart();
 }
 
-#include <QDebug>
 void BandwidthWidget::recreateChart() {
 
-    qDebug() << result.size();
     for (const auto &r: result) {
         bandwidth_series->append(r);
     }
 
+}
+
+void BandwidthWidget::unitChanged(const QString &text) {
+    chart->clear();
+    chart->setUnit(bandwidth_units_enum.fromString(text).value());
+    recreateChart();
 }

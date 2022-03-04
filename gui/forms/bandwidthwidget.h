@@ -36,6 +36,7 @@ private:
 
 public slots:
     void prefixChanged(const QString &text);
+    void unitChanged(const QString &text);
 };
 
 #endif // BANDWIDTHWIDGET_H

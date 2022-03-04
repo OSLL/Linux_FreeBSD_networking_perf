@@ -28,6 +28,7 @@ MainWindow::MainWindow(QWidget *parent) :
     MENU_ACTION(bandwidth_menu, "Send bandwidth", SendBandwidthWidget);
 
     bandwidth_menu->addAction(tr("Iperf3 Visualize"), Iperf3::openFile(tabWidget));
+    bandwidth_menu->addAction(tr("Netmap Pktgen Visualize"), NetmapPktGen::openFile(tabWidget));
 
 
 }

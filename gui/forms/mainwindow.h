@@ -15,6 +15,7 @@
 
 #include "../../types/MainTabWidget.h"
 #include "../../datasources/iperf3/iperf3.h"
+#include "../../datasources/netmap/netmap.h"
 
 #ifdef __linux__
 #include "../../datasources/linux/LinuxDataSource.h"
