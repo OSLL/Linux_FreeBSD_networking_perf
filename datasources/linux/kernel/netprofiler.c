@@ -63,10 +63,10 @@ static int device_release(struct inode *inode, struct file *file) {
 
 #define LINE_LEN 255
 
-static int write_profiler_string(struct profiler_node *node, char line[LINE_LEN]) {
-    return snprintf(line, LINE_LEN, "%s %s %llu\n", 
+static int write_profiler_string(struct profiler_node *node, char line[LINE_LEN], int cpu_index) {
+    return snprintf(line, LINE_LEN, "%s %s %llu %d\n", 
             node->type == ENTER ? "enter" : "return", 
-            node->func_name, node->time);
+            node->func_name, node->time, cpu_index);
 }
 
 
@@ -85,7 +85,7 @@ static ssize_t device_read(struct file *file, char __user *buffer, size_t len, l
             for (int i=cpu_profiler_data->i; i<PROFILER_BUFFER_LEN; i++) {
                 
                 if (cpu_profiler_data->list[i].type == UNINITIALIZED) break;
-                int write_count = write_profiler_string(&cpu_profiler_data->list[i], result_line);
+                int write_count = write_profiler_string(&cpu_profiler_data->list[i], result_line, cpu);
                 cpu_profiler_data->list[i].type = UNINITIALIZED;
                 
                 if (copy_to_user(buffer+current_buffer_offset, result_line, write_count)) {
@@ -97,7 +97,7 @@ static ssize_t device_read(struct file *file, char __user *buffer, size_t len, l
             for (int i=0; i<cpu_profiler_data->i; i++) {
                 
                 if (cpu_profiler_data->list[i].type == UNINITIALIZED) break;
-                int write_count = write_profiler_string(&cpu_profiler_data->list[i], result_line);
+                int write_count = write_profiler_string(&cpu_profiler_data->list[i], result_line, cpu);
                 cpu_profiler_data->list[i].type = UNINITIALIZED;
                 
                 if (copy_to_user(buffer+current_buffer_offset, result_line, write_count)) {
@@ -222,6 +222,16 @@ static int __init netprofiler_init(void) {
     pr_info("Char device registered with number: %d, class: %p, device: %p\n", major_num, fw_class, fw_device);
     
     PROFILER("ip_rcv");
+    PROFILER("ip_rcv_core");
+    PROFILER("ip_rcv_finish");
+    PROFILER("ip_rcv_finish_core");
+    PROFILER("ip_local_deliver");
+    
+    PROFILER("tcp_v4_rcv");
+    
+    PROFILER("udp_rcv");
+    PROFILER("udp_queue_rcv_skb");
+    PROFILER("sock_queue_rcv");
 
     return 0;
 }
@@ -234,7 +244,7 @@ static void __exit netprofiler_exit(void) {
     
     for (int i=0; i<netprofiler_kp_index; i++) {
         unregister_kretprobe(&netprofiler_kp_list[i]);
-        pr_info("Missed probing %d instances of %s\n", netprofiler_kp_list[i], netprofiler_kp_list[i].kp.symbol_name);
+        pr_info("Missed probing %d instances of %s\n", netprofiler_kp_list[i].nmissed, netprofiler_kp_list[i].kp.symbol_name);
         pr_info("kretprobe at %p unregistered\n", netprofiler_kp_list[i].kp.addr);
     }    
 }
