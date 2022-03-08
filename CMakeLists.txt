@@ -38,7 +38,7 @@ add_executable(lfnp main.cpp datasources/BaseDataSource.h utils/utils.h utils/ut
         types/enums/UnitsPrefixes.h types/BandwidthChart.h gui/forms/sendbandwidthwidget.h
         gui/forms/sendbandwidthwidget.cpp gui/forms/sendbandwidthwidget.ui gui/threads/BandwidthSenderThread.h
         gui/forms/bandwidthwidget.cpp gui/forms/bandwidthwidget.h gui/forms/bandwidthwidget.h
-        gui/forms/bandwidthwidget.cpp gui/forms/bandwidthwidget.ui datasources/netmap/netmap.h datasources/netmap/netmap.cpp)
+        gui/forms/bandwidthwidget.cpp gui/forms/bandwidthwidget.ui datasources/netmap/netmap.h datasources/netmap/netmap.cpp types/FuncProfiler.h)
 
 target_link_libraries(lfnp
         Qt5::Core

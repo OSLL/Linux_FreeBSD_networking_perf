@@ -19,6 +19,7 @@
 #include "../types/enums/CPUDistributionSource.h"
 #include "../types/enums/MeasureType.h"
 #include "../types/BandwidthResult.h"
+#include "../types/FuncProfiler.h"
 
 typedef QMap<QString, int> ProtocolStats;
 
@@ -81,6 +82,8 @@ public:
     int getOneStat(const QString &protocol, const QString &stat_name);
     std::optional<SocketInfo> getOneSocket(const QString &protocol, const QString &local_address, unsigned int local_port,
                                            const QString &foreign_address, unsigned int foreign_port);
+
+    virtual std::optional<FuncProfilerTreeNode*> getProfilerData()=0;
 };
 
 

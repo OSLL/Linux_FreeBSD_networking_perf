@@ -18,6 +18,7 @@
 #include "../../types/DropsInfo.h"
 #include "../../utils/utils.h"
 #include "../../types/BandwidthResult.h"
+#include "../../types/FuncProfiler.h"
 
 void printSocketsInfoList(const QVector<SocketInfo>& sockets_info_list);
 
@@ -32,6 +33,8 @@ void printCPUDistribution(std::optional<QMap<int, int>> o_cpus_dist);
 void printDropsInfo(QVector<QPair<QString, DropsInfo>> drops_info);
 
 void printBandwidthResult(std::optional<BandwidthResult> o_res);
+
+void printProfilerData(std::optional<FuncProfilerTreeNode*>, int indent=-1);
 
 template <typename T>
 void printTimestampsAverage(std::optional<QVector<T>> &o_time_info, bool in_ms) {

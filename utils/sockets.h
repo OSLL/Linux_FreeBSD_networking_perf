@@ -14,6 +14,7 @@
 #include <netinet/in.h>
 #include <unistd.h>
 #include <sys/uio.h>
+#include <arpa/inet.h>
 
 #include <iostream>
 #include <optional>
@@ -21,11 +22,9 @@
 #include "../types/TimeRange.h"
 
 #ifdef __linux__
-#include <libnet.h>
 #include <linux/net_tstamp.h>
 #include <sys/sendfile.h>
 #else
-#include <arpa/inet.h>
 #include <sys/types.h>
 #endif
 

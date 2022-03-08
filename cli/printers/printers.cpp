@@ -144,3 +144,18 @@ void printBandwidthResult(std::optional<BandwidthResult> o_res) {
     }
 
 }
+
+void printProfilerData(std::optional<FuncProfilerTreeNode*> root, int indent) {
+
+    if (root) {
+        if (root.value()->getParent()) {
+            std::cout << QString("\t").repeated(indent).toStdString()
+                      << root.value()->getFuncName().toStdString() << " " << root.value()->getDuration() << std::endl;
+        }
+
+        for (const auto child: root.value()->getChildren()) {
+            printProfilerData(child, indent+1);
+        }
+    }
+
+}

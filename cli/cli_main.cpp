@@ -107,8 +107,10 @@ int cli_main(int argc, char *argv[]) {
     } else if (argc > 1 && args[1] == "pktgen") {
         auto pktgen = LinuxPktgen(protocol, interface, addr, port, mac_addr, threads_count, data_size, packets_count);
         pktgen.start();
-//        QThread::sleep(1);
         printBandwidthResult(pktgen.getResult());
+    } else if (argc > 1 && args[1] == "profiler") {
+
+        printProfilerData(ds->getProfilerData());
     }
 
     return 0;

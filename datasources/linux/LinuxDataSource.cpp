@@ -356,3 +356,7 @@ QStringList LinuxDataSource::getSupportedSocketsListProtocols() {
 QStringList LinuxDataSource::getSupportedStatsProtocols() {
     return LinuxDataSource::protocol_stats_names.keys();
 }
+
+std::optional<FuncProfilerTreeNode*> LinuxDataSource::getProfilerData() {
+    return parseProfilerData("/home/shenk/Linux_FreeBSD_networking_perf/test.txt");
+}

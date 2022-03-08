@@ -27,5 +27,20 @@ public:
     timespec to;
 };
 
+class TimeRangeNS {
+
+public:
+
+    TimeRangeNS(): from(0), to(0) {}
+    TimeRangeNS(quint64 _from, quint64 _to): from(_from), to(_to) {}
+
+    quint64 getRangeNS()  const {
+        return to-from;
+    }
+
+    quint64 from;
+    quint64 to;
+
+};
 
 #endif //LFNP_TIMERANGE_H

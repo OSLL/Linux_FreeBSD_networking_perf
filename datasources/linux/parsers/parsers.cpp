@@ -3,6 +3,8 @@
 //
 
 #include "parsers.h"
+#include "../../../types/FuncProfiler.h"
+#include "../../../types/TimeRange.h"
 
 std::optional<ProtocolsStats> parseProtocolsStatsFile(const QString& filename) {
 
@@ -185,7 +187,6 @@ std::optional<CpusSoftnetData> parseSoftnetDataFile(const QString &filename) {
     return cpus_sd;
 }
 
-#include <QDebug>
 std::optional<CpusSoftirqData> parseSoftirqFile(const QString &filename) {
     CpusSoftirqData cpus_sirq;
     QFile file(filename);
@@ -223,5 +224,71 @@ std::optional<CpusSoftirqData> parseSoftirqFile(const QString &filename) {
     } while (!file.atEnd());
 
     return cpus_sirq;
+}
 
+void _parseProfilerData(QFile &file, FuncProfilerTreeNode *parent, quint64 enter_time) {
+
+    bool is_return = false;
+    while (!(is_return || file.atEnd()) ) {
+
+        QString line = file.readLine();
+        QStringList profiler_tokens = line.split(' ');
+
+        if (profiler_tokens[0] == "enter") {
+
+            auto child = new FuncProfilerTreeNode(
+                    profiler_tokens[1], profiler_tokens[3].toInt(), parent);
+            _parseProfilerData(file, child, profiler_tokens[2].toULongLong());
+            parent->addChildrenAsTime(child);
+
+        } else if (profiler_tokens[0] == "return") {
+            is_return = true;
+
+            if (profiler_tokens[1] == parent->getFuncName()) {
+                quint32 cpu_index = profiler_tokens[3].toUInt();
+                parent->addRange(TimeRangeNS(enter_time, profiler_tokens[2].toULongLong()));
+
+                if (cpu_index != parent->getCPUIndex()) {
+                    std::cout << "Stack warning: different enter and return CPU" << std::endl;
+                }
+            } else {
+                std::cout << "Stack error: different enter and return names" << std::endl;
+            }
+
+        }
+
+    }
+}
+
+std::optional<FuncProfilerTreeNode*> parseProfilerData(const QString &filename) {
+
+    QStack<QStringList> stack;
+    QFile file(filename);
+
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        std::cout << "Can't open " << filename.toStdString() << std::endl;
+        return std::nullopt;
+    }
+
+    auto *root = new FuncProfilerTreeNode("root", 0, NULL);
+
+    do {
+
+        QString line = file.readLine();
+        QStringList profiler_tokens = line.split(' ');
+
+        if (profiler_tokens[0] == "enter") {
+
+            auto child = new FuncProfilerTreeNode(
+                    profiler_tokens[1], profiler_tokens[3].toInt(), root);
+            _parseProfilerData(file, child, profiler_tokens[2].toULongLong());
+            root->addChildrenAsTime(child);
+
+        } else if (profiler_tokens[0] == "return") {
+            std::cout << "Warning: return at top level" << std::endl;
+        }
+
+    } while (!file.atEnd());
+
+    return root;
 }

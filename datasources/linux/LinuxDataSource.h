@@ -23,6 +23,7 @@
 #include "parsers/parsers.h"
 
 #include "../BaseDataSource.h"
+#include "../../types/FuncProfiler.h"
 
 
 class LinuxDataSource: public BaseDataSource {
@@ -53,12 +54,13 @@ public:
     void processRecvTimestamp(msghdr &msg, ReceiveTimestamp &res, timespec &after_recv_time,
                               const QString &protocol) override;
 
-    void setSendSockOpt(Socket &sock, const MeasureType measure_type) override;
+    void setSendSockOpt(Socket &sock, MeasureType measure_type) override;
     void
     processSendTimestamp(Socket &sock, SendTimestamp &res, TimeRange &timestamps) override;
 
     QStringList getSupportedSocketsListProtocols() override;
     QStringList getSupportedStatsProtocols() override;
+    std::optional<FuncProfilerTreeNode*> getProfilerData() override;
 };
 
 
