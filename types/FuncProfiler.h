@@ -31,12 +31,17 @@ public:
 
     quint64 getDuration() {
 
-        quint64 avg_time = 0;
-        for (const auto &time_range: time_ranges) {
+        if (!time_ranges.empty()) {
+
+            quint64 avg_time = 0;
+            for (const auto &time_range: time_ranges) {
 //            std::cout << "DURATION " << time_range.getRangeNS() << std::endl;
-            avg_time += time_range.getRangeNS();
+                avg_time += time_range.getRangeNS();
+            }
+            return avg_time/time_ranges.size();
+
         }
-        return avg_time/time_ranges.size();
+        return 0;
     }
 
     FuncProfilerTreeNode *getParent() {

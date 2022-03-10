@@ -2,6 +2,7 @@
 // Created by shenk on 21.12.2021.
 //
 
+#include <QTextStream>
 #include "parsers.h"
 #include "../../../types/FuncProfiler.h"
 #include "../../../types/TimeRange.h"
@@ -226,19 +227,21 @@ std::optional<CpusSoftirqData> parseSoftirqFile(const QString &filename) {
     return cpus_sirq;
 }
 
-void _parseProfilerData(QFile &file, FuncProfilerTreeNode *parent, quint64 enter_time) {
+#include <QDebug>
+void _parseProfilerData(QTextStream &in, FuncProfilerTreeNode *parent, quint64 enter_time) {
 
     bool is_return = false;
-    while (!(is_return || file.atEnd()) ) {
+    while (!(is_return || in.atEnd()) ) {
 
-        QString line = file.readLine();
+        QString line = in.readLine();
+        qDebug() << "Line";
         QStringList profiler_tokens = line.split(' ');
 
         if (profiler_tokens[0] == "enter") {
 
             auto child = new FuncProfilerTreeNode(
                     profiler_tokens[1], profiler_tokens[3].toInt(), parent);
-            _parseProfilerData(file, child, profiler_tokens[2].toULongLong());
+            _parseProfilerData(in, child, profiler_tokens[2].toULongLong());
             parent->addChildrenAsTime(child);
 
         } else if (profiler_tokens[0] == "return") {
@@ -262,7 +265,6 @@ void _parseProfilerData(QFile &file, FuncProfilerTreeNode *parent, quint64 enter
 
 std::optional<FuncProfilerTreeNode*> parseProfilerData(const QString &filename) {
 
-    QStack<QStringList> stack;
     QFile file(filename);
 
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
@@ -270,25 +272,27 @@ std::optional<FuncProfilerTreeNode*> parseProfilerData(const QString &filename) 
         return std::nullopt;
     }
 
+    QTextStream in(file.read(131000));
+
     auto *root = new FuncProfilerTreeNode("root", 0, NULL);
 
     do {
 
-        QString line = file.readLine();
+        QString line = in.readLine();
         QStringList profiler_tokens = line.split(' ');
 
         if (profiler_tokens[0] == "enter") {
 
             auto child = new FuncProfilerTreeNode(
                     profiler_tokens[1], profiler_tokens[3].toInt(), root);
-            _parseProfilerData(file, child, profiler_tokens[2].toULongLong());
+            _parseProfilerData(in, child, profiler_tokens[2].toULongLong());
             root->addChildrenAsTime(child);
 
         } else if (profiler_tokens[0] == "return") {
             std::cout << "Warning: return at top level" << std::endl;
         }
 
-    } while (!file.atEnd());
+    } while (!in.atEnd());
 
     return root;
 }

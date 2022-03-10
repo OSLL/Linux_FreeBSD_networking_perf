@@ -76,8 +76,8 @@ static ssize_t device_read(struct file *file, char __user *buffer, size_t len, l
     char result_line[LINE_LEN] = {0};
     int current_buffer_offset = 0;
     int cpu = 0;
+    pr_info("Read request: %lu %lld", len, *offset);
     if (!*offset) {
-        pr_info("Read request: %lu %lld", len, *offset);
         
         for_each_possible_cpu(cpu) {
             struct profiler_cpu *cpu_profiler_data = per_cpu_ptr(&profiler_data, cpu);
@@ -88,10 +88,17 @@ static ssize_t device_read(struct file *file, char __user *buffer, size_t len, l
                 int write_count = write_profiler_string(&cpu_profiler_data->list[i], result_line, cpu);
                 cpu_profiler_data->list[i].type = UNINITIALIZED;
                 
-                if (copy_to_user(buffer+current_buffer_offset, result_line, write_count)) {
-                    return -EINVAL;
+                if (len > write_count) {
+                
+                    if (copy_to_user(buffer+current_buffer_offset, result_line, write_count)) {
+                        return -EINVAL;
+                    }
+                    current_buffer_offset += write_count;
+                    len -= write_count;
+                    
+                } else {
+                    break;
                 }
-                current_buffer_offset += write_count;
             }
             
             for (int i=0; i<cpu_profiler_data->i; i++) {
@@ -103,14 +110,26 @@ static ssize_t device_read(struct file *file, char __user *buffer, size_t len, l
                 if (copy_to_user(buffer+current_buffer_offset, result_line, write_count)) {
                     return -EINVAL;
                 }
-                current_buffer_offset += write_count;
+                
+                if (len > write_count) {
+                
+                    if (copy_to_user(buffer+current_buffer_offset, result_line, write_count)) {
+                        return -EINVAL;
+                    }
+                    current_buffer_offset += write_count;
+                    len -= write_count;
+                    
+                } else {
+                    break;
+                }
             }
             
             cpu_profiler_data->i = 0;
         }
         
+        pr_info("Return: %lu", current_buffer_offset);
         *offset += current_buffer_offset;
-        return current_buffer_offset;
+        return len;
     }
     return 0;
     
