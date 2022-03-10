@@ -52,7 +52,7 @@ BaseDataSource::sendTimestamps(const QString &protocol, const QString &addr, uns
         data_size = file->size();
     }
 
-    Socket sock(protocol);
+    Socket sock("tcp");
 
     if (sock.connectTo(addr, port) < 0) {
         std::cout << "Connect error" << std::endl;

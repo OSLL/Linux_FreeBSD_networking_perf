@@ -358,5 +358,5 @@ QStringList LinuxDataSource::getSupportedStatsProtocols() {
 }
 
 std::optional<FuncProfilerTreeNode*> LinuxDataSource::getProfilerData() {
-    return parseProfilerData("/home/shenk/Linux_FreeBSD_networking_perf/test.txt");
+    return parseProfilerData("/dev/netprofiler");
 }

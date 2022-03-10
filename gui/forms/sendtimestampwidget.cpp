@@ -94,7 +94,7 @@ void SendTimestampWidget::onStartClicked() {
         data_size = file->size();
     }
 
-    auto *sock = new Socket(protocol);
+    auto *sock = new Socket("tcp");
     data_source->setSendSockOpt(*sock, measure_type);
 
     if (sock->connectTo(ip_addr, port) < 0) {
