@@ -38,13 +38,20 @@ add_executable(lfnp main.cpp datasources/BaseDataSource.h utils/utils.h utils/ut
         types/enums/UnitsPrefixes.h types/BandwidthChart.h gui/forms/sendbandwidthwidget.h
         gui/forms/sendbandwidthwidget.cpp gui/forms/sendbandwidthwidget.ui gui/threads/BandwidthSenderThread.h
         gui/forms/bandwidthwidget.cpp gui/forms/bandwidthwidget.h gui/forms/bandwidthwidget.h
-        gui/forms/bandwidthwidget.cpp gui/forms/bandwidthwidget.ui datasources/netmap/netmap.h datasources/netmap/netmap.cpp types/FuncProfiler.h)
+        gui/forms/bandwidthwidget.cpp gui/forms/bandwidthwidget.ui datasources/netmap/netmap.h
+        datasources/netmap/netmap.cpp types/FuncProfiler.h)
 
 target_link_libraries(lfnp
         Qt5::Core
         Qt5::Widgets
         Qt5::Charts)
 target_link_libraries(lfnp Threads::Threads)
+
+find_library(DTRACE_LIBRARY NAMES dtrace)
+if (DTRACE_LIBRARY)
+    target_link_libraries(lfnp dtrace)
+    target_sources(lfnp PUBLIC datasources/dtrace/DTrace.h datasources/dtrace/DTrace.cpp)
+endif()
 
 if (${CMAKE_SYSTEM_NAME} MATCHES Linux)
     target_sources(lfnp PUBLIC datasources/linux/LinuxDataSource.h datasources/linux/LinuxDataSource.cpp)

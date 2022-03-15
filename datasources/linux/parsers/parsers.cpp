@@ -234,7 +234,6 @@ void _parseProfilerData(QTextStream &in, FuncProfilerTreeNode *parent, quint64 e
     while (!(is_return || in.atEnd()) ) {
 
         QString line = in.readLine();
-        qDebug() << "Line";
         QStringList profiler_tokens = line.split(' ');
 
         if (profiler_tokens[0] == "enter") {

@@ -230,3 +230,8 @@ QStringList FreeBSDDataSource::getSupportedSocketsListProtocols() {
 QStringList FreeBSDDataSource::getSupportedStatsProtocols() {
     return FreeBSDDataSource::protocol_stats_sysctl_names.keys();
 }
+
+std::optional<FuncProfilerTreeNode *> FreeBSDDataSource::getProfilerData() {
+    DTrace dTrace;
+    return std::nullopt;
+}
