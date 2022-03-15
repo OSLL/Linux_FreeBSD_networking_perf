@@ -48,6 +48,7 @@
 
 #include "../BaseDataSource.h"
 #include "../dtrace/DTrace.h"
+#include "../parsers/parsers.h"
 
 class FreeBSDDataSource: public BaseDataSource {
 

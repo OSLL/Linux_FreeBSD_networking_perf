@@ -233,5 +233,7 @@ QStringList FreeBSDDataSource::getSupportedStatsProtocols() {
 
 std::optional<FuncProfilerTreeNode *> FreeBSDDataSource::getProfilerData() {
     DTrace dTrace;
-    return std::nullopt;
+    auto file = dTrace.start();
+    QTextStream stream(file.get());
+    return parseProfilerData(stream);
 }
