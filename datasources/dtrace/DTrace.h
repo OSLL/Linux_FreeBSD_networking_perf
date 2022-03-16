@@ -14,6 +14,14 @@ class DTrace {
 private:
 
     dtrace_hdl_t *dtrace;
+    QString program_text;
+    QSet<QString> probes;
+
+    static int dtrace_probe_func(dtrace_hdl_t * dtrace, const dtrace_probedesc_t *desc, void *args) {
+        auto dTrace = (DTrace *)args;
+        dTrace->probes.insert(desc->dtpd_func);
+        return 0;
+    }
 
     static int dtrace_process_rec(const dtrace_probedata_t *data, const dtrace_recdesc_t *rec, void *arg){
         return DTRACE_CONSUME_THIS;
@@ -27,6 +35,7 @@ public:
 
     DTrace();
     std::unique_ptr<QFile> start();
+    void addProbe(const QString &func_name);
     ~DTrace();
 
 };

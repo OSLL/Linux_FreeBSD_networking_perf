@@ -231,9 +231,23 @@ QStringList FreeBSDDataSource::getSupportedStatsProtocols() {
     return FreeBSDDataSource::protocol_stats_sysctl_names.keys();
 }
 
+#define PROFILER(func_name) dTrace.addProbe(func_name);
 std::optional<FuncProfilerTreeNode *> FreeBSDDataSource::getProfilerData() {
     DTrace dTrace;
+
+    PROFILER("ip_input")
+    PROFILER("tcp_input")
+    PROFILER("tcp_do_segment")
+    PROFILER("bbr_do_segment")
+    PROFILER("rack_do_segment")
+    PROFILER("soreceive_stream")
+    PROFILER("soreceive_dgram")
+    PROFILER("soreceive")
+
+    qDebug() << "Starting...";
     auto file = dTrace.start();
+    qDebug() << "Exit start...";
     QTextStream stream(file.get());
     return parseProfilerData(stream);
 }
+#undef PROFILER

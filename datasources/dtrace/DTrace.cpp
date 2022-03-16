@@ -7,22 +7,12 @@
 #include <QThread>
 #include <QTemporaryFile>
 
-DTrace::DTrace() {
+DTrace::DTrace(): program_text("") {
 
     int error = 0;
     dtrace = dtrace_open(DTRACE_VERSION, 0, &error);
 
-    dtrace_prog_t *prog = dtrace_program_strcompile(dtrace,
-                                                   "fbt:kernel:tcp_input:entry {printf(\"enter tcp_input %d %d\\n\", timestamp, cpu);} "
-                                                   "fbt:kernel:tcp_input:return {printf(\"return tcp_input %d %d\\n\", timestamp, cpu);}",
-                                                    DTRACE_PROBESPEC_NAME, 0, 0, NULL);
-
-    dtrace_proginfo_t info;
-    error = dtrace_program_exec(dtrace, prog, &info);
-    if (error == -1) {
-        int dt_error = dtrace_errno(dtrace);
-        qDebug() << "Error: dtrace_program_exec " << dtrace_errmsg(dtrace, dt_error);
-    }
+    dtrace_probe_iter(dtrace, NULL, dtrace_probe_func, this);
 
     error = dtrace_setopt(dtrace, "bufsize", "512k");
     if (error == -1) {
@@ -50,6 +40,16 @@ std::unique_ptr<QFile> DTrace::start() {
     int error = 0;
     FILE* tmp_file = tmpfile();
 
+    dtrace_prog_t *prog = dtrace_program_strcompile(dtrace, program_text.toLocal8Bit().data(),
+                                                    DTRACE_PROBESPEC_NAME, 0, 0, NULL);
+
+    dtrace_proginfo_t info;
+    error = dtrace_program_exec(dtrace, prog, &info);
+    if (error == -1) {
+        int dt_error = dtrace_errno(dtrace);
+        qDebug() << "Error: dtrace_program_exec " << dtrace_errmsg(dtrace, dt_error);
+    }
+
     error = dtrace_go(dtrace);
     if (error == -1) {
         int dt_error = dtrace_errno(dtrace);
@@ -73,4 +73,15 @@ std::unique_ptr<QFile> DTrace::start() {
 
     return file;
 }
+
+#define PROFILER(func_name) "fbt:kernel:" + func_name + ":entry {printf(\"enter " + func_name + " %d %d\\n\", timestamp, cpu);} " \
+"fbt:kernel:" + func_name + ":return {printf(\"return " + func_name + " %d %d\\n\", timestamp, cpu);}"
+void DTrace::addProbe(const QString &func_name) {
+
+    if (probes.contains(func_name)) {
+        program_text += PROFILER(func_name);
+    }
+
+}
+#undef PROFILER
 

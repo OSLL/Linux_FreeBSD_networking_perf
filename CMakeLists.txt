@@ -47,10 +47,12 @@ target_link_libraries(lfnp
         Qt5::Charts)
 target_link_libraries(lfnp Threads::Threads)
 
-find_library(DTRACE_LIBRARY NAMES dtrace)
+find_library(DTRACE_LIBRARY dtrace)
 if (DTRACE_LIBRARY)
+    message("DTrace found")
     target_link_libraries(lfnp dtrace)
     target_sources(lfnp PUBLIC datasources/dtrace/DTrace.h datasources/dtrace/DTrace.cpp)
+    add_compile_definitions(WITH_DTRACE)
 endif()
 
 if (${CMAKE_SYSTEM_NAME} MATCHES Linux)
