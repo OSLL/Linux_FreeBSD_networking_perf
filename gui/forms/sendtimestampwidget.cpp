@@ -105,7 +105,7 @@ void SendTimestampWidget::onStartClicked() {
 
     recreateChart(packets_count, is_us);
 
-    sender_thread = new TimestampsSenderThread(sock, protocol, file, data_size, zero_copy, data_source, packets_count, delay, measure_type);
+    sender_thread = new TimestampsSenderThread(sock, ip_addr, protocol, file, data_size, zero_copy, data_source, packets_count, delay, measure_type);
 
     QObject::connect(sender_thread, &TimestampsSenderThread::packetSent, this, &SendTimestampWidget::onPacketSent);
     QObject::connect(sender_thread, &TimestampsSenderThread::finished, this, &SendTimestampWidget::onThreadFinished);

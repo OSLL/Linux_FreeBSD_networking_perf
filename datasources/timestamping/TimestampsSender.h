@@ -28,7 +28,7 @@ protected:
 
 public:
 
-    TimestampsSender(Socket &_sock, const QString &protocol, std::unique_ptr<QFile> &_file, quint64 _data_size, bool _zero_copy,
+    TimestampsSender(Socket &_sock, const QString &send_addr, const QString &protocol, std::unique_ptr<QFile> &_file, quint64 _data_size, bool _zero_copy,
                      BaseDataSource *ds, MeasureType measure_type);
 
     std::optional<SendTimestamp> sendOne();

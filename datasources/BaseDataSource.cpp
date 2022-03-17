@@ -66,7 +66,7 @@ BaseDataSource::sendTimestamps(const QString &protocol, const QString &addr, uns
     }
     auto mt = o_mt.value();
 
-    TimestampsSender sender(sock, protocol, file, data_size, zero_copy, this, mt);
+    TimestampsSender sender(sock, addr, protocol, file, data_size, zero_copy, this, mt);
 
     for (int i=0; i<packets_count; i++) {
 

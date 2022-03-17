@@ -3,8 +3,8 @@
 //
 
 #include "TimestampsSender.h"
-
-TimestampsSender::TimestampsSender(Socket &_sock, const QString &protocol, std::unique_ptr<QFile> &_file, quint64 _data_size, bool _zero_copy,
+#include <QDebug>
+TimestampsSender::TimestampsSender(Socket &_sock, const QString &send_addr, const QString &protocol, std::unique_ptr<QFile> &_file, quint64 _data_size, bool _zero_copy,
                                    BaseDataSource *ds, MeasureType measure_type):
                                    control_sock(_sock), send_sock(protocol), file(std::move(_file)), data_size(_data_size), zero_copy(_zero_copy),
                                    data_source(ds) {
@@ -13,12 +13,13 @@ TimestampsSender::TimestampsSender(Socket &_sock, const QString &protocol, std::
         data = file->read(data_size);
     }
 
+    data_size = data.size();
     control_sock.sendData(&data_size);
 
     unsigned int send_port = 0;
     control_sock.receiveData(&send_port);
 
-    send_sock.connectTo(control_sock.getAddr(), send_port);
+    send_sock.connectTo(send_addr, send_port);
     data_source->setSendSockOpt(send_sock, measure_type);
 }
 

@@ -251,7 +251,7 @@ void LinuxDataSource::setSendSockOpt(Socket &sock, const MeasureType measure_typ
 void LinuxDataSource::processSendTimestamp(Socket &sock, SendTimestamp &res, TimeRange &timestamps) {
 
     auto protocol = sock.getProtocol();
-    if (!(protocol == "tcp" || protocol == "udp")) return;
+    if (protocol.startsWith("sctp") || protocol.startsWith("mptcp")) return;
 
     char control[1000];
     memset(control, 0, sizeof(control));

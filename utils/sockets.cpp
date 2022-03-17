@@ -118,26 +118,26 @@ std::optional<TimeRange> Socket::receiveMsgTS(msghdr &msg, int flags) {
 int Socket::connectTo(const QString &ip_addr, unsigned int port) {
 
     if (sock_domain == AF_INET) {
-        sockaddr_in addr {
+        sockaddr_in sock_addr {
                 .sin_family = AF_INET,
                 .sin_port = htons(port)
         };
-        inet_aton(ip_addr.toLocal8Bit().data(), &addr.sin_addr);
+        inet_aton(ip_addr.toLocal8Bit().data(), &sock_addr.sin_addr);
 
-        return connect(this->sock_descriptor, (sockaddr *)&addr, sizeof(addr));
+        return connect(this->sock_descriptor, (sockaddr *)&sock_addr, sizeof(sock_addr));
     } else if (sock_domain == AF_INET6) {
 
-        sockaddr_in6 addr6 {
+        sockaddr_in6 sock_addr6 {
             .sin6_family = AF_INET6,
             .sin6_port = htons(port)
         };
 
         if (ip_addr == "127.0.0.1") {
-            inet_pton(AF_INET6, "::1", &addr6.sin6_addr);
+            inet_pton(AF_INET6, "::1", &sock_addr6.sin6_addr);
         } else {
-            inet_pton(AF_INET6, ip_addr.toLocal8Bit().data(), &addr6.sin6_addr);
+            inet_pton(AF_INET6, ip_addr.toLocal8Bit().data(), &sock_addr6.sin6_addr);
         }
-        return connect(this->sock_descriptor, (sockaddr *)&addr6, sizeof(addr6));
+        return connect(this->sock_descriptor, (sockaddr *)&sock_addr6, sizeof(sock_addr6));
     }
 
     return 0;
