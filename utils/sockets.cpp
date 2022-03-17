@@ -220,17 +220,16 @@ int Socket::sendFile(int file_descriptor, size_t data_size) {
 //TODO: IPV6?
 unsigned int Socket::getPort() {
 
-    sockaddr addr;
-    socklen_t len;
-    getsockname(sock_descriptor, &addr, &len);
+    sockaddr saddr;
+    socklen_t len = sizeof(sockaddr);
+    getsockname(sock_descriptor, &saddr, &len);
     if (sock_domain == AF_INET6) {
-        auto *ipaddr6 = (sockaddr_in6*)&addr;
+        auto *ipaddr6 = (sockaddr_in6*)&saddr;
         return ntohs(ipaddr6->sin6_port);
     } else if (sock_domain == AF_INET) {
-        auto *ipaddr = (sockaddr_in*)&addr;
+        auto *ipaddr = (sockaddr_in*)&saddr;
         return ntohs(ipaddr->sin_port);
     }
-
     return 0;
 }
 
