@@ -79,6 +79,8 @@ public:
     std::optional<TimeRange> sendFileTS(int file_descriptor, size_t data_size);
 
     static QStringList getSupportedProtocols();
+    int getDomain() const;
+    int getType() const;
 };
 
 #endif //LFNP_SOCKETS_H

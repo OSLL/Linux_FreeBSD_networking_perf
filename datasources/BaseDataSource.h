@@ -70,7 +70,7 @@ public:
 
     virtual void setRecvSockOpt(Socket &sock)=0;
     virtual void
-    processRecvTimestamp(msghdr &msg, ReceiveTimestamp &res, timespec &after_recv_time, const QString &protocol)=0;
+    processRecvTimestamp(msghdr &msg, ReceiveTimestamp &res, timespec &after_recv_time, const Socket &sock)=0;
 
     virtual void setSendSockOpt(Socket &sock, MeasureType measure_type)=0;
     virtual void

@@ -206,7 +206,7 @@ void LinuxDataSource::setRecvSockOpt(Socket &sock) {
 }
 
 void LinuxDataSource::processRecvTimestamp(msghdr &msg, ReceiveTimestamp &res, timespec &after_recv_time,
-                                           const QString &protocol) {
+                                           const Socket &sock) {
 
     for (cmsghdr *cmsg = CMSG_FIRSTHDR(&msg); cmsg; cmsg = CMSG_NXTHDR(&msg, cmsg)) {
 

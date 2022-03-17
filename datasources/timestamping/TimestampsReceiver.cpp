@@ -42,9 +42,9 @@ ReceiveTimestamp TimestampsReceiver::recvOne() {
 
     bool is_next;
     control_sock.receiveData(&is_next);
+    auto o_in_call_time = receive_sock.receiveMsgTS(msg, MSG_WAITALL);
 
     ReceiveTimestamp timestamp;
-    auto o_in_call_time = receive_sock.receiveMsgTS(msg, MSG_WAITALL);
     control_sock.receiveData(&timestamp.before_send);
 
     if (o_in_call_time) {
@@ -53,7 +53,7 @@ ReceiveTimestamp TimestampsReceiver::recvOne() {
         timestamp.after_recv = o_in_call_time->to;
     }
 
-    data_source->processRecvTimestamp(msg, timestamp, o_in_call_time->to, control_sock.getProtocol());
+    data_source->processRecvTimestamp(msg, timestamp, o_in_call_time->to, receive_sock);
     time_info.push_back(timestamp);
     return timestamp;
 }

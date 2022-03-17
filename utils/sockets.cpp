@@ -236,3 +236,11 @@ unsigned int Socket::getPort() {
 QString Socket::getAddr() {
     return addr;
 }
+
+int Socket::getDomain() const {
+    return sock_domain;
+}
+
+int Socket::getType() const {
+    return sock_type;
+}

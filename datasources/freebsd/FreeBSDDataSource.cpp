@@ -122,7 +122,7 @@ std::optional<QMap<int, int>> FreeBSDDataSource::getCPUDistribution(CPUDistribut
 
 void FreeBSDDataSource::setRecvSockOpt(Socket &sock) {
 
-    if (sock.getProtocol() == "udp") {
+    if (sock.getType() == SOCK_DGRAM) {
         int val = 1;
         sock.setOpt(SOL_SOCKET, SO_TIMESTAMP, &val, sizeof(val));
     }
@@ -130,9 +130,9 @@ void FreeBSDDataSource::setRecvSockOpt(Socket &sock) {
 }
 
 void FreeBSDDataSource::processRecvTimestamp(msghdr &msg, ReceiveTimestamp &res, timespec &after_recv_time,
-                                             const QString &protocol) {
+                                             const Socket &sock) {
 
-    if (protocol == "udp") {
+    if (sock.getType() == SOCK_DGRAM) {
         for (cmsghdr *cmsg = CMSG_FIRSTHDR(&msg); cmsg; cmsg = CMSG_NXTHDR(&msg, cmsg)) {
             if (cmsg->cmsg_level == SOL_SOCKET && cmsg->cmsg_type == SCM_TIMESTAMP) {
                 auto tmst = (timespec *) CMSG_DATA(cmsg);
