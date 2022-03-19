@@ -9,6 +9,29 @@
 #include <QVector>
 #include "TimeRange.h"
 
+class FuncProfilerToken {
+
+public:
+    enum TokenType {
+        ENTER,
+        RETURN
+    };
+
+    QString func_name;
+    int cpu_index;
+    quint64 timestamp;
+    TokenType type;
+
+    FuncProfilerToken(const QString &token_line) {
+        QStringList token_list = token_line.split(' ', Qt::SkipEmptyParts);
+
+        type = token_list[0] == "enter" ? ENTER : RETURN;
+        func_name = token_list[1];
+        timestamp = token_list[2].toULongLong();
+        cpu_index = token_list[3].toInt();
+    }
+};
+
 class FuncProfilerTreeNode {
 
 private:

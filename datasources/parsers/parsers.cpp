@@ -4,61 +4,73 @@
 
 #include "parsers.h"
 
-void parseProfilerData(QTextStream &in, FuncProfilerTreeNode *parent, quint64 enter_time) {
+void parseProfilerData(const QVector<FuncProfilerToken> &tokens, int &token_index, FuncProfilerTreeNode *parent,
+                       const FuncProfilerToken &enter_token) {
 
     bool is_return = false;
-    while (!(is_return || in.atEnd()) ) {
+    while (!is_return && token_index < tokens.size()) {
+        const auto &token = tokens[token_index];
+        token_index++;
 
-        QString line = in.readLine();
-        QStringList profiler_tokens = line.split(' ');
-
-        if (profiler_tokens[0] == "enter") {
+        if (token.type == FuncProfilerToken::TokenType::ENTER) {
 
             auto child = new FuncProfilerTreeNode(
-                    profiler_tokens[1], profiler_tokens[3].toInt(), parent);
-            parseProfilerData(in, child, profiler_tokens[2].toULongLong());
+                   token.func_name, token.cpu_index, parent);
+            parseProfilerData(tokens, token_index, child, token);
             parent->addChildrenAsTime(child);
 
-        } else if (profiler_tokens[0] == "return") {
+        } else if (token.type == FuncProfilerToken::TokenType::RETURN) {
             is_return = true;
 
-            if (profiler_tokens[1] == parent->getFuncName()) {
-                quint32 cpu_index = profiler_tokens[3].toUInt();
-                parent->addRange(TimeRangeNS(enter_time, profiler_tokens[2].toULongLong()));
+            if (token.func_name == parent->getFuncName()) {
+                parent->addRange(TimeRangeNS(enter_token.timestamp, token.timestamp));
 
-                if (cpu_index != parent->getCPUIndex()) {
+                if (token.cpu_index != parent->getCPUIndex()) {
                     std::cout << "Stack warning: different enter and return CPU" << std::endl;
                 }
             } else {
                 std::cout << "Stack error: different enter and return names" << std::endl;
             }
-
         }
-
     }
 }
 
+#include <QDebug>
 std::optional<FuncProfilerTreeNode*> parseProfilerData(QTextStream &in) {
 
+    QMap<int, QVector<FuncProfilerToken>> cpu_tokens;
     auto *root = new FuncProfilerTreeNode("root", 0, NULL);
 
+    int ts=0;
     do {
 
         QString line = in.readLine();
-        QStringList profiler_tokens = line.split(' ');
-
-        if (profiler_tokens[0] == "enter") {
-
-            auto child = new FuncProfilerTreeNode(
-                    profiler_tokens[1], profiler_tokens[3].toInt(), root);
-            parseProfilerData(in, child, profiler_tokens[2].toULongLong());
-            root->addChildrenAsTime(child);
-
-        } else if (profiler_tokens[0] == "return") {
-            std::cout << "Warning: return at top level" << std::endl;
+        ts += line.size();
+        qDebug() << line << line.size() << ts;
+        if (!line.isEmpty()) {
+            auto token = FuncProfilerToken(line);
+            cpu_tokens[token.cpu_index].push_back(token);
         }
 
     } while (!in.atEnd());
+
+    for (const auto &tokens: cpu_tokens) {
+        int token_index = 0;
+        while (token_index < tokens.size()) {
+            const auto &token = tokens[token_index];
+            token_index++;
+            if (token.type == FuncProfilerToken::TokenType::ENTER) {
+
+                auto child = new FuncProfilerTreeNode(
+                        token.func_name, token.cpu_index, root);
+                parseProfilerData(tokens, token_index, child, token);
+                root->addChildrenAsTime(child);
+
+            } else if (token.type == FuncProfilerToken::TokenType::RETURN) {
+                std::cout << "Warning: return at top level" << std::endl;
+            }
+        }
+    }
 
     return root;
 
@@ -73,7 +85,10 @@ std::optional<FuncProfilerTreeNode*> parseProfilerData(const QString &filename) 
         return std::nullopt;
     }
 
-    QTextStream in(file.read(131000));
+    auto data = file.read(131000);
+    qDebug() << data.size();
+    QTextStream in(data);
+
     return parseProfilerData(in);
 
 }
