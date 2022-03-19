@@ -2,7 +2,6 @@
 
 #include <utility>
 #include "ui_trackvaluewidget.h"
-#include "../../types/AdvancedChart.h"
 
 TrackValueWidget::TrackValueWidget(std::function<int()> _get_value_func, const QString &prop_name, QWidget *parent) :
     QWidget(parent),
@@ -13,12 +12,14 @@ TrackValueWidget::TrackValueWidget(std::function<int()> _get_value_func, const Q
     ui->setupUi(this);
     value = get_value_func();
 
-    auto chart = new AdvancedChart(value-1, value+1);
+    auto chart = new AdvancedChart(value-1, value+1, new QDateTimeAxis);
     chart->addSeries(series);
     series->append(value);
     series->setName(prop_name);
+    chart->getYAxis()->setTitleText(prop_name);
 
     chart_view.setChart(chart);
+    chart_view.setRenderHint(QPainter::Antialiasing);
     ui->chartLayout->addWidget(&chart_view);
 
     update_timer.setInterval(1000);

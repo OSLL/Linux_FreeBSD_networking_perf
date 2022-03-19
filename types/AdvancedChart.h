@@ -37,12 +37,44 @@ protected:
         }
 
         if (auto_scroll) {
+            qreal current_max = 0;
+            qreal current_min = 0;
+            switch (x_axis->type()) {
 
-            auto value_axis = dynamic_cast<QValueAxis*>(x_axis);
-            if (value_axis) {
-                if (point.x() > value_axis->max()) {
-                    auto delta = point.x() - value_axis->max();
-                    value_axis->setRange(value_axis->min() + delta, value_axis->max() + delta);
+                case QtCharts::QAbstractAxis::AxisTypeDateTime: {
+                    auto date_axis = dynamic_cast<QDateTimeAxis*>(x_axis);
+                    if (date_axis) {
+                         current_max = date_axis->max().toMSecsSinceEpoch();
+                         current_min = date_axis->min().toMSecsSinceEpoch();;
+                    }
+                    break;
+                }
+
+                default: {
+                    auto value_axis = dynamic_cast<QValueAxis*>(x_axis);
+                    if (value_axis) {
+                        current_max = value_axis->max();
+                        current_min = value_axis->min();
+                    }
+                    break;
+                }
+            }
+
+
+            if (point.x() > current_max) {
+                auto delta = point.x() - current_max;
+                switch (x_axis->type()) {
+                    case QtCharts::QAbstractAxis::AxisTypeDateTime: {
+                        x_axis->setRange(QDateTime::fromMSecsSinceEpoch(current_min + delta),
+                                         QDateTime::fromMSecsSinceEpoch(current_max + delta));
+                        break;
+                    }
+
+                    default: {
+                        x_axis->setRange(current_min + delta, current_max + delta);
+                        break;
+                    }
+
                 }
             }
         }
@@ -91,7 +123,17 @@ public:
         addAxis(y_axis, Qt::AlignmentFlag::AlignLeft);
         addAxis(x_axis, Qt::AlignmentFlag::AlignBottom);
 
-        x_axis->setRange(0, 100);
+        switch (x->type()) {
+            case QtCharts::QAbstractAxis::AxisTypeDateTime: {
+                QDateTime momentInTime = QDateTime::currentDateTime();
+                x_axis->setRange(momentInTime, momentInTime.addSecs(100));
+                break;
+            }
+            default: {
+                x_axis->setRange(0, 100);
+                break;
+            }
+        }
     }
 
     void addSeries(QXYSeries *series) {

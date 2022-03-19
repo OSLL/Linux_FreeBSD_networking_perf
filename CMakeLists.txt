@@ -18,7 +18,7 @@ add_executable(lfnp main.cpp datasources/BaseDataSource.h utils/utils.h utils/ut
         datasources/iperf3/iperf3.cpp datasources/iperf3/iperf3.h datasources/BaseDataSource.cpp
         cli/cli_main.cpp cli/cli_main.h gui/gui_main.cpp gui/gui_main.h gui/forms/mainwindow.h
         gui/forms/mainwindow.cpp gui/forms/mainwindow.ui gui/forms/cpudistributionwidget.h
-        gui/forms/cpudistributionwidget.cpp gui/forms/cpudistributionwidget.ui types/series/TimeSeries.h
+        gui/forms/cpudistributionwidget.cpp gui/forms/cpudistributionwidget.ui types/series/CounterSeries.h
         types/DropsInfo.h types/enums/CPUDistributionSource.h
         gui/forms/recvtimestampwidget.cpp gui/forms/recvtimestampwidget.h gui/forms/recvtimestampwidget.ui
         utils/default_args.h types/enums/MeasureType.h types/enums/BaseEnum.h
@@ -39,7 +39,7 @@ add_executable(lfnp main.cpp datasources/BaseDataSource.h utils/utils.h utils/ut
         gui/forms/sendbandwidthwidget.cpp gui/forms/sendbandwidthwidget.ui gui/threads/BandwidthSenderThread.h
         gui/forms/bandwidthwidget.cpp gui/forms/bandwidthwidget.h gui/forms/bandwidthwidget.h
         gui/forms/bandwidthwidget.cpp gui/forms/bandwidthwidget.ui datasources/netmap/netmap.h
-        datasources/netmap/netmap.cpp types/FuncProfiler.h datasources/parsers/parsers.cpp datasources/parsers/parsers.h)
+        datasources/netmap/netmap.cpp types/FuncProfiler.h datasources/parsers/parsers.cpp datasources/parsers/parsers.h types/series/TimeSeries.h)
 
 target_link_libraries(lfnp
         Qt5::Core

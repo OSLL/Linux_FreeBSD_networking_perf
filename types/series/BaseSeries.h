@@ -11,7 +11,6 @@ class BaseSeries: public T {
 public:
 
     virtual void append(H)=0;
-    virtual void replace(QVector<H>)=0;
 
 };
 

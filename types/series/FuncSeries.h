@@ -25,19 +25,7 @@ public:
     }
 
     void setFunc(const std::function<H(V)> &_func) {
-
         func = _func;
-
-    }
-
-    void replace(QVector<V> values) override {
-
-        QVector<H> func_values;
-        for (const auto& v: values) {
-            func_values.push_back(func(v));
-        }
-
-        T::replace(func_values);
     }
 
 };

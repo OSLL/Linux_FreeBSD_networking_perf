@@ -67,7 +67,7 @@ private:
 
 public:
 
-    BandwidthChart(UnitsPrefixes _prefix, BandwidthUnits _unit): AdvancedChart() {
+    BandwidthChart(UnitsPrefixes _prefix, BandwidthUnits _unit): AdvancedChart(0, 1, new QDateTimeAxis) {
         current_prefix = _prefix;
         current_unit = _unit;
 
@@ -90,16 +90,6 @@ public:
     void addSeries(BandwidthSeries **series) {
         *series = new BandwidthSeries(get_value_func);
         AdvancedChart::addSeries(*series);
-    }
-
-    void clear() {
-        AdvancedChart::clear();
-        for (auto *series: series()) {
-            auto bandwidth_series = dynamic_cast<BandwidthSeries *>(series);
-            if (bandwidth_series) {
-                bandwidth_series->resetCounter();
-            }
-        }
     }
 
 };

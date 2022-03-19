@@ -5,6 +5,7 @@
 #include <QTimer>
 #include <QtCharts>
 
+#include "../../types/AdvancedChart.h"
 #include "../../datasources/BaseDataSource.h"
 #include "../../types/series/TimeSeries.h"
 

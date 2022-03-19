@@ -16,8 +16,7 @@ CPUDistributionWidget::CPUDistributionWidget(BaseDataSource *ds, QWidget *parent
     if (o_cpu_distribution) {
         auto cpu_distribution = o_cpu_distribution.value();
 
-        auto *chart = new AdvancedChart();
-        chart->getXAxis()->setRange(0, 100);
+        auto *chart = new AdvancedChart(0, 1, new QDateTimeAxis);
 
         for (auto it=cpu_distribution.begin(); it != cpu_distribution.end(); it++) {
             series.push_back(new TimeSeries<QLineSeries>());

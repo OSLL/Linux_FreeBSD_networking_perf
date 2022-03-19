@@ -105,7 +105,8 @@ void RecvBandwidthWidget::onFinished() {
 
 void RecvBandwidthWidget::onDuration(quint64 duration) {
 
-    chart->getXAxis()->setRange(0, duration);
+    auto current = QDateTime::currentDateTime();
+    chart->getXAxis()->setRange(current, current.addSecs(duration));
 
 }
 

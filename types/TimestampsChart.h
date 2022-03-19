@@ -5,11 +5,11 @@
 #ifndef LFNP_TIMESTAMPSCHART_H
 #define LFNP_TIMESTAMPSCHART_H
 
-#include "series/TimeSeries.h"
+#include "series/CounterSeries.h"
 #include "series/FuncSeries.h"
 #include "AdvancedChart.h"
 
-typedef FuncSeries<TimeSeries<QLineSeries>, qreal, quint64> TimestampSeries;
+typedef FuncSeries<CounterSeries<QLineSeries>, qreal, quint64> TimestampSeries;
 
 class TimestampsChart: public AdvancedChart {
 
@@ -27,6 +27,7 @@ private:
         } else {
             y_axis->setTitleText(tr("Time, ns"));
         }
+        getXAxis()->setTitleText("Packet number");
     }
 
 public:
@@ -70,7 +71,6 @@ public:
             auto timestamp_series = dynamic_cast<TimestampSeries*>(series);
             if (timestamp_series) {
                 timestamp_series->resetCounter();
-
             }
         }
     }
