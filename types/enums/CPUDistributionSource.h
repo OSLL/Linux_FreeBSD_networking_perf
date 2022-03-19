@@ -17,7 +17,7 @@ enum CPUDistributionSource {
 const Enum<CPUDistributionSource> cpu_distribution_source_enum({
 #ifdef __linux__
         {SOFTIRQ_NET_RX, "net-rx"},
-        {SOFTIRQ_NET_TX, "net-rx"},
+        {SOFTIRQ_NET_TX, "net-tx"},
         {SOFTNET_PROCESSED, "softnet-processed"},
 #else
         {NETISR_PROCESSED, "netisr"}

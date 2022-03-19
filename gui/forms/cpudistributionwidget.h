@@ -29,10 +29,13 @@ private:
     QTimer *timer;
     QVector<TimeSeries<QLineSeries>*> series;
     BaseDataSource *data_source;
+    AdvancedChart *chart;
     QChartView *chart_view;
+    CPUDistributionSource source;
 
 private slots:
     void onTimerTimeout();
+    void onSourceChanged(const QString &_source);
 };
 
 #endif // CPUDISTRIBUTIONWIDGET_H
