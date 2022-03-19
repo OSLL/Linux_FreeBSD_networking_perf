@@ -9,7 +9,6 @@
 #include <QGraphicsItem>
 
 //TODO: линии сверху и снизу
-//TODO: поддержка datetimeseries
 //TODO: выбор отображаемых series в ПКМ
 //TODO: отображение среднего
 class AdvancedChart: public QChart {

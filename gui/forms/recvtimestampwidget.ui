@@ -19,15 +19,6 @@
      <property name="spacing">
       <number>6</number>
      </property>
-     <item>
-      <widget class="QWidget" name="controlWidget" native="true">
-       <property name="maximumSize">
-        <size>
-         <width>16777215</width>
-         <height>250</height>
-        </size>
-       </property>
-       <layout class="QVBoxLayout" name="verticalLayout">
         <item>
          <layout class="QHBoxLayout" name="protocolLayout">
           <item>
@@ -107,9 +98,6 @@
         <item>
          <layout class="QVBoxLayout" name="startStopLayout"/>
         </item>
-       </layout>
-      </widget>
-     </item>
     </layout>
    </item>
    <item>
