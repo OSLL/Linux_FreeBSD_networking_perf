@@ -22,9 +22,7 @@ public:
     quint64 timestamp;
     TokenType type;
 
-    FuncProfilerToken(const QString &token_line) {
-        QStringList token_list = token_line.split(' ', Qt::SkipEmptyParts);
-
+    FuncProfilerToken(const QStringList &token_list) {
         type = token_list[0] == "enter" ? ENTER : RETURN;
         func_name = token_list[1];
         timestamp = token_list[2].toULongLong();

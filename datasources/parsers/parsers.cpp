@@ -35,7 +35,7 @@ void parseProfilerData(const QVector<FuncProfilerToken> &tokens, int &token_inde
     }
 }
 
-#include <QDebug>
+#define TOKENS_COUNT 4
 std::optional<FuncProfilerTreeNode*> parseProfilerData(QTextStream &in) {
 
     QMap<int, QVector<FuncProfilerToken>> cpu_tokens;
@@ -46,9 +46,9 @@ std::optional<FuncProfilerTreeNode*> parseProfilerData(QTextStream &in) {
 
         QString line = in.readLine();
         ts += line.size();
-        qDebug() << line << line.size() << ts;
-        if (!line.isEmpty()) {
-            auto token = FuncProfilerToken(line);
+        QStringList token_list = line.split(' ', Qt::SkipEmptyParts);
+        if (token_list.size() == TOKENS_COUNT) {
+            auto token = FuncProfilerToken(token_list);
             cpu_tokens[token.cpu_index].push_back(token);
         }
 
@@ -85,9 +85,7 @@ std::optional<FuncProfilerTreeNode*> parseProfilerData(const QString &filename) 
         return std::nullopt;
     }
 
-    auto data = file.read(131000);
-    qDebug() << data.size();
-    QTextStream in(data);
+    QTextStream in(file.read(131000));
 
     return parseProfilerData(in);
 
