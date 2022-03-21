@@ -76,7 +76,7 @@ static ssize_t device_read(struct file *file, char __user *buffer, size_t len, l
     char result_line[LINE_LEN] = {0};
     int current_buffer_offset = 0;
     int cpu = 0;
-    pr_info("Request: %d", len, *offset);
+    pr_info("Request: %d %d", len, *offset);
     if (!*offset) {
         
         for_each_possible_cpu(cpu) {
@@ -103,7 +103,7 @@ static ssize_t device_read(struct file *file, char __user *buffer, size_t len, l
         }
 
         *offset += current_buffer_offset;
-        return len;
+        return current_buffer_offset;
     }
     return 0;
     

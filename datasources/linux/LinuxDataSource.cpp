@@ -4,6 +4,7 @@
 
 #include <QDir>
 #include "LinuxDataSource.h"
+#include "../parsers/parsers.h"
 
 QMap<QString, QString> LinuxDataSource::protocol_sockets_files  = {
         {"tcp",      "/proc/net/tcp"},
@@ -358,5 +359,6 @@ QStringList LinuxDataSource::getSupportedStatsProtocols() {
 }
 
 std::optional<FuncProfilerTreeNode*> LinuxDataSource::getProfilerData() {
-    return parseProfilerData("/dev/netprofiler");
+    ProfilerParser parser("/dev/netprofiler");
+    return parser.getProfilerTree();
 }

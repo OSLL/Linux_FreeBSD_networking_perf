@@ -248,6 +248,7 @@ std::optional<FuncProfilerTreeNode *> FreeBSDDataSource::getProfilerData() {
     auto file = dTrace.start();
     qDebug() << "Exit start...";
     QTextStream stream(file.get());
-    return parseProfilerData(stream);
+    ProfilerParser parser(stream);
+    return parser.getProfilerTree();
 }
 #undef PROFILER
