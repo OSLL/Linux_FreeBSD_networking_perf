@@ -52,7 +52,8 @@ std::function<void()> Iperf3::openFile(QTabWidget *tab_widget) {
             auto o_result = parseIperf3Output(file_name);
             if (o_result) {
                 auto *widget = new BandwidthWidget(o_result.value(), {BandwidthUnits::BITS});
-                tab_widget->addTab(widget, file_name.split('/').last());
+                int index = tab_widget->addTab(widget, file_name.split('/').last());
+                tab_widget->setCurrentIndex(index);
             }
         }
     };

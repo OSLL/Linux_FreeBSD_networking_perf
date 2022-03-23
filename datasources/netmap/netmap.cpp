@@ -57,7 +57,8 @@ std::function<void()> NetmapPktGen::openFile(QTabWidget *tab_widget) {
             if (o_result) {
                 auto *widget = new BandwidthWidget(o_result.value(),
                                                    {BandwidthUnits::BITS, BandwidthUnits::PKTS});
-                tab_widget->addTab(widget, file_name.split('/').last());
+                int index = tab_widget->addTab(widget, file_name.split('/').last());
+                tab_widget->setCurrentIndex(index);
             }
         }
     };

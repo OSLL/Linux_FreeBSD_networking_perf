@@ -12,6 +12,7 @@
 #include "protocolsstatswidget.h"
 #include "recvbandwidthwidget.h"
 #include "sendbandwidthwidget.h"
+#include "profilerflamewidget.h"
 
 #include "../../types/MainTabWidget.h"
 #include "../../datasources/iperf3/iperf3.h"

@@ -39,7 +39,9 @@ add_executable(lfnp main.cpp datasources/BaseDataSource.h utils/utils.h utils/ut
         gui/forms/sendbandwidthwidget.cpp gui/forms/sendbandwidthwidget.ui gui/threads/BandwidthSenderThread.h
         gui/forms/bandwidthwidget.cpp gui/forms/bandwidthwidget.h gui/forms/bandwidthwidget.h
         gui/forms/bandwidthwidget.cpp gui/forms/bandwidthwidget.ui datasources/netmap/netmap.h
-        datasources/netmap/netmap.cpp types/FuncProfiler.h datasources/parsers/parsers.cpp datasources/parsers/parsers.h types/series/TimeSeries.h)
+        datasources/netmap/netmap.cpp types/FuncProfiler.h datasources/parsers/parsers.cpp
+        datasources/parsers/parsers.h types/series/TimeSeries.h types/FlameGraph.h
+        gui/forms/profilerflamewidget.h gui/forms/profilerflamewidget.cpp gui/forms/profilerflamewidget.ui)
 
 target_link_libraries(lfnp
         Qt5::Core
