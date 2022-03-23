@@ -27,6 +27,13 @@ public:
 
     std::optional<FuncProfilerTreeNode*> getProfilerTree();
 
+    std::optional<QVector<FuncProfilerToken>> getTokens(int cpu) {
+        if (cpu_tokens.contains(cpu)) {
+            return cpu_tokens.value(cpu);
+        }
+        return std::nullopt;
+    }
+
 };
 
 #endif //LFNP_PROFILER_PARSERS_H

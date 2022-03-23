@@ -60,7 +60,7 @@ public:
 
     QStringList getSupportedSocketsListProtocols() override;
     QStringList getSupportedStatsProtocols() override;
-    std::optional<FuncProfilerTreeNode*> getProfilerData() override;
+    std::optional<ProfilerParser> getProfilerData() override;
 };
 
 
