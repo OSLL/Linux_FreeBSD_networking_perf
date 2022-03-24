@@ -9,6 +9,7 @@
 #include <QOpenGLWidget>
 #include "QDebug"
 #include <QPaintEvent>
+#include <QtMath>
 #include "../datasources/parsers/parsers.h"
 
 #define RECT_HEIGHT 30
@@ -19,9 +20,13 @@ class FlameGraph: public QOpenGLWidget {
 
 public:
 
-    FlameGraph(ProfilerParser parser): QOpenGLWidget(), parser(parser) {}
+    FlameGraph(ProfilerParser parser): QOpenGLWidget(), parser(parser), offset(0 ,0), scale(1, 1) {}
 
 private:
+
+    QPointF last_mouse_pos;
+    QPointF offset;
+    QPointF scale;
 
     ProfilerParser parser;
     int paintToken(QPainter &painter,
@@ -36,9 +41,9 @@ private:
                 index++;
                 paintToken(painter, root_token, current_token, tokens, index, x_offset, level+1);
             } else if (current_token.type == FuncProfilerToken::RETURN) {
-                int width = (current_token.timestamp - token.timestamp) / 500;
+                int width = (current_token.timestamp - token.timestamp) / 300;
                 QRect func_rect(
-                        x_offset + (token.timestamp - root_token.timestamp) / 500,
+                        x_offset + (token.timestamp - root_token.timestamp) / 300,
                         level * RECT_HEIGHT,
                         width,
                         RECT_HEIGHT
@@ -59,10 +64,15 @@ private:
 protected:
     void paintEvent(QPaintEvent *e) override {
 
+        qDebug() << "paintEvent";
         auto tokens = parser.getTokens(3).value();
 
         QPainter painter(this);
-        painter.setPen(Qt::blue);
+        painter.eraseRect(e->rect());
+        painter.fillRect(e->rect(), Qt::white);
+        painter.translate(offset);
+        painter.scale(scale.x(), scale.y());
+        painter.setPen(Qt::black);
 
         int index = 0;
         int x_offset = 0;
@@ -76,6 +86,37 @@ protected:
                 }
             }
         }
+    }
+
+    void mousePressEvent(QMouseEvent *event) override {
+        qDebug() << "Press" << event;
+        if (event->buttons() & Qt::MouseButton::LeftButton) {
+
+            last_mouse_pos = event->pos();
+            event->accept();
+
+        }
+    }
+
+    void mouseMoveEvent(QMouseEvent *event) override {
+        qDebug() << "Move" << event;
+        if (event->buttons() & Qt::MouseButton::LeftButton) {
+
+            QPointF delta = event->pos() - last_mouse_pos;
+            offset += delta;
+            update();
+
+            last_mouse_pos = event->pos();
+            event->accept();
+
+        }
+        QOpenGLWidget::mouseMoveEvent(event);
+    }
+
+    void wheelEvent(QWheelEvent *event) override {
+        qDebug() << "Scale" << event;
+        scale *= qPow(1.1, (double)event->angleDelta().y()/50);
+        update();
     }
 
 

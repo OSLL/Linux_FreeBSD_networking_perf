@@ -228,12 +228,6 @@ static int __init netprofiler_init(void) {
     fw_device = device_create(fw_class, NULL, devt, NULL, DEVICE_NAME);
     pr_info("Char device registered with number: %d, class: %p, device: %p\n", major_num, fw_class, fw_device);
     
-    PROFILER("ip_rcv");
-    PROFILER("ip_rcv_core");
-    PROFILER("ip_rcv_finish");
-//     PROFILER("ip_rcv_finish_core");
-    PROFILER("ip_local_deliver");
-    
     PROFILER("icmp_global_allow");
     PROFILER("igmp_mc_init");
     PROFILER("inet_current_timestamp");
@@ -296,7 +290,6 @@ static int __init netprofiler_init(void) {
     PROFILER("ipfrag_init");
     PROFILER("ipv4_pktinfo_prepare");
 
-    
     PROFILER("tcp_v4_rcv");
     PROFILER("tcp_v4_do_rcv");
     PROFILER("tcp4_proc_exit");
