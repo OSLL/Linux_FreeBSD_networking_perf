@@ -232,7 +232,7 @@ QStringList FreeBSDDataSource::getSupportedStatsProtocols() {
 }
 
 #define PROFILER(func_name) dTrace.addProbe(func_name);
-std::optional<FuncProfilerTreeNode *> FreeBSDDataSource::getProfilerData() {
+std::optional<ProfilerParser> FreeBSDDataSource::getProfilerData() {
     DTrace dTrace;
 
     PROFILER("ip_input")
@@ -248,7 +248,6 @@ std::optional<FuncProfilerTreeNode *> FreeBSDDataSource::getProfilerData() {
     auto file = dTrace.start();
     qDebug() << "Exit start...";
     QTextStream stream(file.get());
-    ProfilerParser parser(stream);
-    return parser.getProfilerTree();
+    return ProfilerParser(stream);
 }
 #undef PROFILER
