@@ -1,6 +1,7 @@
 #include <linux/init.h>
 #include <linux/module.h>
 #include <linux/kernel.h>
+#include <linux/version.h>
 
 #include <linux/kprobes.h>
 
@@ -8,7 +9,7 @@
 #include <linux/fs.h>
 
 #define DEVICE_NAME "netprofiler"
-#define PROFILER_BUFFER_LEN 100
+#define PROFILER_BUFFER_LEN 200
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("TheShenk");
@@ -134,7 +135,13 @@ static int entry_handler(struct kretprobe_instance *ri, struct pt_regs *regs) {
     cpu_profiler_data = get_cpu_ptr(&profiler_data);
     
     cpu_profiler_data->list[cpu_profiler_data->i].type = ENTER;
-    cpu_profiler_data->list[cpu_profiler_data->i].func_name = ri->rph->rp->kp.symbol_name;
+    
+    #if LINUX_VERSION_CODE <= KERNEL_VERSION(5,0,0)
+        cpu_profiler_data->list[cpu_profiler_data->i].func_name = ri->rp->kp.symbol_name;
+    #else
+        cpu_profiler_data->list[cpu_profiler_data->i].func_name = ri->rph->rp->kp.symbol_name;
+    #endif
+
     cpu_profiler_data->list[cpu_profiler_data->i].time = ktime_get_ns();
     
     cpu_profiler_data->i++;
@@ -155,7 +162,13 @@ static int ret_handler(struct kretprobe_instance *ri, struct pt_regs *regs) {
     cpu_profiler_data = get_cpu_ptr(&profiler_data);
     
     cpu_profiler_data->list[cpu_profiler_data->i].type = RETURN;
-    cpu_profiler_data->list[cpu_profiler_data->i].func_name = ri->rph->rp->kp.symbol_name;
+    
+    #if LINUX_VERSION_CODE <= KERNEL_VERSION(5,0,0)
+        cpu_profiler_data->list[cpu_profiler_data->i].func_name = ri->rp->kp.symbol_name;
+    #else
+        cpu_profiler_data->list[cpu_profiler_data->i].func_name = ri->rph->rp->kp.symbol_name;
+    #endif
+        
     cpu_profiler_data->list[cpu_profiler_data->i].time = now;
     
     cpu_profiler_data->i++;
@@ -169,7 +182,7 @@ static int ret_handler(struct kretprobe_instance *ri, struct pt_regs *regs) {
 }
 NOKPROBE_SYMBOL(ret_handler);
 
-#define MAX_KPROBES_COUNT 255
+#define MAX_KPROBES_COUNT 511
 #define KPROBES_LIST_OVERFLOW_ERR -255
 
 static struct kretprobe netprofiler_kp_list[MAX_KPROBES_COUNT] = {};
@@ -179,6 +192,7 @@ int add_profiler(char *func_name) {
     
     if (netprofiler_kp_index < MAX_KPROBES_COUNT) {
         netprofiler_kp_list[netprofiler_kp_index].handler = ret_handler;
+        netprofiler_kp_list[netprofiler_kp_index].kp.addr = NULL;
         netprofiler_kp_list[netprofiler_kp_index].entry_handler = entry_handler;
         netprofiler_kp_list[netprofiler_kp_index].kp.symbol_name = func_name;
         
@@ -217,10 +231,289 @@ static int __init netprofiler_init(void) {
     PROFILER("ip_rcv");
     PROFILER("ip_rcv_core");
     PROFILER("ip_rcv_finish");
-    PROFILER("ip_rcv_finish_core");
+//     PROFILER("ip_rcv_finish_core");
     PROFILER("ip_local_deliver");
     
+    PROFILER("icmp_global_allow");
+    PROFILER("igmp_mc_init");
+    PROFILER("inet_current_timestamp");
+    PROFILER("inet_get_local_port_range");
+    PROFILER("ip4_datagram_connect");
+    PROFILER("ip4_datagram_release_cb");
+    PROFILER("ip_append_data");
+    PROFILER("ip_append_page");
+    PROFILER("ip_build_and_send_pkt");
+    PROFILER("ip_call_ra_chain");
+    PROFILER("ip_check_defrag");
+    PROFILER("ip_cmsg_recv_offset");
+    PROFILER("ip_cmsg_send");
+    PROFILER("ip_defrag");
+    PROFILER("ip_do_fragment");
+    PROFILER("ip_fib_metrics_init");
+    PROFILER("ip_flush_pending_frames");
+    PROFILER("ip_forward");
+    PROFILER("ip_forward_options");
+    PROFILER("ip_frag_init");
+    PROFILER("ip_frag_next");
+    PROFILER("ip_fraglist_init");
+    PROFILER("ip_fraglist_prepare");
+    PROFILER("ip_generic_getfrag");
+    PROFILER("ip_getsockopt");
+    PROFILER("ip_icmp_error");
+    PROFILER("ip_idents_reserve");
+    PROFILER("ip_init");
+    PROFILER("ip_list_rcv");
+    PROFILER("ip_local_deliver");
+    PROFILER("ip_local_error");
+    PROFILER("ip_local_out");
+    PROFILER("ip_make_skb");
+    PROFILER("ip_mc_output");
+    PROFILER("ip_misc_proc_init");
+    PROFILER("ip_mr_input");
+    PROFILER("ip_options_build");
+    PROFILER("ip_options_compile");
+    PROFILER("ip_options_fragment");
+    PROFILER("ip_options_get");
+    PROFILER("ip_options_rcv_srr");
+    PROFILER("ip_options_undo");
+    PROFILER("ip_output");
+    PROFILER("ip_protocol_deliver_rcu");
+    PROFILER("ip_push_pending_frames");
+    PROFILER("ip_queue_xmit");
+    PROFILER("ip_ra_control");
+    PROFILER("ip_rcv");
+    PROFILER("ip_recv_error");
+    PROFILER("ip_send_check");
+    PROFILER("ip_send_skb");
+    PROFILER("ip_send_unicast_reply");
+    PROFILER("ip_setsockopt");
+    PROFILER("ip_sock_set_freebind");
+    PROFILER("ip_sock_set_mtu_discover");
+    PROFILER("ip_sock_set_pktinfo");
+    PROFILER("ip_sock_set_recverr");
+    PROFILER("ip_sock_set_tos");
+    PROFILER("ip_static_sysctl_init");
+    PROFILER("ipfrag_init");
+    PROFILER("ipv4_pktinfo_prepare");
+
+    
     PROFILER("tcp_v4_rcv");
+    PROFILER("tcp_v4_do_rcv");
+    PROFILER("tcp4_proc_exit");
+    PROFILER("tcp4_proc_init");
+    PROFILER("tcp_abort");
+    PROFILER("tcp_add_backlog");
+    PROFILER("tcp_alloc_md5sig_pool");
+    PROFILER("tcp_assign_congestion_control");
+    PROFILER("tcp_bpf_bypass_getsockopt");
+    PROFILER("tcp_bpf_clone");
+    PROFILER("tcp_bpf_get_proto");
+    PROFILER("tcp_bpf_sendmsg_redir");
+    PROFILER("tcp_bpf_update_proto");
+    PROFILER("tcp_ca_find");
+    PROFILER("tcp_ca_find_key");
+    PROFILER("tcp_ca_get_key_by_name");
+    PROFILER("tcp_ca_get_name_by_key");
+    PROFILER("tcp_ca_openreq_child");
+    PROFILER("tcp_check_oom");
+    PROFILER("tcp_check_req");
+    PROFILER("tcp_child_process");
+    PROFILER("tcp_chrono_start");
+    PROFILER("tcp_chrono_stop");
+    PROFILER("tcp_clamp_probe0_to_user_timeout");
+    PROFILER("tcp_cleanup_congestion_control");
+    PROFILER("tcp_cleanup_rbuf");
+    PROFILER("tcp_cleanup_ulp");
+    PROFILER("tcp_clear_retrans");
+    PROFILER("tcp_close");
+    PROFILER("tcp_cong_avoid_ai");
+    PROFILER("tcp_conn_request");
+    PROFILER("tcp_connect");
+    PROFILER("tcp_create_openreq_child");
+    PROFILER("tcp_current_mss");
+    PROFILER("tcp_cwnd_reduction");
+    PROFILER("tcp_cwnd_restart");
+    PROFILER("tcp_data_ready");
+    PROFILER("tcp_delack_timer_handler");
+    PROFILER("tcp_disconnect");
+    PROFILER("tcp_done");
+    PROFILER("tcp_enter_cwr");
+    PROFILER("tcp_enter_loss");
+    PROFILER("tcp_enter_memory_pressure");
+    PROFILER("tcp_enter_quickack_mode");
+    PROFILER("tcp_enter_recovery");
+    PROFILER("tcp_fastopen_active_detect_blackhole");
+    PROFILER("tcp_fastopen_active_disable");
+    PROFILER("tcp_fastopen_active_disable_ofo_check");
+    PROFILER("tcp_fastopen_active_should_disable");
+    PROFILER("tcp_fastopen_add_skb");
+    PROFILER("tcp_fastopen_cache_get");
+    PROFILER("tcp_fastopen_cache_set");
+    PROFILER("tcp_fastopen_cookie_check");
+    PROFILER("tcp_fastopen_ctx_destroy");
+    PROFILER("tcp_fastopen_defer_connect");
+    PROFILER("tcp_fastopen_destroy_cipher");
+    PROFILER("tcp_fastopen_get_cipher");
+    PROFILER("tcp_fastopen_init_key_once");
+    PROFILER("tcp_fastopen_reset_cipher");
+    PROFILER("tcp_filter");
+    PROFILER("tcp_fin");
+    PROFILER("tcp_finish_connect");
+    PROFILER("tcp_fragment");
+    PROFILER("tcp_free_fastopen_req");
+    PROFILER("tcp_get_allowed_congestion_control");
+    PROFILER("tcp_get_available_congestion_control");
+    PROFILER("tcp_get_available_ulp");
+    PROFILER("tcp_get_cookie_sock");
+    PROFILER("tcp_get_default_congestion_control");
+    PROFILER("tcp_get_info");
+    PROFILER("tcp_get_md5sig_pool");
+    PROFILER("tcp_get_syncookie_mss");
+    PROFILER("tcp_getsockopt");
+    PROFILER("tcp_gro_complete");
+    PROFILER("tcp_gro_receive");
+    PROFILER("tcp_gso_segment");
+    PROFILER("tcp_init");
+    PROFILER("tcp_init_congestion_control");
+    PROFILER("tcp_init_cwnd");
+    PROFILER("tcp_init_metrics");
+    PROFILER("tcp_init_sock");
+    PROFILER("tcp_init_transfer");
+    PROFILER("tcp_init_xmit_timers");
+    PROFILER("tcp_initialize_rcv_mss");
+    PROFILER("tcp_ioctl");
+    PROFILER("tcp_ld_RTO_revert");
+    PROFILER("tcp_leave_memory_pressure");
+    PROFILER("tcp_make_synack");
+    PROFILER("tcp_mark_push");
+    PROFILER("tcp_mark_skb_lost");
+    PROFILER("tcp_md5_do_add");
+    PROFILER("tcp_md5_do_del");
+    PROFILER("tcp_md5_hash_key");
+    PROFILER("tcp_md5_hash_skb_data");
+    PROFILER("tcp_metrics_init");
+    PROFILER("tcp_mmap");
+    PROFILER("tcp_mss_to_mtu");
+    PROFILER("tcp_mstamp_refresh");
+    PROFILER("tcp_mtu_to_mss");
+    PROFILER("tcp_mtup_init");
+    PROFILER("tcp_newreno_mark_lost");
+    PROFILER("tcp_oow_rate_limited");
+    PROFILER("tcp_openreq_init_rwin");
+    PROFILER("tcp_orphan_count_sum");
+    PROFILER("tcp_pace_kick");
+    PROFILER("tcp_parse_md5sig_option");
+    PROFILER("tcp_parse_options");
+    PROFILER("tcp_peek_len");
+    PROFILER("tcp_peer_is_proven");
+    PROFILER("tcp_poll");
+    PROFILER("tcp_push");
+    PROFILER("tcp_push_one");
+    PROFILER("tcp_rack_advance");
+    PROFILER("tcp_rack_mark_lost");
+    PROFILER("tcp_rack_reo_timeout");
+    PROFILER("tcp_rack_skb_timeout");
+    PROFILER("tcp_rack_update_reo_wnd");
+    PROFILER("tcp_rate_check_app_limited");
+    PROFILER("tcp_rate_gen");
+    PROFILER("tcp_rate_skb_delivered");
+    PROFILER("tcp_rate_skb_sent");
+    PROFILER("tcp_rbtree_insert");
+    PROFILER("tcp_rcv_established");
+    PROFILER("tcp_rcv_space_adjust");
+    PROFILER("tcp_rcv_state_process");
+    PROFILER("tcp_read_sock");
+    PROFILER("tcp_rearm_rto");
+    PROFILER("tcp_recv_timestamp");
+    PROFILER("tcp_recvmsg");
+    PROFILER("tcp_register_congestion_control");
+    PROFILER("tcp_register_ulp");
+    PROFILER("tcp_release_cb");
+    PROFILER("tcp_remove_empty_skb");
+    PROFILER("tcp_reno_cong_avoid");
+    PROFILER("tcp_reno_ssthresh");
+    PROFILER("tcp_reno_undo_cwnd");
+    PROFILER("tcp_req_err");
+    PROFILER("tcp_reset");
+    PROFILER("tcp_retransmit_skb");
+    PROFILER("tcp_retransmit_timer");
+    PROFILER("tcp_rtx_synack");
+    PROFILER("tcp_schedule_loss_probe");
+    PROFILER("tcp_select_initial_window");
+    PROFILER("tcp_send_ack");
+    PROFILER("tcp_send_active_reset");
+    PROFILER("tcp_send_delayed_ack");
+    PROFILER("tcp_send_fin");
+    PROFILER("tcp_send_loss_probe");
+    PROFILER("tcp_send_mss");
+    PROFILER("tcp_send_partial");
+    PROFILER("tcp_send_probe0");
+    PROFILER("tcp_send_rcvq");
+    PROFILER("tcp_send_synack");
+    PROFILER("tcp_send_window_probe");
+    PROFILER("tcp_sendmsg");
+    PROFILER("tcp_sendmsg_locked");
+    PROFILER("tcp_sendpage");
+    PROFILER("tcp_sendpage_locked");
+    PROFILER("tcp_seq_next");
+    PROFILER("tcp_seq_start");
+    PROFILER("tcp_seq_stop");
+    PROFILER("tcp_set_allowed_congestion_control");
+    PROFILER("tcp_set_congestion_control");
+    PROFILER("tcp_set_default_congestion_control");
+    PROFILER("tcp_set_keepalive");
+    PROFILER("tcp_set_rcvlowat");
+    PROFILER("tcp_set_state");
+    PROFILER("tcp_set_ulp");
+    PROFILER("tcp_set_window_clamp");
+    PROFILER("tcp_setsockopt");
+    PROFILER("tcp_shutdown");
+    PROFILER("tcp_simple_retransmit");
+    PROFILER("tcp_skb_collapse_tstamp");
+    PROFILER("tcp_skb_entail");
+    PROFILER("tcp_skb_mark_lost_uncond_verify");
+    PROFILER("tcp_slow_start");
+    PROFILER("tcp_splice_read");
+    PROFILER("tcp_stream_alloc_skb");
+    PROFILER("tcp_stream_memory_free");
+    PROFILER("tcp_syn_ack_timeout");
+    PROFILER("tcp_synack_rtt_meas");
+    PROFILER("tcp_sync_mss");
+    PROFILER("tcp_tasklet_init");
+    PROFILER("tcp_time_wait");
+    PROFILER("tcp_timewait_state_process");
+    PROFILER("tcp_trim_head");
+    PROFILER("tcp_try_fastopen");
+    PROFILER("tcp_twsk_destructor");
+    PROFILER("tcp_twsk_unique");
+    PROFILER("tcp_unregister_congestion_control");
+    PROFILER("tcp_unregister_ulp");
+    PROFILER("tcp_update_metrics");
+    PROFILER("tcp_update_recv_tstamps");
+    PROFILER("tcp_update_ulp");
+    PROFILER("tcp_v4_conn_request");
+    PROFILER("tcp_v4_connect");
+    PROFILER("tcp_v4_destroy_sock");
+    PROFILER("tcp_v4_do_rcv");
+    PROFILER("tcp_v4_early_demux");
+    PROFILER("tcp_v4_err");
+    PROFILER("tcp_v4_get_syncookie");
+    PROFILER("tcp_v4_init");
+    PROFILER("tcp_v4_md5_hash_skb");
+    PROFILER("tcp_v4_md5_lookup");
+    PROFILER("tcp_v4_mtu_reduced");
+    PROFILER("tcp_v4_rcv");
+    PROFILER("tcp_v4_send_check");
+    PROFILER("tcp_v4_syn_recv_sock");
+    PROFILER("tcp_v4_tw_remember_stamp");
+    PROFILER("tcp_v6_get_syncookie");
+    PROFILER("tcp_wfree");
+    PROFILER("tcp_write_queue_purge");
+    PROFILER("tcp_write_timer_handler");
+    PROFILER("tcp_write_wakeup");
+    PROFILER("tcp_xmit_retransmit_queue");
+    PROFILER("tcpv4_offload_init");
+
     
     PROFILER("udp_rcv");
     PROFILER("udp_queue_rcv_skb");
