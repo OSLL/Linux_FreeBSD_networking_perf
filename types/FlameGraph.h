@@ -20,13 +20,16 @@ class FlameGraph: public QOpenGLWidget {
 
 public:
 
-    FlameGraph(ProfilerParser parser): QOpenGLWidget(), parser(parser), offset(0 ,0), scale(1, 1) {}
+    FlameGraph(ProfilerParser parser): QOpenGLWidget(), parser(parser), offset(0 ,0), scale(1) {
+        this->setMouseTracking(true);
+    }
 
 private:
 
     QPointF last_mouse_pos;
     QPointF offset;
-    QPointF scale;
+    qreal scale;
+    QPoint hover;
 
     ProfilerParser parser;
     int paintToken(QPainter &painter,
@@ -41,14 +44,22 @@ private:
                 index++;
                 paintToken(painter, root_token, current_token, tokens, index, x_offset, level+1);
             } else if (current_token.type == FuncProfilerToken::RETURN) {
-                int width = (current_token.timestamp - token.timestamp) / 300;
+                int width = (current_token.timestamp - token.timestamp) / 300 * scale;
+                int height = RECT_HEIGHT * scale;
                 QRect func_rect(
-                        x_offset + (token.timestamp - root_token.timestamp) / 300,
-                        level * RECT_HEIGHT,
+                        x_offset + (token.timestamp - root_token.timestamp) / 300 * scale,
+                        level * height,
                         width,
-                        RECT_HEIGHT
+                        height
                 );
+
+//                func_rect *= scale;
+
+                if (func_rect.contains((hover - offset).toPoint())) {
+                    painter.fillRect(func_rect, Qt::gray);
+                }
                 painter.drawRect(func_rect);
+
                 auto text_width = QFontMetrics(painter.font()).horizontalAdvance(token.func_name);
                 if (text_width < width) {
                     painter.drawText(func_rect, Qt::AlignCenter, token.func_name);
@@ -68,10 +79,10 @@ protected:
         auto tokens = parser.getTokens(3).value();
 
         QPainter painter(this);
+
         painter.eraseRect(e->rect());
         painter.fillRect(e->rect(), Qt::white);
         painter.translate(offset);
-        painter.scale(scale.x(), scale.y());
         painter.setPen(Qt::black);
 
         int index = 0;
@@ -82,14 +93,14 @@ protected:
             if (token.type == FuncProfilerToken::ENTER && token.func_name == "ip_rcv") {
                 int width = paintToken(painter, token, token, tokens, index, x_offset, 0);
                 if (width > 0) {
-                    x_offset += width + 10;
+                    x_offset += width + 10*scale;
                 }
             }
         }
     }
 
     void mousePressEvent(QMouseEvent *event) override {
-        qDebug() << "Press" << event;
+        qDebug() << "Press";
         if (event->buttons() & Qt::MouseButton::LeftButton) {
 
             last_mouse_pos = event->pos();
@@ -99,23 +110,32 @@ protected:
     }
 
     void mouseMoveEvent(QMouseEvent *event) override {
-        qDebug() << "Move" << event;
+        qDebug() << "Move";
         if (event->buttons() & Qt::MouseButton::LeftButton) {
+
+            qDebug() << "Left Move";
 
             QPointF delta = event->pos() - last_mouse_pos;
             offset += delta;
-            update();
 
             last_mouse_pos = event->pos();
             event->accept();
 
         }
+
+        hover = event->pos();
+        qDebug() << "Hover" << hover;
+        update();
+
         QOpenGLWidget::mouseMoveEvent(event);
     }
 
     void wheelEvent(QWheelEvent *event) override {
-        qDebug() << "Scale" << event;
-        scale *= qPow(1.1, (double)event->angleDelta().y()/50);
+        qDebug() << "Wheel";
+        qreal wheel_factor = qPow(1.1, (double)event->angleDelta().y()/50);
+        scale *= wheel_factor;
+        offset *= wheel_factor;
+
         update();
     }
 
