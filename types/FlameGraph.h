@@ -10,9 +10,12 @@
 #include "QDebug"
 #include <QPaintEvent>
 #include <QtMath>
+#include <QToolTip>
+
 #include "../datasources/parsers/parsers.h"
 
 #define RECT_HEIGHT 30
+#define NS_IN_PIXEL 300
 
 class FlameGraph: public QOpenGLWidget {
 
@@ -44,19 +47,21 @@ private:
                 index++;
                 paintToken(painter, root_token, current_token, tokens, index, x_offset, level+1);
             } else if (current_token.type == FuncProfilerToken::RETURN) {
-                int width = (current_token.timestamp - token.timestamp) / 300 * scale;
+                int duration = current_token.timestamp - token.timestamp;
+                int width = duration / NS_IN_PIXEL * scale;
                 int height = RECT_HEIGHT * scale;
                 QRect func_rect(
-                        x_offset + (token.timestamp - root_token.timestamp) / 300 * scale,
+                        x_offset + (token.timestamp - root_token.timestamp) / NS_IN_PIXEL * scale,
                         level * height,
                         width,
                         height
                 );
 
-//                func_rect *= scale;
-
-                if (func_rect.contains((hover - offset).toPoint())) {
+                const QPoint offsetHover = (hover - offset).toPoint();
+                if (func_rect.contains(offsetHover)) {
                     painter.fillRect(func_rect, Qt::gray);
+                    QToolTip::showText(this->mapToGlobal(hover), QString("%1 (%2 ns)")
+                    .arg(current_token.func_name, QString::number(duration)));
                 }
                 painter.drawRect(func_rect);
 
@@ -75,7 +80,6 @@ private:
 protected:
     void paintEvent(QPaintEvent *e) override {
 
-        qDebug() << "paintEvent";
         auto tokens = parser.getTokens(3).value();
 
         QPainter painter(this);
@@ -110,10 +114,7 @@ protected:
     }
 
     void mouseMoveEvent(QMouseEvent *event) override {
-        qDebug() << "Move";
         if (event->buttons() & Qt::MouseButton::LeftButton) {
-
-            qDebug() << "Left Move";
 
             QPointF delta = event->pos() - last_mouse_pos;
             offset += delta;
@@ -124,14 +125,12 @@ protected:
         }
 
         hover = event->pos();
-        qDebug() << "Hover" << hover;
         update();
 
         QOpenGLWidget::mouseMoveEvent(event);
     }
 
     void wheelEvent(QWheelEvent *event) override {
-        qDebug() << "Wheel";
         qreal wheel_factor = qPow(1.1, (double)event->angleDelta().y()/50);
         scale *= wheel_factor;
         offset *= wheel_factor;
