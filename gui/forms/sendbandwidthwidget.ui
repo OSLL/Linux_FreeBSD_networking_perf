@@ -33,7 +33,7 @@
           <item>
            <widget class="QLabel" name="protocolLabel">
             <property name="text">
-             <string>Протокол</string>
+             <string>Protocol</string>
             </property>
            </widget>
           </item>
@@ -53,7 +53,7 @@
              </size>
             </property>
             <property name="text">
-             <string>Ip-адрес и порт:</string>
+             <string>Ip-address and port:</string>
             </property>
            </widget>
           </item>
@@ -97,7 +97,7 @@
           <item>
            <widget class="QLabel" name="fileLabel">
             <property name="text">
-             <string>Файл:</string>
+             <string>File:</string>
             </property>
            </widget>
           </item>
@@ -115,7 +115,7 @@
           <item>
            <widget class="QLabel" name="dataSizeLabel">
             <property name="text">
-             <string>Размер данных:</string>
+             <string>Data size:</string>
             </property>
            </widget>
           </item>
@@ -133,7 +133,7 @@
           <item>
            <widget class="QLabel" name="durationLabel">
             <property name="text">
-             <string>Длительность:</string>
+             <string>Duration:</string>
             </property>
            </widget>
           </item>
@@ -147,7 +147,7 @@
           <item>
            <widget class="QLabel" name="formatLabel">
             <property name="text">
-             <string>Формат:</string>
+             <string>Format:</string>
             </property>
            </widget>
           </item>
@@ -164,7 +164,7 @@
           <item>
            <widget class="QLabel" name="threadsLabel">
             <property name="text">
-             <string>Число потоков:</string>
+             <string>Threads count:</string>
             </property>
            </widget>
           </item>

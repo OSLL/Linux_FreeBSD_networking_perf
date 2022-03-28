@@ -33,7 +33,7 @@
           <item>
            <widget class="QLabel" name="protocolLabel">
             <property name="text">
-             <string>Протокол</string>
+             <string>Protocol</string>
             </property>
            </widget>
           </item>
@@ -53,7 +53,7 @@
              </size>
             </property>
             <property name="text">
-             <string>Ip-адрес и порт:</string>
+             <string>Ip-address and port:</string>
             </property>
            </widget>
           </item>
@@ -103,7 +103,7 @@
              </size>
             </property>
             <property name="text">
-             <string>Число пакетов:</string>
+             <string>Packets count:</string>
             </property>
            </widget>
           </item>
@@ -121,7 +121,7 @@
           <item>
            <widget class="QLabel" name="measureTypeLabel">
             <property name="text">
-             <string>Измерение:</string>
+             <string>Measuring:</string>
             </property>
            </widget>
           </item>
@@ -135,7 +135,7 @@
           <item>
            <widget class="QLabel" name="fileLabel">
             <property name="text">
-             <string>Файл:</string>
+             <string>File:</string>
             </property>
            </widget>
           </item>
@@ -153,7 +153,7 @@
           <item>
            <widget class="QLabel" name="dataSizeLabel">
             <property name="text">
-             <string>Размер данных:</string>
+             <string>Data size:</string>
             </property>
            </widget>
           </item>
@@ -171,7 +171,7 @@
           <item>
            <widget class="QLabel" name="accuracyLabel">
             <property name="text">
-             <string>Точность:</string>
+             <string>Accurancy:</string>
             </property>
            </widget>
           </item>
@@ -185,7 +185,7 @@
           <item>
            <widget class="QLabel" name="delayLabel">
             <property name="text">
-             <string>Задержка:</string>
+             <string>Duration:</string>
             </property>
            </widget>
           </item>
