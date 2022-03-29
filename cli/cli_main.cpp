@@ -110,7 +110,7 @@ int cli_main(int argc, char *argv[]) {
         printBandwidthResult(pktgen.getResult());
     } else if (argc > 1 && args[1] == "profiler") {
 
-        printProfilerData(ds->getProfilerData().value().getProfilerTree());
+//        printProfilerData(ds->getProfilerData().value().getProfilerTrees());
     }
 
     return 0;

@@ -25,9 +25,12 @@ public:
 
     FlameGraph(ProfilerParser parser): QOpenGLWidget(), parser(parser), offset(0 ,0), scale(1) {
         this->setMouseTracking(true);
+        nodes = parser.getProfilerTrees(3).value();
     }
 
 private:
+
+    QVector<FuncProfilerTreeNode*> nodes;
 
     QPointF last_mouse_pos;
     QPointF offset;
@@ -35,52 +38,53 @@ private:
     QPoint hover;
 
     ProfilerParser parser;
-    int paintToken(QPainter &painter,
-                    const FuncProfilerToken &root_token,
-                    const FuncProfilerToken &token,
-                    const QVector<FuncProfilerToken> &tokens,
-                    int &index, int &x_offset, int level) const {
+    int paintNode(QPainter &painter,
+                    const FuncProfilerTreeNode *root_node,
+                    const FuncProfilerTreeNode *node,
+                    int &x_offset, int level) const {
 
-        while (index < tokens.size()) {
-            const auto &current_token = tokens[index];
-            if (current_token.type == FuncProfilerToken::ENTER) {
-                index++;
-                paintToken(painter, root_token, current_token, tokens, index, x_offset, level+1);
-            } else if (current_token.type == FuncProfilerToken::RETURN) {
-                int duration = current_token.timestamp - token.timestamp;
-                int width = duration / NS_IN_PIXEL * scale;
-                int height = RECT_HEIGHT * scale;
-                QRect func_rect(
-                        x_offset + (token.timestamp - root_token.timestamp) / NS_IN_PIXEL * scale,
-                        level * height,
-                        width,
-                        height
-                );
+        int duration = node->getDuration();
+        int width = duration / NS_IN_PIXEL * scale;
+        int height = RECT_HEIGHT * scale;
 
-                const QPoint offsetHover = (hover - offset).toPoint();
-                if (func_rect.contains(offsetHover)) {
-                    painter.fillRect(func_rect, Qt::gray);
-                    QToolTip::showText(this->mapToGlobal(hover), QString("%1 (%2 ns)")
-                    .arg(current_token.func_name, QString::number(duration)));
-                }
-                painter.drawRect(func_rect);
+        QRect func_rect(
+                x_offset + (node->getRange().from - root_node->getRange().from) / NS_IN_PIXEL * scale,
+                level * height,
+                width,
+                height
+        );
 
-                auto text_width = QFontMetrics(painter.font()).horizontalAdvance(token.func_name);
-                if (text_width < width) {
-                    painter.drawText(func_rect, Qt::AlignCenter, token.func_name);
-                }
-
-                index++;
-                return width;
+        const QPoint offsetHover = (hover - offset).toPoint();
+        if (func_rect.contains(offsetHover)) {
+            painter.fillRect(func_rect, Qt::gray);
+            QString text;
+            if (node->isRoot()) {
+                text = QString("%1 (%2 ns)")
+                        .arg(node->getFuncName(), QString::number(duration));
+            } else {
+                double of_parent = ((double)duration/node->getParentConst()->getDuration())*100;
+                text = QString("%1 (%2 ns, %3% of parent)")
+                        .arg(node->getFuncName(), QString::number(duration),
+                             QString::number(of_parent));
             }
+            QToolTip::showText(this->mapToGlobal(hover), text);
         }
-        return -1;
+        painter.drawRect(func_rect);
+
+        auto text_width = QFontMetrics(painter.font()).horizontalAdvance(node->getFuncName());
+        if (text_width < width) {
+            painter.drawText(func_rect, Qt::AlignCenter, node->getFuncName());
+        }
+
+        for (const auto *child: node->getChildren()) {
+            paintNode(painter, root_node, child, x_offset, level+1);
+        }
+
+        return width;
     }
 
 protected:
     void paintEvent(QPaintEvent *e) override {
-
-        auto tokens = parser.getTokens(3).value();
 
         QPainter painter(this);
 
@@ -89,13 +93,10 @@ protected:
         painter.translate(offset);
         painter.setPen(Qt::black);
 
-        int index = 0;
         int x_offset = 0;
-        while (index < tokens.size()) {
-            const auto &token = tokens[index];
-            index++;
-            if (token.type == FuncProfilerToken::ENTER && token.func_name == "ip_rcv") {
-                int width = paintToken(painter, token, token, tokens, index, x_offset, 0);
+        for (const auto *node: nodes) {
+            if (node->getFuncName() == "ip_rcv") {
+                int width = paintNode(painter, node, node, x_offset, 0);
                 if (width > 0) {
                     x_offset += width + 10*scale;
                 }

@@ -16,7 +16,6 @@ namespace Ui {
 class SocketsListWidget;
 }
 
-//TODO: Подстветка подозрительных строк
 //TODO: Поиск, фильтрация и сортировка в таблице
 //TODO: Не показывать пкм меню при клике на первые четыре клетки
 class SocketsListWidget : public QWidget

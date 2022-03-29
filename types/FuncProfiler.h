@@ -35,7 +35,7 @@ class FuncProfilerTreeNode {
 private:
 
     QString func_name;
-    QVector<TimeRangeNS> time_ranges;
+    TimeRangeNS time_range;
     int cpu_index;
 
     FuncProfilerTreeNode *parent;
@@ -46,26 +46,23 @@ public:
     FuncProfilerTreeNode(QString _func_name, int _cpu_index, FuncProfilerTreeNode *_parent):
     func_name(_func_name), cpu_index(_cpu_index), parent(_parent) {}
 
-    void addRange(TimeRangeNS time_range) {
-        time_ranges.append(time_range);
+    void setRange(TimeRangeNS time_range) {
+        this->time_range = time_range;
     }
 
-    quint64 getDuration() {
+    TimeRangeNS getRange() const {
+        return time_range;
+    }
 
-        if (!time_ranges.empty()) {
-
-            quint64 avg_time = 0;
-            for (const auto &time_range: time_ranges) {
-//            std::cout << "DURATION " << time_range.getRangeNS() << std::endl;
-                avg_time += time_range.getRangeNS();
-            }
-            return avg_time/time_ranges.size();
-
-        }
-        return 0;
+    quint64 getDuration() const {
+        return time_range.getRangeNS();
     }
 
     FuncProfilerTreeNode *getParent() {
+        return parent;
+    }
+
+    const FuncProfilerTreeNode *getParentConst() const {
         return parent;
     }
 
@@ -77,7 +74,7 @@ public:
         return cpu_index;
     }
 
-    QVector<FuncProfilerTreeNode*> getChildren() {
+    QVector<FuncProfilerTreeNode*> getChildren() const {
         return children;
     }
 
@@ -94,22 +91,8 @@ public:
         children.append(child);
     }
 
-    void addChildrenAsTime(FuncProfilerTreeNode *child) {
-
-        auto o_current_child = getChild(child->func_name);
-        if (o_current_child) {
-            auto current_child = o_current_child.value();
-            for (auto time_range: child->time_ranges) {
-                current_child->addRange(time_range);
-            }
-
-            for (auto next_child: child->getChildren()) {
-                current_child->addChildrenAsTime(next_child);
-            }
-        } else {
-            addChildren(child);
-        }
-
+    bool isRoot() const {
+        return parent == nullptr;
     }
 
 };
