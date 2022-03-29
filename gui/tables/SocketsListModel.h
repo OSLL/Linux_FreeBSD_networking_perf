@@ -53,6 +53,11 @@ public:
             }
         } else if (role == Qt::TextAlignmentRole) {
             return Qt::AlignmentFlag::AlignLeft;
+        } else if (role == Qt::BackgroundRole) {
+            auto &socket_info = values[index.row()];
+            if (socket_info.drops) {
+                return QBrush(Qt::red);
+            }
         }
 
         return {};

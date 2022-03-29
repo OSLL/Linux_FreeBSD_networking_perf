@@ -1,4 +1,4 @@
-obj-m += netprofiler.o
+obj-m += netprofiler.o udp_drops_inc.o
 ccflags-y := -std=gnu11
 all:
 	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules
