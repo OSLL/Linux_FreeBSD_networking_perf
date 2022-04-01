@@ -42,7 +42,6 @@ ProtocolStats ip_stats(char *_data) {
     return stats;
 }
 
-
 ProtocolStats tcp_stats(char *_data) {
 
     ProtocolStats stats;

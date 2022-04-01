@@ -105,7 +105,6 @@ protected:
     }
 
     void mousePressEvent(QMouseEvent *event) override {
-        qDebug() << "Press";
         if (event->buttons() & Qt::MouseButton::LeftButton) {
 
             last_mouse_pos = event->pos();
