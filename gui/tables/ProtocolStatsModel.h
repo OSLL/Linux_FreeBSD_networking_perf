@@ -6,7 +6,6 @@
 #define LFNP_PROTOCOLSTATSMODEL_H
 
 #include <QAbstractListModel>
-#include <utility>
 #include "../../datasources/BaseDataSource.h"
 
 class ProtocolStatsModel: public QAbstractListModel {
@@ -68,8 +67,10 @@ public:
     }
 
     void setData(ProtocolStats _stats) {
+        beginResetModel();
         stats = std::move(_stats);
         names = stats.keys();
+        endResetModel();
     }
 
 };
