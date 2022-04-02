@@ -108,9 +108,10 @@ int cli_main(int argc, char *argv[]) {
         auto pktgen = LinuxPktgen(protocol, interface, addr, port, mac_addr, threads_count, data_size, packets_count);
         pktgen.start();
         printBandwidthResult(pktgen.getResult());
-    } else if (argc > 1 && args[1] == "profiler") {
-
-//        printProfilerData(ds->getProfilerData().value().getProfilerTrees());
+    } else if (argc > 2 && args[1] == "profiler") {
+        printProfilerData(ds->getProfilerData(), args[2].toInt());
+    } else {
+        std::cout << "Unknown command";
     }
 
     return 0;

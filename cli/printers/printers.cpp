@@ -145,17 +145,24 @@ void printBandwidthResult(std::optional<BandwidthResult> o_res) {
 
 }
 
-void printProfilerData(std::optional<FuncProfilerTreeNode*> root, int indent) {
+void _printProfilerNode(const FuncProfilerTreeNode *node, int indent = 0) {
 
-    if (root) {
-        if (root.value()->getParent()) {
-            std::cout << QString("\t").repeated(indent).toStdString()
-                      << root.value()->getFuncName().toStdString() << " " << root.value()->getDuration() << std::endl;
-        }
+    std::cout << QString("\t").repeated(indent).toStdString()
+              << node->getFuncName().toStdString() << " " << node->getDuration() << std::endl;
 
-        for (const auto child: root.value()->getChildren()) {
-            printProfilerData(child, indent+1);
-        }
+    for (const auto child: node->getChildren()) {
+        _printProfilerNode(child, indent+1);
     }
 
+}
+
+void printProfilerData(std::optional<ProfilerParser> o_profiler, int cpu) {
+
+    if (o_profiler) {
+        for (const auto &root: o_profiler->getProfilerTrees(cpu)) {
+            _printProfilerNode(root);
+        }
+    } else {
+        std::cout << "Error in getting parser" << std::endl;
+    }
 }

@@ -25,7 +25,7 @@ public:
     explicit ProfilerParser(const QString &filename);
     explicit ProfilerParser(QTextStream &in);
 
-    std::optional<QVector<FuncProfilerTreeNode*>> getProfilerTrees(int cpu);
+    QVector<FuncProfilerTreeNode*> getProfilerTrees(int cpu);
 
     std::optional<QVector<FuncProfilerToken>> getTokens(int cpu) {
         if (cpu_tokens.contains(cpu)) {

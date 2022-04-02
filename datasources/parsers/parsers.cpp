@@ -66,7 +66,7 @@ void ProfilerParser::_getProfilerTree(const QVector<FuncProfilerToken> &tokens, 
     }
 }
 
-std::optional<QVector<FuncProfilerTreeNode *>> ProfilerParser::getProfilerTrees(int cpu) {
+QVector<FuncProfilerTreeNode *> ProfilerParser::getProfilerTrees(int cpu) {
 
     QVector<FuncProfilerTreeNode*> root_nodes;
     const auto &tokens = cpu_tokens[cpu];

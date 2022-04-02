@@ -25,7 +25,7 @@ public:
 
     FlameGraph(ProfilerParser parser): QOpenGLWidget(), parser(parser), offset(0 ,0), scale(1) {
         this->setMouseTracking(true);
-        nodes = parser.getProfilerTrees(3).value();
+        nodes = parser.getProfilerTrees(3);
     }
 
 private:
