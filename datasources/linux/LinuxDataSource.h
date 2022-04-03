@@ -17,6 +17,7 @@
 
 #include <QMap>
 #include <QThread>
+#include <QDir>
 
 #include "../../utils/utils.h"
 #include "../../utils/sockets.h"
@@ -25,6 +26,7 @@
 
 #include "../BaseDataSource.h"
 #include "../../types/FuncProfiler.h"
+#include "LinuxProfilerCollector.h"
 
 class LinuxDataSource: public BaseDataSource {
 
@@ -60,7 +62,7 @@ public:
 
     QStringList getSupportedSocketsListProtocols() override;
     QStringList getSupportedStatsProtocols() override;
-    std::optional<ProfilerParser> getProfilerData() override;
+    std::unique_ptr<BaseProfilerCollector> getProfilerCollector() override;
 };
 
 

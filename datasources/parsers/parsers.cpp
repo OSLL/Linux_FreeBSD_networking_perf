@@ -89,3 +89,21 @@ QVector<FuncProfilerTreeNode *> ProfilerParser::getProfilerTrees(int cpu) {
 
     return root_nodes;
 }
+
+void ProfilerParser::addData(ProfilerParser &other) {
+
+    quint64 current_last_token_timestamp = last_token_timestamp;
+
+    for (const auto &tokens: other.cpu_tokens) {
+        for (const auto &token: tokens) {
+            if (last_token_timestamp < token.timestamp) {
+                cpu_tokens[token.cpu_index].push_back(token);
+                if (current_last_token_timestamp < token.timestamp) {
+                    current_last_token_timestamp = token.timestamp;
+                }
+            }
+        }
+    }
+
+    last_token_timestamp = current_last_token_timestamp;
+}

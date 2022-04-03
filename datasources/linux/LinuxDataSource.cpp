@@ -2,9 +2,7 @@
 // Created by shenk on 17.12.2021.
 //
 
-#include <QDir>
 #include "LinuxDataSource.h"
-#include "../parsers/parsers.h"
 
 QMap<QString, QString> LinuxDataSource::protocol_sockets_files  = {
         {"tcp",      "/proc/net/tcp"},
@@ -358,7 +356,6 @@ QStringList LinuxDataSource::getSupportedStatsProtocols() {
     return LinuxDataSource::protocol_stats_names.keys();
 }
 
-std::optional<ProfilerParser> LinuxDataSource::getProfilerData() {
-    ProfilerParser parser("/home/shenk/Linux_FreeBSD_networking_perf/test2.txt");
-    return parser;
+std::unique_ptr<BaseProfilerCollector> LinuxDataSource::getProfilerCollector() {
+    return std::make_unique<LinuxProfilerCollector>();
 }

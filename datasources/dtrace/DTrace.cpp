@@ -28,17 +28,14 @@ DTrace::DTrace(): program_text("") {
 
 }
 
-
-
 DTrace::~DTrace() {
 
     dtrace_close(dtrace);
 
 }
 
-std::unique_ptr<QFile> DTrace::start() {
+void DTrace::start() {
     int error = 0;
-    FILE* tmp_file = tmpfile();
 
     dtrace_prog_t *prog = dtrace_program_strcompile(dtrace, program_text.toLocal8Bit().data(),
                                                     DTRACE_PROBESPEC_NAME, 0, 0, NULL);
@@ -55,23 +52,18 @@ std::unique_ptr<QFile> DTrace::start() {
         int dt_error = dtrace_errno(dtrace);
         qDebug() << "Error: dtrace_go " << dtrace_errmsg(dtrace, dt_error);
     }
+}
 
-    for (int i=0; i<3; i++) {
-        dtrace_sleep(dtrace);
-        dtrace_work(dtrace, tmp_file, dtrace_process, dtrace_process_rec, this);
-    }
+void DTrace::work(FILE *file) {
+    dtrace_work(dtrace, file, dtrace_process, dtrace_process_rec, this);
+}
 
-    error = dtrace_stop(dtrace);
+void DTrace::stop() {
+    int error = dtrace_stop(dtrace);
     if (error == -1) {
         int dt_error = dtrace_errno(dtrace);
         qDebug() << "Error: dtrace_stop " << dtrace_errmsg(dtrace, dt_error);
     }
-
-    auto file = std::make_unique<QFile>();
-    file->open(tmp_file, QIODevice::ReadOnly);
-    file->reset();
-
-    return file;
 }
 
 #define PROFILER(func_name) "fbt:kernel:" + func_name + ":entry {printf(\"enter " + func_name + " %d %d\\n\", timestamp, cpu);} " \

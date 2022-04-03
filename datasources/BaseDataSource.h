@@ -21,6 +21,7 @@
 #include "../types/BandwidthResult.h"
 #include "../types/FuncProfiler.h"
 #include "parsers/parsers.h"
+#include "BaseProfilerCollector.h"
 
 typedef QMap<QString, int> ProtocolStats;
 
@@ -84,7 +85,9 @@ public:
     std::optional<SocketInfo> getOneSocket(const QString &protocol, const QString &local_address, unsigned int local_port,
                                            const QString &foreign_address, unsigned int foreign_port);
 
-    virtual std::optional<ProfilerParser> getProfilerData()=0;
+
+    virtual std::unique_ptr<BaseProfilerCollector> getProfilerCollector()=0;
+    std::optional<ProfilerParser> getProfilerData();
 };
 
 

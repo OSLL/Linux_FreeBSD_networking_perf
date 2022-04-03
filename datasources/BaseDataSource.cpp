@@ -209,3 +209,15 @@ std::optional<SocketInfo> BaseDataSource::getOneSocket(const QString &protocol, 
 
     return std::nullopt;
 }
+
+std::optional<ProfilerParser> BaseDataSource::getProfilerData() {
+    auto collector = this->getProfilerCollector();
+    collector->onStart();
+
+    for (int i=0; i<10; i++) {
+        QThread::sleep(1);
+        collector->onTimer();
+    }
+
+    return collector->onEnd();
+}

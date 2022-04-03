@@ -34,7 +34,11 @@ private:
 public:
 
     DTrace();
-    std::unique_ptr<QFile> start();
+
+    void start();
+    void work(FILE *file);
+    void stop();
+
     void addProbe(const QString &func_name);
     ~DTrace();
 
