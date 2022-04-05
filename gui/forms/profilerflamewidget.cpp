@@ -87,6 +87,7 @@ void ProfilerFlameWidget::onStartClicked() {
 
     progress_bar = new QProgressBar();
     progress_bar->setRange(0, duration);
+    progress_bar->setValue(0);
     ui->flameGraphLayout->addWidget(progress_bar);
 
     collector = data_source->getProfilerCollector();
