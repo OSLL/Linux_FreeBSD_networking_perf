@@ -23,9 +23,22 @@ class FlameGraph: public QOpenGLWidget {
 
 public:
 
-    FlameGraph(ProfilerParser parser): QOpenGLWidget(), parser(parser), offset(0 ,0), scale(1) {
+    FlameGraph(): QOpenGLWidget(), offset(0, 0), scale(1) {
         this->setMouseTracking(true);
-        nodes = parser.getProfilerTrees(3);
+        this->setAttribute(Qt::WA_TranslucentBackground);
+    }
+
+    FlameGraph(ProfilerParser parser, int cpu): FlameGraph() {
+        nodes = parser.getProfilerTrees(cpu);
+    }
+
+    explicit FlameGraph(const QVector<FuncProfilerTreeNode *>& _nodes): FlameGraph() {
+        nodes = _nodes;
+    }
+
+    void setNodes(const QVector<FuncProfilerTreeNode *>& _nodes) {
+        nodes = _nodes;
+        update();
     }
 
 private:
@@ -37,7 +50,6 @@ private:
     qreal scale;
     QPoint hover;
 
-    ProfilerParser parser;
     int paintNode(QPainter &painter,
                     const FuncProfilerTreeNode *root_node,
                     const FuncProfilerTreeNode *node,
@@ -87,20 +99,22 @@ protected:
     void paintEvent(QPaintEvent *e) override {
 
         QPainter painter(this);
-
+        painter.setRenderHint(QPainter::Antialiasing);
         painter.eraseRect(e->rect());
+
         painter.fillRect(e->rect(), Qt::white);
+
         painter.translate(offset);
         painter.setPen(Qt::black);
 
         int x_offset = 0;
         for (const auto *node: nodes) {
-            if (node->getFuncName() == "ip_rcv") {
+//            if (node->getFuncName() == "ip_rcv" || node->getFuncName() == "tcp_output") {
                 int width = paintNode(painter, node, node, x_offset, 0);
                 if (width > 0) {
                     x_offset += width + 10*scale;
                 }
-            }
+//            }
         }
     }
 

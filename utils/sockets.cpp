@@ -216,8 +216,6 @@ int Socket::sendFile(int file_descriptor, size_t data_size) {
 #endif
 }
 
-
-//TODO: IPV6?
 unsigned int Socket::getPort() {
 
     sockaddr saddr;

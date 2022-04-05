@@ -13,7 +13,7 @@ public:
 
     virtual void onStart()=0;
     virtual void onTimer()=0;
-    virtual ProfilerParser onEnd()=0;
+    virtual QMap<int, QVector<FuncProfilerTreeNode*>> onEnd()=0;
 
 };
 

@@ -156,13 +156,13 @@ void _printProfilerNode(const FuncProfilerTreeNode *node, int indent = 0) {
 
 }
 
-void printProfilerData(std::optional<ProfilerParser> o_profiler, int cpu) {
+void printProfilerData(QMap<int, QVector<FuncProfilerTreeNode*>> profiler_data, int cpu) {
 
-    if (o_profiler) {
-        for (const auto &root: o_profiler->getProfilerTrees(cpu)) {
+    if (profiler_data.contains(cpu)) {
+        for (const auto &root: profiler_data.value(cpu)) {
             _printProfilerNode(root);
         }
     } else {
-        std::cout << "Error in getting parser" << std::endl;
+        std::cout << "No network activity on CPU " << cpu << std::endl;
     }
 }

@@ -18,17 +18,23 @@ class ProfilerParser {
 private:
     QMap<int, QVector<FuncProfilerToken>> cpu_tokens;
     quint64 last_token_timestamp;
-    void init(QTextStream &in);
+    void init(QTextStream &in, quint64 from_timestamp);
     void _getProfilerTree(const QVector<FuncProfilerToken> &tokens, int &token_index, FuncProfilerTreeNode *parent,
                                                           const FuncProfilerToken &enter_token);
 public:
 
     ProfilerParser(): last_token_timestamp(0) {}
-    explicit ProfilerParser(const QString &filename);
-    explicit ProfilerParser(QTextStream &in);
+    explicit ProfilerParser(const QString &filename, quint64 from_timestamp);
+    explicit ProfilerParser(QTextStream &in, quint64 from_timestamp);
 
     QVector<FuncProfilerTreeNode*> getProfilerTrees(int cpu);
-    void addData(ProfilerParser &other);
+    quint64 getLastTokenTimestamp() const {
+        return last_token_timestamp;
+    }
+
+    QList<int> getAvailableCPUs() const {
+        return cpu_tokens.keys();
+    }
 
     std::optional<QVector<FuncProfilerToken>> getTokens(int cpu) {
         if (cpu_tokens.contains(cpu)) {

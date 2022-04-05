@@ -210,7 +210,7 @@ std::optional<SocketInfo> BaseDataSource::getOneSocket(const QString &protocol, 
     return std::nullopt;
 }
 
-std::optional<ProfilerParser> BaseDataSource::getProfilerData() {
+QMap<int, QVector<FuncProfilerTreeNode*>> BaseDataSource::getProfilerData() {
     auto collector = this->getProfilerCollector();
     collector->onStart();
 

@@ -4,24 +4,26 @@
 
 #include "parsers.h"
 
-ProfilerParser::ProfilerParser(const QString &filename) {
+ProfilerParser::ProfilerParser(const QString &filename, quint64 from_timestamp) {
 
     QFile file(filename);
 
     if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         QTextStream in(file.read(131000));
-        init(in);
+        init(in, from_timestamp);
     } else {
         std::cout << "Can't open " << filename.toStdString() << std::endl;
     }
 
 }
 
-ProfilerParser::ProfilerParser(QTextStream &in) {
-    init(in);
+ProfilerParser::ProfilerParser(QTextStream &in, quint64 from_timestamp) {
+    init(in, from_timestamp);
 }
 
-void ProfilerParser::init(QTextStream &in) {
+void ProfilerParser::init(QTextStream &in, quint64 from_timestamp) {
+
+    last_token_timestamp = from_timestamp;
 
     do {
 
@@ -29,11 +31,15 @@ void ProfilerParser::init(QTextStream &in) {
         QStringList token_list = line.split(' ', Qt::SkipEmptyParts);
         if (token_list.size() == TOKENS_COUNT) {
             auto token = FuncProfilerToken(token_list);
-            cpu_tokens[token.cpu_index].push_back(token);
+            if (token.timestamp > from_timestamp) {
+                if (token.timestamp > last_token_timestamp) {
+                    last_token_timestamp = token.timestamp;
+                }
+                cpu_tokens[token.cpu_index].push_back(token);
+            }
         }
 
     } while (!in.atEnd());
-
 }
 
 void ProfilerParser::_getProfilerTree(const QVector<FuncProfilerToken> &tokens, int &token_index,
@@ -48,6 +54,9 @@ void ProfilerParser::_getProfilerTree(const QVector<FuncProfilerToken> &tokens, 
             auto child = new FuncProfilerTreeNode(
                     token.func_name, token.cpu_index, parent);
             this->_getProfilerTree(tokens, token_index, child, token);
+            if (child->getDuration() == 0) {
+                std::cout << "Warning: function with zero duration - " << child->getFuncName().toStdString() << std::endl;
+            }
             parent->addChildren(child);
 
         } else if (token.type == FuncProfilerToken::TokenType::RETURN) {
@@ -60,7 +69,8 @@ void ProfilerParser::_getProfilerTree(const QVector<FuncProfilerToken> &tokens, 
                     std::cout << "Stack warning: different enter and return CPU" << std::endl;
                 }
             } else {
-                std::cout << "Stack error: different enter and return names" << std::endl;
+                std::cout << "Stack error: different enter and return names - " <<
+                token.func_name.toStdString() << " " << parent->getFuncName().toStdString() << std::endl;
             }
         }
     }
@@ -88,22 +98,4 @@ QVector<FuncProfilerTreeNode *> ProfilerParser::getProfilerTrees(int cpu) {
     }
 
     return root_nodes;
-}
-
-void ProfilerParser::addData(ProfilerParser &other) {
-
-    quint64 current_last_token_timestamp = last_token_timestamp;
-
-    for (const auto &tokens: other.cpu_tokens) {
-        for (const auto &token: tokens) {
-            if (last_token_timestamp < token.timestamp) {
-                cpu_tokens[token.cpu_index].push_back(token);
-                if (current_last_token_timestamp < token.timestamp) {
-                    current_last_token_timestamp = token.timestamp;
-                }
-            }
-        }
-    }
-
-    last_token_timestamp = current_last_token_timestamp;
 }

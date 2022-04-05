@@ -62,14 +62,20 @@ class DTraceProfilerCollector: public BaseProfilerCollector {
         dTrace.work(tmp_file);
     }
 
-    ProfilerParser onEnd() override {
+    QMap<int, QVector<FuncProfilerTreeNode*>> onEnd() override {
         dTrace.stop();
 
         auto file = std::make_unique<QFile>();
         file->open(tmp_file, QIODevice::ReadOnly);
         file->reset();
         QTextStream stream(file.get());
-        return ProfilerParser(stream);
+        ProfilerParser parser(stream, 0);
+
+        QMap<int, QVector<FuncProfilerTreeNode*>> res;
+        for (const auto cpu: parser.getAvailableCPUs()) {
+            res[cpu] << parser.getProfilerTrees(cpu);
+        }
+        return res;
     }
 
 };

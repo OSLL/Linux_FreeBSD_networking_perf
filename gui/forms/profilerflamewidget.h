@@ -25,13 +25,16 @@ protected:
     QProgressBar *progress_bar;
     QTimer timer;
     BaseDataSource *data_source;
-    ProfilerParser parser;
+    FlameGraph *flame_graph;
+    QMap<int, QVector<FuncProfilerTreeNode*>> profiler_data;
     std::unique_ptr<BaseProfilerCollector> collector;
 private:
     Ui::ProfilerFlameWidget *ui;
 
 protected slots:
     void onTimer();
+    void CPUChanged(const QString& s_cpu);
+    void onStartClicked();
 };
 
 #endif // PROFILERFLAMEWIDGET_H

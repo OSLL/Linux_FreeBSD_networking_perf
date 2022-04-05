@@ -9,7 +9,7 @@
 #include <linux/fs.h>
 
 #define DEVICE_NAME "netprofiler"
-#define PROFILER_BUFFER_LEN 200
+#define PROFILER_BUFFER_LEN 300
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("TheShenk");
@@ -77,7 +77,7 @@ static ssize_t device_read(struct file *file, char __user *buffer, size_t len, l
     char result_line[LINE_LEN] = {0};
     int current_buffer_offset = 0;
     int cpu = 0;
-    pr_info("Request: %d %d", len, *offset);
+//    pr_info("Request: %d %d", len, *offset);
     if (!*offset) {
         
         for_each_possible_cpu(cpu) {
@@ -290,8 +290,6 @@ static int __init netprofiler_init(void) {
     PROFILER("ipfrag_init");
     PROFILER("ipv4_pktinfo_prepare");
 
-    PROFILER("tcp_v4_rcv");
-    PROFILER("tcp_v4_do_rcv");
     PROFILER("tcp4_proc_exit");
     PROFILER("tcp4_proc_init");
     PROFILER("tcp_abort");
@@ -507,7 +505,6 @@ static int __init netprofiler_init(void) {
     PROFILER("tcp_xmit_retransmit_queue");
     PROFILER("tcpv4_offload_init");
 
-    
     PROFILER("udp_rcv");
     PROFILER("udp_queue_rcv_skb");
     PROFILER("sock_queue_rcv");
@@ -523,8 +520,8 @@ static void __exit netprofiler_exit(void) {
     
     for (int i=0; i<netprofiler_kp_index; i++) {
         unregister_kretprobe(&netprofiler_kp_list[i]);
-        pr_info("Missed probing %d instances of %s\n", netprofiler_kp_list[i].nmissed, netprofiler_kp_list[i].kp.symbol_name);
-        pr_info("kretprobe at %p unregistered\n", netprofiler_kp_list[i].kp.addr);
+//        pr_info("Missed probing %d instances of %s\n", netprofiler_kp_list[i].nmissed, netprofiler_kp_list[i].kp.symbol_name);
+//        pr_info("kretprobe at %p unregistered\n", netprofiler_kp_list[i].kp.addr);
     }    
 }
 
