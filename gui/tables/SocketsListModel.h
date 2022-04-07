@@ -84,7 +84,9 @@ public:
     }
 
     void setData(QVector<SocketInfo> &_values) {
+        beginResetModel();
         values = _values;
+        endResetModel();
     }
 
     SocketInfo dataByRow(int row) {

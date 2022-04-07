@@ -2,6 +2,7 @@
 #include <linux/module.h>
 #include <linux/kernel.h>
 #include <linux/version.h>
+#include <linux/sched.h>
 
 #include <linux/kprobes.h>
 
@@ -9,7 +10,7 @@
 #include <linux/fs.h>
 
 #define DEVICE_NAME "netprofiler"
-#define PROFILER_BUFFER_LEN 300
+#define PROFILER_BUFFER_LEN 200
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("TheShenk");
@@ -28,6 +29,7 @@ struct profiler_node {
     enum NodeType type;
     const char *func_name;
     u64 time;
+    u64 pid;
 };
 
 struct profiler_cpu {
@@ -65,7 +67,7 @@ static int device_release(struct inode *inode, struct file *file) {
 #define LINE_LEN 255
 
 static int write_profiler_string(struct profiler_node *node, char line[LINE_LEN], int cpu_index) {
-    return snprintf(line, LINE_LEN, "%s %s %llu %d\n", 
+    return snprintf(line, LINE_LEN, "%s %s %llu %d\n",
             node->type == ENTER ? "enter" : "return", 
             node->func_name, node->time, cpu_index);
 }
@@ -143,6 +145,7 @@ static int entry_handler(struct kretprobe_instance *ri, struct pt_regs *regs) {
     #endif
 
     cpu_profiler_data->list[cpu_profiler_data->i].time = ktime_get_ns();
+    cpu_profiler_data->list[cpu_profiler_data->i].pid = current->pid;
     
     cpu_profiler_data->i++;
     if (!(cpu_profiler_data->i < PROFILER_BUFFER_LEN)) {
