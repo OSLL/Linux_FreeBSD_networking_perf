@@ -231,12 +231,6 @@ QStringList FreeBSDDataSource::getSupportedStatsProtocols() {
     return FreeBSDDataSource::protocol_stats_sysctl_names.keys();
 }
 
-std::optional<ProfilerParser> FreeBSDDataSource::getProfilerData() {
-
-    qDebug() << "Starting...";
-    auto file = dTrace.start();
-    qDebug() << "Exit start...";
-    QTextStream stream(file.get());
-    return ProfilerParser(stream);
+std::unique_ptr<BaseProfilerCollector> FreeBSDDataSource::getProfilerCollector() {
+    return std::make_unique<DTraceProfilerCollector>();
 }
-#undef PROFILER

@@ -47,7 +47,7 @@
 #include <QRegularExpression>
 
 #include "../BaseDataSource.h"
-#include "../dtrace/DTrace.h"
+#include "../dtrace/DTraceProfilerCollector.h"
 #include "../parsers/parsers.h"
 
 class FreeBSDDataSource: public BaseDataSource {
@@ -80,7 +80,7 @@ public:
     QStringList getSupportedSocketsListProtocols() override;
     QStringList getSupportedStatsProtocols() override;
 
-    std::optional<ProfilerParser> getProfilerData() override;
+    std::unique_ptr<BaseProfilerCollector> getProfilerCollector() override;
 };
 
 
