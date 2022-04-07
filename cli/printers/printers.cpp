@@ -156,13 +156,14 @@ void _printProfilerNode(const FuncProfilerTreeNode *node, int indent = 0) {
 
 }
 
-void printProfilerData(QMap<int, QVector<FuncProfilerTreeNode*>> profiler_data, int cpu) {
-
-    if (profiler_data.contains(cpu)) {
-        for (const auto &root: profiler_data.value(cpu)) {
-            _printProfilerNode(root);
+void printProfilerData(ProfilerData profiler_data) {
+    for (const auto cpu: profiler_data.keys()) {
+        std::cout << "CPU: " << cpu << std::endl;
+        for (const auto pid: profiler_data[cpu].keys()) {
+            std::cout << "PID: " << pid << std::endl;
+            for (const auto *root: profiler_data[cpu][pid]) {
+                _printProfilerNode(root);
+            }
         }
-    } else {
-        std::cout << "No network activity on CPU " << cpu << std::endl;
     }
 }

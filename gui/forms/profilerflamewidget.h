@@ -26,7 +26,7 @@ protected:
     QTimer timer;
     BaseDataSource *data_source;
     FlameGraph *flame_graph;
-    QMap<int, QVector<FuncProfilerTreeNode*>> profiler_data;
+    ProfilerData profiler_data;
     std::unique_ptr<BaseProfilerCollector> collector;
 private:
     Ui::ProfilerFlameWidget *ui;
@@ -34,6 +34,7 @@ private:
 protected slots:
     void onTimer();
     void CPUChanged(const QString& s_cpu);
+    void PIDChanged(const QString& s_pid);
     void onStartClicked();
 };
 

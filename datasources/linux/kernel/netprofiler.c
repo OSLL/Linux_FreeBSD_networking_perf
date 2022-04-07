@@ -67,9 +67,9 @@ static int device_release(struct inode *inode, struct file *file) {
 #define LINE_LEN 255
 
 static int write_profiler_string(struct profiler_node *node, char line[LINE_LEN], int cpu_index) {
-    return snprintf(line, LINE_LEN, "%s %s %llu %d\n",
+    return snprintf(line, LINE_LEN, "%s %s %llu %d %llu\n",
             node->type == ENTER ? "enter" : "return", 
-            node->func_name, node->time, cpu_index);
+            node->func_name, node->time, cpu_index, node->pid);
 }
 
 

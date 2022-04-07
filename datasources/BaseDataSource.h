@@ -87,7 +87,7 @@ public:
 
 
     virtual std::unique_ptr<BaseProfilerCollector> getProfilerCollector()=0;
-    QMap<int, QVector<FuncProfilerTreeNode*>> getProfilerData();
+    ProfilerData getProfilerData();
 };
 
 

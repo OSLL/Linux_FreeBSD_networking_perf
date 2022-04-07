@@ -18,11 +18,14 @@ ProfilerFlameWidget::ProfilerFlameWidget(BaseDataSource *ds, QWidget *parent) :
 
     ui->durationSpinBox->setValue(default_args["duration"].toInt());
     ui->CPUComboBox->setEnabled(false);
+    ui->PIDComboBox->setEnabled(false);
+    ui->PIDComboBox->setDuplicatesEnabled(false);
     ui->protocolComboBox->setEnabled(false);
 
     timer.setInterval(std::chrono::seconds(1));
     QObject::connect(&timer, &QTimer::timeout, this, &ProfilerFlameWidget::onTimer);
     QObject::connect(ui->CPUComboBox, &QComboBox::currentTextChanged, this, &ProfilerFlameWidget::CPUChanged);
+    QObject::connect(ui->PIDComboBox, &QComboBox::currentTextChanged, this, &ProfilerFlameWidget::PIDChanged);
     QObject::connect(ui->startButton, &QPushButton::clicked, this, &ProfilerFlameWidget::onStartClicked);
 }
 
@@ -53,30 +56,39 @@ void ProfilerFlameWidget::onTimer() {
         timer.stop();
         ui->startButton->setEnabled(true);
 
+        ui->CPUComboBox->clear();
         auto available_cpus = profiler_data.keys();
         for (const auto cpu: available_cpus) {
             ui->CPUComboBox->addItem(QString::number(cpu));
         }
+
+        auto available_pids = profiler_data[ui->CPUComboBox->currentText().toInt()].keys();
+        for (const auto pid: available_pids) {
+            ui->PIDComboBox->addItem(QString::number(pid));
+        }
+
         ui->CPUComboBox->setEnabled(true);
+        ui->PIDComboBox->setEnabled(true);
         ui->protocolComboBox->setEnabled(true);
 
         ui->flameGraphLayout->removeWidget(progress_bar);
         delete progress_bar;
         progress_bar = nullptr;
 
-        flame_graph = new FlameGraph(profiler_data.value(ui->CPUComboBox->currentText().toInt()));
+        flame_graph = new FlameGraph(profiler_data
+                .value(ui->CPUComboBox->currentText().toInt())
+                .value(ui->PIDComboBox->currentText().toULongLong())
+                );
+        qDebug() << ui->CPUComboBox->currentText() << ui->PIDComboBox->currentText();
+        qDebug() << profiler_data;
         ui->flameGraphLayout->addWidget(flame_graph);
     }
-}
-
-void ProfilerFlameWidget::CPUChanged(const QString& s_cpu) {
-    if (flame_graph)
-        flame_graph->setNodes(profiler_data.value(s_cpu.toInt()));
 }
 
 void ProfilerFlameWidget::onStartClicked() {
 
     ui->CPUComboBox->setEnabled(false);
+    ui->PIDComboBox->setEnabled(false);
     ui->protocolComboBox->setEnabled(false);
 
     const auto duration = ui->durationSpinBox->value();
@@ -94,4 +106,22 @@ void ProfilerFlameWidget::onStartClicked() {
     collector->onStart();
     timer.start();
     ui->startButton->setEnabled(false);
+}
+
+void ProfilerFlameWidget::CPUChanged(const QString& s_cpu) {
+    ui->PIDComboBox->clear();
+    auto available_pids = profiler_data[ui->CPUComboBox->currentText().toInt()].keys();
+    for (const auto pid: available_pids) {
+        ui->PIDComboBox->addItem(QString::number(pid));
+    }
+}
+
+void ProfilerFlameWidget::PIDChanged(const QString &s_pid) {
+
+    if (flame_graph) {
+        flame_graph->setNodes(profiler_data
+        .value(ui->CPUComboBox->currentText().toInt())
+        .value(s_pid.toULongLong())
+        );
+    }
 }

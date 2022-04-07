@@ -201,16 +201,14 @@ std::optional<SocketInfo> BaseDataSource::getOneSocket(const QString &protocol, 
     for (const auto &si: sockets_list) {
         if (si.local_address == local_address && si.foreign_address == foreign_address &&
             si.local_port == local_port && si.foreign_port == foreign_port) {
-
             return si;
-
         }
     }
 
     return std::nullopt;
 }
 
-QMap<int, QVector<FuncProfilerTreeNode*>> BaseDataSource::getProfilerData() {
+ProfilerData BaseDataSource::getProfilerData() {
     auto collector = this->getProfilerCollector();
     collector->onStart();
 

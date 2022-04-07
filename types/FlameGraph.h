@@ -28,8 +28,8 @@ public:
         this->setAttribute(Qt::WA_TranslucentBackground);
     }
 
-    FlameGraph(ProfilerParser parser, int cpu): FlameGraph() {
-        nodes = parser.getProfilerTrees(cpu);
+    FlameGraph(ProfilerParser parser, int cpu, quint64 pid): FlameGraph() {
+        nodes = parser.getProfilerTrees(cpu, pid);
     }
 
     explicit FlameGraph(const QVector<FuncProfilerTreeNode *>& _nodes): FlameGraph() {
@@ -37,6 +37,8 @@ public:
     }
 
     void setNodes(const QVector<FuncProfilerTreeNode *>& _nodes) {
+        offset = QPointF(0, 0);
+        scale = 1;
         nodes = _nodes;
         update();
     }
@@ -89,7 +91,9 @@ private:
         }
 
         for (const auto *child: node->getChildren()) {
-            paintNode(painter, root_node, child, x_offset, level+1);
+            if (child->getDuration()) {
+                paintNode(painter, root_node, child, x_offset, level + 1);
+            }
         }
 
         return width;
@@ -109,12 +113,12 @@ protected:
 
         int x_offset = 0;
         for (const auto *node: nodes) {
-//            if (node->getFuncName() == "ip_rcv" || node->getFuncName() == "tcp_output") {
+            if (node->getDuration()) {
                 int width = paintNode(painter, node, node, x_offset, 0);
                 if (width > 0) {
                     x_offset += width + 10*scale;
                 }
-//            }
+            }
         }
     }
 

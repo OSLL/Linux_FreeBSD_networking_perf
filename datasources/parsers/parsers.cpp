@@ -35,7 +35,7 @@ void ProfilerParser::init(QTextStream &in, quint64 from_timestamp) {
                 if (token.timestamp > last_token_timestamp) {
                     last_token_timestamp = token.timestamp;
                 }
-                cpu_tokens[token.cpu_index].push_back(token);
+                cpu_tokens[token.cpu_index][token.pid].push_back(token);
             }
         }
 
@@ -52,7 +52,7 @@ void ProfilerParser::_getProfilerTree(const QVector<FuncProfilerToken> &tokens, 
         if (token.type == FuncProfilerToken::TokenType::ENTER) {
 
             auto child = new FuncProfilerTreeNode(
-                    token.func_name, token.cpu_index, parent);
+                    token.func_name, token.cpu_index, token.pid, parent);
             this->_getProfilerTree(tokens, token_index, child, token);
             if (child->getDuration() == 0) {
                 std::cout << "Warning: function with zero duration - " << child->getFuncName().toStdString() << std::endl;
@@ -66,20 +66,24 @@ void ProfilerParser::_getProfilerTree(const QVector<FuncProfilerToken> &tokens, 
                 parent->setRange(TimeRangeNS(enter_token.timestamp, token.timestamp));
 
                 if (token.cpu_index != parent->getCPUIndex()) {
-                    std::cout << "Stack warning: different enter and return CPU" << std::endl;
+                    std::cout << "Warning: different enter and return CPU" << std::endl;
                 }
             } else {
-                std::cout << "Stack error: different enter and return names - " <<
-                token.func_name.toStdString() << " " << parent->getFuncName().toStdString() << std::endl;
+                std::cout << "Warning: different enter and return names - " <<
+                enter_token.func_name.toStdString() << " " << enter_token.cpu_index << " " << enter_token.pid << " " << enter_token.timestamp << " " <<
+                token.func_name.toStdString() << " " << token.cpu_index << " " << token.pid << " " << token.timestamp << " " << std::endl;
             }
         }
     }
 }
 
-QVector<FuncProfilerTreeNode *> ProfilerParser::getProfilerTrees(int cpu) {
+QVector<FuncProfilerTreeNode *> ProfilerParser::getProfilerTrees(int cpu, quint64 pid) {
 
     QVector<FuncProfilerTreeNode*> root_nodes;
-    const auto &tokens = cpu_tokens[cpu];
+    auto &tokens = cpu_tokens[cpu][pid];
+    std::sort(tokens.begin(), tokens.end(), [](const FuncProfilerToken &tokenA, const FuncProfilerToken &tokenB) {
+        return tokenA.timestamp < tokenB.timestamp;
+    });
 
     int token_index = 0;
     while (token_index < tokens.size()) {
@@ -88,9 +92,11 @@ QVector<FuncProfilerTreeNode *> ProfilerParser::getProfilerTrees(int cpu) {
         if (token.type == FuncProfilerToken::TokenType::ENTER) {
 
             auto root = new FuncProfilerTreeNode(
-                    token.func_name, token.cpu_index, nullptr);
+                    token.func_name, token.cpu_index, token.pid, nullptr);
             this->_getProfilerTree(tokens, token_index, root, token);
-            root_nodes.push_back(root);
+            if (root->getDuration()) {
+                root_nodes.push_back(root);
+            }
 
         } else if (token.type == FuncProfilerToken::TokenType::RETURN) {
             std::cout << "Warning: return at top level" << std::endl;

@@ -9,7 +9,7 @@
 
 class LinuxProfilerCollector: public BaseProfilerCollector {
 
-    QMap<int, QVector<FuncProfilerTreeNode*>> res;
+    ProfilerData res;
     quint64 time;
 
     void onStart() override {
@@ -20,11 +20,16 @@ class LinuxProfilerCollector: public BaseProfilerCollector {
         ProfilerParser parser("/dev/netprofiler", time);
         time = parser.getLastTokenTimestamp();
         for (const auto cpu: parser.getAvailableCPUs()) {
-            res[cpu] << parser.getProfilerTrees(cpu);
+            for (const auto pid: parser.getAvailablePids(cpu)) {
+                auto trees = parser.getProfilerTrees(cpu, pid);
+                if (!trees.empty()) {
+                    res[cpu][pid] << parser.getProfilerTrees(cpu, pid);
+                }
+            }
         }
     }
 
-    QMap<int, QVector<FuncProfilerTreeNode*>> onEnd() override {
+    ProfilerData onEnd() override {
         return res;
     }
 

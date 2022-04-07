@@ -22,7 +22,6 @@ typedef QMap<QString, QMap<QString, int>> ProtocolsStats;
 typedef QVector<QMap<QString, QString>> SocketsList;
 typedef QVector<QVector<int>> CpusSoftnetData;
 typedef QMap<QString, QMap<int, int>> CpusSoftirqData;
-typedef QVector<QVector<QString>> ProfilerData;
 
 std::optional<ProtocolsStats> parseProtocolsStatsFile(const QString& filename);
 std::optional<ProtocolsStats> parseProtocolsV6StatsFile(const QString& filename);
@@ -30,7 +29,5 @@ std::optional<ProtocolsStats> parseProtocolsV6StatsFile(const QString& filename)
 std::optional<SocketsList> parseProtocolSocketsListFile(const QString& filename);
 std::optional<CpusSoftnetData> parseSoftnetDataFile(const QString& filename);
 std::optional<CpusSoftirqData> parseSoftirqFile(const QString& filename);
-
-std::optional<FuncProfilerTreeNode*> parseProfilerData(const QString& filename);
 
 #endif //LFNP_PARSERS_H

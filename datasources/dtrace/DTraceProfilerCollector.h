@@ -281,7 +281,7 @@ class DTraceProfilerCollector: public BaseProfilerCollector {
         dTrace.work(tmp_file);
     }
 
-    QMap<int, QVector<FuncProfilerTreeNode*>> onEnd() override {
+    ProfilerData onEnd() override {
         dTrace.stop();
 
         auto file = std::make_unique<QFile>();
@@ -290,9 +290,14 @@ class DTraceProfilerCollector: public BaseProfilerCollector {
         QTextStream stream(file.get());
         ProfilerParser parser(stream, 0);
 
-        QMap<int, QVector<FuncProfilerTreeNode*>> res;
+        ProfilerData res;
         for (const auto cpu: parser.getAvailableCPUs()) {
-            res[cpu] << parser.getProfilerTrees(cpu);
+            for (const auto pid: parser.getAvailablePids(cpu)) {
+                auto trees = parser.getProfilerTrees(cpu, pid);
+                if (!trees.empty()) {
+                    res[cpu][pid] << parser.getProfilerTrees(cpu, pid);
+                }
+            }
         }
         return res;
     }

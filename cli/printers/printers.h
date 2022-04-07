@@ -35,7 +35,7 @@ void printDropsInfo(QVector<QPair<QString, DropsInfo>> drops_info);
 
 void printBandwidthResult(std::optional<BandwidthResult> o_res);
 
-void printProfilerData(QMap<int, QVector<FuncProfilerTreeNode*>>, int cpu);
+void printProfilerData(ProfilerData profiler_data);
 
 template <typename T>
 void printTimestampsAverage(std::optional<QVector<T>> &o_time_info, bool in_ms) {

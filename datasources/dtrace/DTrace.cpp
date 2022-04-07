@@ -66,8 +66,8 @@ void DTrace::stop() {
     }
 }
 
-#define PROFILER(func_name) "fbt:kernel:" + func_name + ":entry {printf(\"enter " + func_name + " %d %d\\n\", timestamp, cpu);} " \
-"fbt:kernel:" + func_name + ":return {printf(\"return " + func_name + " %d %d\\n\", timestamp, cpu);}"
+#define PROFILER(func_name) "fbt:kernel:" + func_name + ":entry {printf(\"enter " + func_name + " %d %d %d\\n\", timestamp, cpu, pid);} " \
+"fbt:kernel:" + func_name + ":return {printf(\"return " + func_name + " %d %d %d\\n\", timestamp, cpu, pid);}"
 void DTrace::addProbe(const QString &func_name) {
 
     if (probes.contains(func_name)) {
