@@ -81,6 +81,7 @@ public:
     static QStringList getSupportedProtocols();
     int getDomain() const;
     int getType() const;
+    int getDescriptor();
 };
 
 #endif //LFNP_SOCKETS_H

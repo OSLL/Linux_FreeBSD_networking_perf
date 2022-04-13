@@ -242,3 +242,7 @@ int Socket::getDomain() const {
 int Socket::getType() const {
     return sock_type;
 }
+
+int Socket::getDescriptor() {
+    return sock_descriptor;
+}

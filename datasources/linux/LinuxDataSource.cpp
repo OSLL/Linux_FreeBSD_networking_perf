@@ -2,6 +2,7 @@
 // Created by shenk on 17.12.2021.
 //
 
+#include <sys/poll.h>
 #include "LinuxDataSource.h"
 
 QMap<QString, QString> LinuxDataSource::protocol_sockets_files  = {
@@ -266,11 +267,14 @@ void LinuxDataSource::processSendTimestamp(Socket &sock, SendTimestamp &res, Tim
     scm_timestamping *tmst = nullptr;
 
     // Далее происходит работа с очередью ошибок. Так как она всегда асинхронна, то receiveMsg не заблокируется.
-    // TODO: использовать poll или pselect
-    int is_cmsg_exist;
-    do {
-        is_cmsg_exist = sock.receiveMsg(msg, MSG_ERRQUEUE);
-    } while (is_cmsg_exist < 0);
+    pollfd pfd;
+    pfd.fd = sock.getDescriptor();
+    pfd.events = POLLIN;
+
+    int ret = poll(&pfd, 1, 1000);
+    if (ret == -1) return;
+
+    sock.receiveMsg(msg, MSG_ERRQUEUE);
 
     for (cmsghdr *cmsg = CMSG_FIRSTHDR(&msg); cmsg; cmsg = CMSG_NXTHDR(&msg, cmsg)) {
         if (cmsg->cmsg_level == SOL_SOCKET && cmsg->cmsg_type == SCM_TIMESTAMPING) {
