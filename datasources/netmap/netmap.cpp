@@ -8,11 +8,11 @@ QMap<QString, quint64> NetmapPktGen::unit_multiplier = {
     {"pps", 1},
     {"Kpps", 1000},
     {"Mpps", 1000000},
-    {"Gpps", 1000000000},
+    {"Gpps", 1000000000L},
     {"bps", 1},
     {"Kbps", 1000},
     {"Mbps", 1000000},
-    {"Gbps", 1000000000}
+    {"Gbps", 1000000000L}
 };
 
 std::optional<QVector<BandwidthResult>> NetmapPktGen::parseNetmapPktgenOutput(const QString &filename) {
@@ -39,7 +39,7 @@ std::optional<QVector<BandwidthResult>> NetmapPktGen::parseNetmapPktgenOutput(co
 
             result.push_back(BandwidthResult(
                     pps * unit_multiplier[pps_unit],
-                    bps * unit_multiplier[bps_unit],
+                    bps * unit_multiplier[bps_unit]/8,
                     1
             ));
         }
