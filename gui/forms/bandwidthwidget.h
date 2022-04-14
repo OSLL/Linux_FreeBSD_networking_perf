@@ -3,11 +3,12 @@
 
 #include <QWidget>
 
+#include "../../utils/default_args.h"
 #include "../../types/BandwidthResult.h"
 #include "../../types/enums/BandwidthUnits.h"
 #include "../../types/enums/UnitsPrefixes.h"
-#include "../../utils/default_args.h"
 #include "../../types/BandwidthChart.h"
+#include "../../types/series/CounterSeries.h"
 
 namespace Ui {
 class BandwidthWidget;
@@ -25,7 +26,7 @@ public:
 protected:
     void changeEvent(QEvent *e);
 
-    BandwidthSeries *bandwidth_series;
+    FuncSeries<CounterSeries<QLineSeries>, qreal, BandwidthResult> *bandwidth_series;
     BandwidthChart *chart;
     QChartView chart_view;
     const QVector<BandwidthResult> result;

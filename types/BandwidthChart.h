@@ -67,7 +67,7 @@ private:
 
 public:
 
-    BandwidthChart(UnitsPrefixes _prefix, BandwidthUnits _unit): AdvancedChart(0, 1, new QDateTimeAxis) {
+    BandwidthChart(UnitsPrefixes _prefix, BandwidthUnits _unit, QAbstractAxis *axis = new QDateTimeAxis): AdvancedChart(0, 1, axis) {
         current_prefix = _prefix;
         current_unit = _unit;
 
@@ -87,8 +87,9 @@ public:
         initTitle();
     }
 
-    void addSeries(BandwidthSeries **series) {
-        *series = new BandwidthSeries(get_value_func);
+    template<class T, typename H, typename V>
+    void addSeries(FuncSeries<T, H, V> **series) {
+        *series = new FuncSeries<T, H, V>(get_value_func);
         AdvancedChart::addSeries(*series);
     }
 

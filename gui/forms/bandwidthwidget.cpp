@@ -19,10 +19,8 @@ BandwidthWidget::BandwidthWidget(const QVector<BandwidthResult>& _result, const 
     ui->unitComboBox->setCurrentText(default_args["unit"]);
     if (available_units.size() == 1) ui->unitComboBox->setDisabled(true);
 
-    chart = new BandwidthChart(GIGA, BITS);
-    chart->addSeries(&bandwidth_series);
-    bandwidth_series->setName("Bandwidth");
-
+    chart = new BandwidthChart(GIGA, BITS, new QValueAxis);
+    chart->getXAxis()->setTitleText("Measure number");
     recreateChart();
 
     chart->getXAxis()->setRange(0, result.size()-1);
@@ -59,6 +57,11 @@ void BandwidthWidget::prefixChanged(const QString &text) {
 
 void BandwidthWidget::recreateChart() {
 
+    chart->removeAllSeries();
+    chart->addSeries(&bandwidth_series);
+    bandwidth_series->setName("Bandwidth");
+
+    bandwidth_series->resetCounter();
     for (const auto &r: result) {
         bandwidth_series->append(r);
     }
