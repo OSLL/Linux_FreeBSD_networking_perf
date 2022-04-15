@@ -87,7 +87,7 @@ public:
 
 
     virtual std::unique_ptr<BaseProfilerCollector> getProfilerCollector()=0;
-    ProfilerData getProfilerData();
+    ProfilerData getProfilerData(QString protocol);
 };
 
 

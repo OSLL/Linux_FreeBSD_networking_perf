@@ -208,9 +208,9 @@ std::optional<SocketInfo> BaseDataSource::getOneSocket(const QString &protocol, 
     return std::nullopt;
 }
 
-ProfilerData BaseDataSource::getProfilerData() {
+ProfilerData BaseDataSource::getProfilerData(QString protocol) {
     auto collector = this->getProfilerCollector();
-    collector->onStart();
+    collector->onStart(protocol);
 
     for (int i=0; i<10; i++) {
         QThread::sleep(1);

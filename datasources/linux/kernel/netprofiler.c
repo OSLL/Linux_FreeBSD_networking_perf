@@ -10,7 +10,7 @@
 #include <linux/fs.h>
 
 #define DEVICE_NAME "netprofiler"
-#define PROFILER_BUFFER_LEN 200
+#define PROFILER_BUFFER_LEN 210
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("TheShenk");
@@ -55,12 +55,24 @@ static struct kretprobe netprofiler_kp_list[MAX_KPROBES_COUNT] = {};
 static int netprofiler_kp_index = 0;
 
 static void clean_probes(void) {
+
     struct kretprobe* unregister_list[MAX_KPROBES_COUNT];
+    int cpu = 0;
+
     for (int i=0; i<netprofiler_kp_index; i++) {
         unregister_list[i] = &netprofiler_kp_list[i];
     }
     unregister_kretprobes(unregister_list, netprofiler_kp_index);
     netprofiler_kp_index = 0;
+
+    for_each_possible_cpu(cpu) {
+        struct profiler_cpu *cpu_profiler_data = per_cpu_ptr(&profiler_data, cpu);
+
+        for (int i=0; i<PROFILER_BUFFER_LEN; i++) {
+            cpu_profiler_data->list[i].type = UNINITIALIZED;
+        }
+    }
+
 }
 
 struct exectime {

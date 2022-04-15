@@ -20,7 +20,8 @@ ProfilerFlameWidget::ProfilerFlameWidget(BaseDataSource *ds, QWidget *parent) :
     ui->CPUComboBox->setEnabled(false);
     ui->PIDComboBox->setEnabled(false);
     ui->PIDComboBox->setDuplicatesEnabled(false);
-    ui->protocolComboBox->setEnabled(false);
+
+    ui->protocolComboBox->addItems(ds->getProfilerCollector()->getSupportedProtocols());
 
     timer.setInterval(std::chrono::seconds(1));
     QObject::connect(&timer, &QTimer::timeout, this, &ProfilerFlameWidget::onTimer);
@@ -80,9 +81,13 @@ void ProfilerFlameWidget::onTimer() {
 
 void ProfilerFlameWidget::onStartClicked() {
 
+    ui->CPUComboBox->clear();
+    ui->PIDComboBox->clear();
+
     ui->CPUComboBox->setEnabled(false);
     ui->PIDComboBox->setEnabled(false);
     ui->protocolComboBox->setEnabled(false);
+    ui->startButton->setEnabled(false);
 
     const auto duration = ui->durationSpinBox->value();
 
@@ -96,9 +101,8 @@ void ProfilerFlameWidget::onStartClicked() {
     ui->flameGraphLayout->addWidget(progress_bar);
 
     collector = data_source->getProfilerCollector();
-    collector->onStart();
+    collector->onStart(ui->protocolComboBox->currentText());
     timer.start();
-    ui->startButton->setEnabled(false);
 }
 
 void ProfilerFlameWidget::CPUChanged(const QString& s_cpu) {

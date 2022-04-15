@@ -109,7 +109,7 @@ int cli_main(int argc, char *argv[]) {
         pktgen.start();
         printBandwidthResult(pktgen.getResult());
     } else if (argc > 1 && args[1] == "profiler") {
-        printProfilerData(ds->getProfilerData());
+        printProfilerData(ds->getProfilerData(protocol));
     } else {
         std::cout << "Unknown command";
     }

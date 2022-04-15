@@ -11,9 +11,10 @@ class BaseProfilerCollector {
 
 public:
 
-    virtual void onStart()=0;
+    virtual void onStart(QString protocol)=0;
     virtual void onTimer()=0;
     virtual ProfilerData onEnd()=0;
+    virtual QStringList getSupportedProtocols()=0;
 
 };
 
