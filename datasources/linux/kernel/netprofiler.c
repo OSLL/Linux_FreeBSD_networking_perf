@@ -8,9 +8,10 @@
 
 #include <linux/cdev.h>
 #include <linux/fs.h>
+#include<linux/string.h>
 
 #define DEVICE_NAME "netprofiler"
-#define PROFILER_BUFFER_LEN 210
+#define PROFILER_BUFFER_LEN 150
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("TheShenk");
@@ -30,11 +31,13 @@ struct profiler_node {
     const char *func_name;
     u64 time;
     u64 pid;
+    u64 id;
 };
 
 struct profiler_cpu {
     struct profiler_node list[PROFILER_BUFFER_LEN];
     int i;
+    unsigned long long id;
 };
 
 static int device_open_count = 0;
@@ -51,7 +54,7 @@ static DEFINE_PER_CPU(struct profiler_cpu, profiler_data);
 #define MAX_FUNC_NAME_LENGTH 255
 
 static char func_names_list[MAX_FUNC_NAME_LENGTH][MAX_KPROBES_COUNT] = {0};
-static struct kretprobe netprofiler_kp_list[MAX_KPROBES_COUNT] = {};
+static struct kretprobe netprofiler_kp_list[MAX_KPROBES_COUNT];
 static int netprofiler_kp_index = 0;
 
 static void clean_probes(void) {
@@ -63,16 +66,23 @@ static void clean_probes(void) {
         unregister_list[i] = &netprofiler_kp_list[i];
     }
     unregister_kretprobes(unregister_list, netprofiler_kp_index);
+    for (int i=0; i<netprofiler_kp_index; i++) {
+        unregister_list[i] = 0;
+    }
     netprofiler_kp_index = 0;
 
     for_each_possible_cpu(cpu) {
         struct profiler_cpu *cpu_profiler_data = per_cpu_ptr(&profiler_data, cpu);
+        cpu_profiler_data->i = 0;
+        cpu_profiler_data->id = 0;
 
-        for (int i=0; i<PROFILER_BUFFER_LEN; i++) {
+        for (int i=cpu_profiler_data->i; i<PROFILER_BUFFER_LEN; i++) {
             cpu_profiler_data->list[i].type = UNINITIALIZED;
         }
     }
 
+    memset(netprofiler_kp_list, 0, sizeof(netprofiler_kp_list));
+    memset(func_names_list, 0, sizeof(func_names_list));
 }
 
 struct exectime {
@@ -81,9 +91,11 @@ struct exectime {
 
 static int entry_handler(struct kretprobe_instance *ri, struct pt_regs *regs) {
 
+
     struct profiler_cpu *cpu_profiler_data = NULL;
     cpu_profiler_data = get_cpu_ptr(&profiler_data);
 
+    pr_info("Entry at %d", cpu_profiler_data->i);
     cpu_profiler_data->list[cpu_profiler_data->i].type = ENTER;
 
 #if LINUX_VERSION_CODE <= KERNEL_VERSION(5,0,0)
@@ -94,7 +106,9 @@ static int entry_handler(struct kretprobe_instance *ri, struct pt_regs *regs) {
 
     cpu_profiler_data->list[cpu_profiler_data->i].time = ktime_get_ns();
     cpu_profiler_data->list[cpu_profiler_data->i].pid = current->pid;
+    cpu_profiler_data->list[cpu_profiler_data->i].id = cpu_profiler_data->id;
 
+    cpu_profiler_data->id++;
     cpu_profiler_data->i++;
     if (!(cpu_profiler_data->i < PROFILER_BUFFER_LEN)) {
         cpu_profiler_data->i = 0;
@@ -121,7 +135,10 @@ static int ret_handler(struct kretprobe_instance *ri, struct pt_regs *regs) {
 #endif
 
     cpu_profiler_data->list[cpu_profiler_data->i].time = now;
+    cpu_profiler_data->list[cpu_profiler_data->i].pid = current->pid;
+    cpu_profiler_data->list[cpu_profiler_data->i].id = cpu_profiler_data->id;
 
+    cpu_profiler_data->id++;
     cpu_profiler_data->i++;
     if (!(cpu_profiler_data->i < PROFILER_BUFFER_LEN)) {
         cpu_profiler_data->i = 0;
@@ -135,10 +152,9 @@ NOKPROBE_SYMBOL(ret_handler);
 
 static int add_profiler(char *func_name) {
 
-    pr_info("Added profiler for: %s\n", func_name);
-
     if (netprofiler_kp_index < MAX_KPROBES_COUNT) {
         strncpy(func_names_list[netprofiler_kp_index], func_name, MAX_FUNC_NAME_LENGTH);
+        pr_info("Added profiler for: %s\n", func_names_list[netprofiler_kp_index]);
 
         netprofiler_kp_list[netprofiler_kp_index].handler = ret_handler;
         netprofiler_kp_list[netprofiler_kp_index].kp.addr = NULL;
@@ -174,9 +190,9 @@ static int device_release(struct inode *inode, struct file *file) {
 #define LINE_LEN 255
 
 static int write_profiler_string(struct profiler_node *node, char line[LINE_LEN], int cpu_index) {
-    return snprintf(line, LINE_LEN, "%s %s %llu %d %llu\n",
+    return snprintf(line, LINE_LEN, "%s %s %llu %d %llu %llu\n",
             node->type == ENTER ? "enter" : "return", 
-            node->func_name, node->time, cpu_index, node->pid);
+            node->func_name, node->time, cpu_index, node->pid, node->id);
 }
 
 
@@ -186,7 +202,7 @@ static ssize_t device_read(struct file *file, char __user *buffer, size_t len, l
     char result_line[LINE_LEN] = {0};
     int current_buffer_offset = 0;
     int cpu = 0;
-//    pr_info("Request: %d %d", len, *offset);
+    pr_info("Request: %d %d", len, *offset);
     if (!*offset) {
         
         for_each_possible_cpu(cpu) {
@@ -228,9 +244,8 @@ static ssize_t device_write(struct file *file, const char __user *buffer, size_t
     }
 
     copy_from_user(data, buffer, len);
-    pr_info("Write request: %lld\n", len);
     int is_clean = !strcmp(data, "clean");
-    pr_info("Is clean: %d\n", is_clean);
+
     if (is_clean) {
         clean_probes();
     } else {
@@ -251,11 +266,17 @@ static struct file_operations file_ops = {
 };
 
 static int __init netprofiler_init(void) {
-    
+
+    memset(netprofiler_kp_list, 0, sizeof(netprofiler_kp_list));
+    memset(func_names_list, 0, sizeof(func_names_list));
+
+    pr_info("Size: %llu %llu", sizeof(netprofiler_kp_list), sizeof(func_names_list));
+
     int cpu = 0;
     for_each_possible_cpu(cpu) {
         struct profiler_cpu *cpu_profiler_data = per_cpu_ptr(&profiler_data, cpu);
         cpu_profiler_data->i = 0;
+        cpu_profiler_data->id = 0;
         
         for (int i=cpu_profiler_data->i; i<PROFILER_BUFFER_LEN; i++) {
             cpu_profiler_data->list[i].type = UNINITIALIZED;
