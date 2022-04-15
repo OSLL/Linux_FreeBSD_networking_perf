@@ -17,7 +17,6 @@
 #define cpu_set_t cpuset_t
 #endif
 
-//TODO: Графический интерфейс
 class BandwidthSender: public QThread {
 
 private:

@@ -95,7 +95,6 @@ QVector<SocketInfo> FreeBSDDataSource::getSockets(QString protocol) {
     return sockets_info_list;
 }
 
-//TODO: Проработать netist, там много полезного. Например, поле qdrops.
 std::optional<QMap<int, int>> FreeBSDDataSource::getCPUDistribution(CPUDistributionSource source) {
 
     size_t size;

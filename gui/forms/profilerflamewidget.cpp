@@ -62,11 +62,6 @@ void ProfilerFlameWidget::onTimer() {
             ui->CPUComboBox->addItem(QString::number(cpu));
         }
 
-        auto available_pids = profiler_data[ui->CPUComboBox->currentText().toInt()].keys();
-        for (const auto pid: available_pids) {
-            ui->PIDComboBox->addItem(QString::number(pid));
-        }
-
         ui->CPUComboBox->setEnabled(true);
         ui->PIDComboBox->setEnabled(true);
         ui->protocolComboBox->setEnabled(true);
@@ -79,8 +74,6 @@ void ProfilerFlameWidget::onTimer() {
                 .value(ui->CPUComboBox->currentText().toInt())
                 .value(ui->PIDComboBox->currentText().toULongLong())
                 );
-        qDebug() << ui->CPUComboBox->currentText() << ui->PIDComboBox->currentText();
-        qDebug() << profiler_data;
         ui->flameGraphLayout->addWidget(flame_graph);
     }
 }
@@ -111,6 +104,7 @@ void ProfilerFlameWidget::onStartClicked() {
 void ProfilerFlameWidget::CPUChanged(const QString& s_cpu) {
     ui->PIDComboBox->clear();
     auto available_pids = profiler_data[ui->CPUComboBox->currentText().toInt()].keys();
+    qDebug() << available_pids;
     for (const auto pid: available_pids) {
         ui->PIDComboBox->addItem(QString::number(pid));
     }
