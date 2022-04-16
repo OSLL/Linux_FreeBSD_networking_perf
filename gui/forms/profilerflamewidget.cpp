@@ -57,10 +57,10 @@ void ProfilerFlameWidget::onTimer() {
         timer.stop();
         ui->startButton->setEnabled(true);
 
-        ui->CPUComboBox->clear();
-        auto available_cpus = profiler_data.keys();
-        for (const auto cpu: available_cpus) {
-            ui->CPUComboBox->addItem(QString::number(cpu));
+        ui->PIDComboBox->clear();
+        auto available_pids = profiler_data.keys();
+        for (const auto pid: available_pids) {
+            ui->PIDComboBox->addItem(QString::number(pid));
         }
 
         ui->CPUComboBox->setEnabled(true);
@@ -72,8 +72,8 @@ void ProfilerFlameWidget::onTimer() {
         progress_bar = nullptr;
 
         flame_graph = new FlameGraph(profiler_data
-                .value(ui->CPUComboBox->currentText().toInt())
-                .value(ui->PIDComboBox->currentText().toULongLong())
+                                             .value(ui->PIDComboBox->currentText().toULongLong())
+                                             .value(ui->CPUComboBox->currentText().toInt())
                 );
         ui->flameGraphLayout->addWidget(flame_graph);
     }
@@ -106,20 +106,20 @@ void ProfilerFlameWidget::onStartClicked() {
 }
 
 void ProfilerFlameWidget::CPUChanged(const QString& s_cpu) {
-    ui->PIDComboBox->clear();
-    auto available_pids = profiler_data[ui->CPUComboBox->currentText().toInt()].keys();
-    qDebug() << available_pids;
-    for (const auto pid: available_pids) {
-        ui->PIDComboBox->addItem(QString::number(pid));
+    if (flame_graph) {
+        flame_graph->setNodes(profiler_data
+                                      .value(ui->PIDComboBox->currentText().toULongLong())
+                                      .value(ui->CPUComboBox->currentText().toInt())
+        );
     }
 }
 
 void ProfilerFlameWidget::PIDChanged(const QString &s_pid) {
 
-    if (flame_graph) {
-        flame_graph->setNodes(profiler_data
-        .value(ui->CPUComboBox->currentText().toInt())
-        .value(s_pid.toULongLong())
-        );
+    ui->CPUComboBox->clear();
+    auto available_cpus = profiler_data[s_pid.toULongLong()].keys();
+    for (const auto cpu: available_cpus) {
+        ui->CPUComboBox->addItem(QString::number(cpu));
     }
+
 }

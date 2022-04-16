@@ -35,7 +35,7 @@ void ProfilerParser::init(QTextStream &in, quint64 from_timestamp) {
                 if (token.timestamp > last_token_timestamp) {
                     last_token_timestamp = token.timestamp;
                 }
-                cpu_tokens[token.cpu_index][token.pid].push_back(token);
+                pid_tokens[token.pid][token.cpu_index].push_back(token);
             }
         }
 
@@ -80,7 +80,7 @@ void ProfilerParser::_getProfilerTree(const QVector<FuncProfilerToken> &tokens, 
 QVector<FuncProfilerTreeNode *> ProfilerParser::getProfilerTrees(int cpu, quint64 pid) {
 
     QVector<FuncProfilerTreeNode*> root_nodes;
-    auto &tokens = cpu_tokens[cpu][pid];
+    auto &tokens = pid_tokens[pid][cpu];
     std::sort(tokens.begin(), tokens.end(), [](const FuncProfilerToken &tokenA, const FuncProfilerToken &tokenB) {
         return tokenA.timestamp < tokenB.timestamp;
     });

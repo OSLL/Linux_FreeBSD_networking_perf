@@ -13,13 +13,13 @@
 
 #define TOKENS_COUNT 6
 
-typedef QMap<quint64, QVector<FuncProfilerTreeNode*>> CPUProfilerData;
-typedef QMap<int, CPUProfilerData> ProfilerData;
+typedef QMap<int, QVector<FuncProfilerTreeNode*>> CPUProfilerData;
+typedef QMap<quint64, CPUProfilerData> ProfilerData;
 
 class ProfilerParser {
 
 private:
-    QMap<int, QMap<quint64, QVector<FuncProfilerToken>>> cpu_tokens;
+    QMap<quint64, QMap<int, QVector<FuncProfilerToken>>> pid_tokens;
     quint64 last_token_timestamp;
     void init(QTextStream &in, quint64 from_timestamp);
     void _getProfilerTree(const QVector<FuncProfilerToken> &tokens, int &token_index, FuncProfilerTreeNode *parent,
@@ -35,18 +35,18 @@ public:
         return last_token_timestamp;
     }
 
-    QList<int> getAvailableCPUs() const {
-        return cpu_tokens.keys();
+    QList<int> getAvailableCPUs(quint64 pid) const {
+        return pid_tokens[pid].keys();
     }
 
-    QList<quint64> getAvailablePids(int cpu) const {
-        return cpu_tokens[cpu].keys();
+    QList<quint64> getAvailablePids() const {
+        return pid_tokens.keys();
     }
 
     std::optional<QVector<FuncProfilerToken>> getTokens(int cpu, quint64 pid) {
-        if (cpu_tokens.contains(cpu)) {
-            if (cpu_tokens[cpu].contains(pid)) {
-                return cpu_tokens[cpu][pid];
+        if (pid_tokens.contains(pid)) {
+            if (pid_tokens[pid].contains(cpu)) {
+                return pid_tokens[pid][cpu];
             }
         }
         return std::nullopt;

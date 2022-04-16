@@ -17,39 +17,6 @@
    <item>
     <layout class="QVBoxLayout" name="controlLayout">
      <item>
-      <layout class="QHBoxLayout" name="CPULayout">
-       <item>
-        <widget class="QLabel" name="CPULabel">
-         <property name="minimumSize">
-          <size>
-           <width>80</width>
-           <height>0</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>80</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>CPU:</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QComboBox" name="CPUComboBox">
-         <property name="maximumSize">
-          <size>
-           <width>80</width>
-           <height>16777215</height>
-          </size>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </item>
-     <item>
       <layout class="QHBoxLayout" name="PIDLayout">
        <item>
         <widget class="QLabel" name="PIDLabel">
@@ -72,6 +39,39 @@
        </item>
        <item>
         <widget class="QComboBox" name="PIDComboBox">
+         <property name="maximumSize">
+          <size>
+           <width>80</width>
+           <height>16777215</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="CPULayout">
+       <item>
+        <widget class="QLabel" name="CPULabel">
+         <property name="minimumSize">
+          <size>
+           <width>80</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>80</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>CPU:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QComboBox" name="CPUComboBox">
          <property name="maximumSize">
           <size>
            <width>80</width>

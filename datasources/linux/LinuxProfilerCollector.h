@@ -504,11 +504,11 @@ class LinuxProfilerCollector: public BaseProfilerCollector {
     void onTimer() override {
         ProfilerParser parser("/dev/netprofiler", time);
         time = parser.getLastTokenTimestamp();
-        for (const auto cpu: parser.getAvailableCPUs()) {
-            for (const auto pid: parser.getAvailablePids(cpu)) {
+        for (const auto pid: parser.getAvailablePids()) {
+            for (const auto cpu: parser.getAvailableCPUs(pid)) {
                 auto trees = parser.getProfilerTrees(cpu, pid);
                 if (!trees.empty()) {
-                    res[cpu][pid] << parser.getProfilerTrees(cpu, pid);
+                    res[pid][cpu] << parser.getProfilerTrees(cpu, pid);
                 }
             }
         }
