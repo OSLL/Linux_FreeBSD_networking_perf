@@ -11,7 +11,7 @@
 #include <iostream>
 #include "../../types/FuncProfiler.h"
 
-#define TOKENS_COUNT 6
+#define TOKENS_COUNT 5
 
 typedef QMap<int, QVector<FuncProfilerTreeNode*>> CPUProfilerData;
 typedef QMap<quint64, CPUProfilerData> ProfilerData;

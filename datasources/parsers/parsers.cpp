@@ -21,6 +21,7 @@ ProfilerParser::ProfilerParser(QTextStream &in, quint64 from_timestamp) {
     init(in, from_timestamp);
 }
 
+#include <QDebug>
 void ProfilerParser::init(QTextStream &in, quint64 from_timestamp) {
 
     last_token_timestamp = from_timestamp;
@@ -29,7 +30,7 @@ void ProfilerParser::init(QTextStream &in, quint64 from_timestamp) {
 
         QString line = in.readLine();
         QStringList token_list = line.split(' ', Qt::SkipEmptyParts);
-        if (token_list.size() == TOKENS_COUNT) {
+        if (token_list.size() >= TOKENS_COUNT) {
             auto token = FuncProfilerToken(token_list);
             if (token.timestamp > from_timestamp) {
                 if (token.timestamp > last_token_timestamp) {

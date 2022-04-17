@@ -21,7 +21,7 @@ public:
     int cpu_index;
     quint64 timestamp;
     quint64 pid;
-    quint64 id;
+//    quint64 id;
     TokenType type;
 
     FuncProfilerToken(const QStringList &token_list) {
@@ -30,7 +30,7 @@ public:
         timestamp = token_list[2].toULongLong();
         cpu_index = token_list[3].toInt();
         pid = token_list[4].toULongLong();
-        id = token_list[5].toULongLong();
+//        id = token_list[5].toULongLong();
     }
 };
 
