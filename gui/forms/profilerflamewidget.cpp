@@ -105,7 +105,7 @@ void ProfilerFlameWidget::onStartClicked() {
     ui->flameGraphLayout->addWidget(progress_bar);
 
     collector = data_source->getProfilerCollector();
-    collector->onStart(ui->protocolComboBox->currentText());
+    collector->onStart(protocols_model->getChecked());
     timer.start();
 }
 

@@ -56,6 +56,16 @@ public:
         // - в qcombobox происходит событие activated при простом открытии выбора, а не при нажатии на элемент
         return display.join(",") + " ";
     }
+
+    QVector<QString> getChecked() {
+        QVector<QString> checked;
+        for (int i=0; i<model_data.size(); i++) {
+            if (checked_data[i]) {
+                checked.push_back(model_data[i]);
+            }
+        }
+        return checked;
+    }
 };
 
 #endif //LFNP_PROFILERPROTOCOLSMODEL_H

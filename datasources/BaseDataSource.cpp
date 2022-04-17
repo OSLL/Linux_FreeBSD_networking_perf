@@ -10,6 +10,7 @@
 #include "../types/BandwidthResult.h"
 #include "../utils/default_args.h"
 #include <QThreadPool>
+#include <utility>
 
 using namespace std::placeholders;
 
@@ -210,7 +211,8 @@ std::optional<SocketInfo> BaseDataSource::getOneSocket(const QString &protocol, 
 
 ProfilerData BaseDataSource::getProfilerData(QString protocol) {
     auto collector = this->getProfilerCollector();
-    collector->onStart(protocol);
+
+    collector->onStart({std::move(protocol)});
 
     for (int i=0; i<10; i++) {
         QThread::sleep(1);
