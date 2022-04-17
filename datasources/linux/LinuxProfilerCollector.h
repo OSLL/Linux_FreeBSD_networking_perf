@@ -18,7 +18,6 @@ class LinuxProfilerCollector: public BaseProfilerCollector {
     file.flush()
 
     void onStart(QString protocol) override {
-        qDebug() << "Protocol:" << protocol;
 
         time = 0;
         QFile file("/dev/netprofiler");
@@ -497,6 +496,10 @@ class LinuxProfilerCollector: public BaseProfilerCollector {
             PROFILER("udp_v4_rehash");
         }
 
+        if (protocol == "udplite") {
+
+        }
+
         file.close();
     }
 #undef PROFILER
@@ -526,7 +529,7 @@ class LinuxProfilerCollector: public BaseProfilerCollector {
     }
 
     QStringList getSupportedProtocols() override {
-        return {"tcp", "udp"};
+        return {"tcp", "udp", "udplite"};
     }
 
 };

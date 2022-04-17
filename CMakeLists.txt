@@ -28,9 +28,9 @@ add_executable(lfnp main.cpp datasources/BaseDataSource.h utils/utils.h utils/ut
         gui/forms/sendtimestampwidget.h gui/forms/sendtimestampwidget.cpp gui/forms/sendtimestampwidget.ui
         gui/threads/TimestampsSenderThread.h types/TimestampsChart.h datasources/bandwidth/BandwidthSender.h
         datasources/bandwidth/BandwidthReceiver.h types/BandwidthResult.h gui/forms/socketslistwidget.h
-        gui/forms/socketslistwidget.cpp gui/forms/socketslistwidget.ui gui/tables/SocketsListModel.h
+        gui/forms/socketslistwidget.cpp gui/forms/socketslistwidget.ui gui/models/SocketsListModel.h
         datasources/bandwidth/LinuxPktgen.h gui/forms/protocolsstatswidget.h gui/forms/protocolsstatswidget.cpp
-        gui/forms/protocolsstatswidget.ui gui/tables/ProtocolStatsModel.h gui/tables/TableContextMenu.h
+        gui/forms/protocolsstatswidget.ui gui/models/ProtocolStatsModel.h gui/models/TableContextMenu.h
         types/MainTabWidget.h gui/forms/trackvaluewidget.h gui/forms/trackvaluewidget.cpp gui/forms/trackvaluewidget.ui
         types/AdvancedChart.h gui/forms/recvbandwidthwidget.h gui/forms/recvbandwidthwidget.cpp
         gui/forms/recvbandwidthwidget.ui gui/forms/startstopwidget.h gui/forms/startstopwidget.cpp
@@ -43,7 +43,7 @@ add_executable(lfnp main.cpp datasources/BaseDataSource.h utils/utils.h utils/ut
         datasources/parsers/parsers.h types/series/TimeSeries.h types/FlameGraph.h
         gui/forms/profilerflamewidget.h gui/forms/profilerflamewidget.cpp gui/forms/profilerflamewidget.ui
         datasources/BaseProfilerCollector.h datasources/linux/LinuxProfilerCollector.h
-        datasources/dtrace/DTraceProfilerCollector.h)
+        datasources/dtrace/DTraceProfilerCollector.h gui/models/ProfilerProtocolsModel.h)
 
 target_link_libraries(lfnp
         Qt5::Core

@@ -1,6 +1,6 @@
 #include "protocolsstatswidget.h"
 #include "ui_protocolsstatswidget.h"
-#include "../tables/TableContextMenu.h"
+#include "../models/TableContextMenu.h"
 #include "trackvaluewidget.h"
 
 ProtocolsStatsWidget::ProtocolsStatsWidget(BaseDataSource *ds, MainTabWidget *_tab_widget, QWidget *parent) :

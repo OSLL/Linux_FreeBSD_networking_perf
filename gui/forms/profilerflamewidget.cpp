@@ -1,7 +1,5 @@
-#include <QMessageBox>
 #include "profilerflamewidget.h"
 #include "ui_profilerflamewidget.h"
-#include "../../utils/default_args.h"
 
 ProfilerFlameWidget::ProfilerFlameWidget(BaseDataSource *ds, QWidget *parent) :
     QWidget(parent),
@@ -21,13 +19,19 @@ ProfilerFlameWidget::ProfilerFlameWidget(BaseDataSource *ds, QWidget *parent) :
     ui->PIDComboBox->setEnabled(false);
     ui->PIDComboBox->setDuplicatesEnabled(false);
 
-    ui->protocolComboBox->addItems(ds->getProfilerCollector()->getSupportedProtocols());
+    QStringList supported_protocols = ds->getProfilerCollector()->getSupportedProtocols();
+    protocols_model = new ProfilerProtocolsModel(supported_protocols);
+    ui->protocolComboBox->setEditable(true);
+    ui->protocolComboBox->lineEdit()->setReadOnly(true);
+    ui->protocolComboBox->setEditText("");
+    ui->protocolComboBox->setModel(protocols_model);
 
     timer.setInterval(std::chrono::seconds(1));
     QObject::connect(&timer, &QTimer::timeout, this, &ProfilerFlameWidget::onTimer);
     QObject::connect(ui->CPUComboBox, &QComboBox::currentTextChanged, this, &ProfilerFlameWidget::CPUChanged);
     QObject::connect(ui->PIDComboBox, &QComboBox::currentTextChanged, this, &ProfilerFlameWidget::PIDChanged);
     QObject::connect(ui->startButton, &QPushButton::clicked, this, &ProfilerFlameWidget::onStartClicked);
+    QObject::connect(ui->protocolComboBox, QOverload<int>::of(&QComboBox::activated), this, &ProfilerFlameWidget::onProtocolClicked);
 }
 
 ProfilerFlameWidget::~ProfilerFlameWidget()
@@ -122,4 +126,9 @@ void ProfilerFlameWidget::PIDChanged(const QString &s_pid) {
         ui->CPUComboBox->addItem(QString::number(cpu));
     }
 
+}
+
+void ProfilerFlameWidget::onProtocolClicked(int index) {
+    protocols_model->check(index);
+    ui->protocolComboBox->setEditText(protocols_model->displayText());
 }

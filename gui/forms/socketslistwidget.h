@@ -7,8 +7,8 @@
 #include <QTimer>
 
 #include "../../datasources/BaseDataSource.h"
-#include "../tables/SocketsListModel.h"
-#include "../tables/TableContextMenu.h"
+#include "../models/SocketsListModel.h"
+#include "../models/TableContextMenu.h"
 #include "../../utils/default_args.h"
 #include "../../types/MainTabWidget.h"
 

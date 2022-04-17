@@ -9,10 +9,10 @@
 #include <QMenu>
 
 #include "../../datasources/BaseDataSource.h"
-#include "../tables/ProtocolStatsModel.h"
+#include "../models/ProtocolStatsModel.h"
 #include "../../utils/default_args.h"
 #include "../../types/MainTabWidget.h"
-#include "../tables/TableContextMenu.h"
+#include "../models/TableContextMenu.h"
 
 namespace Ui {
 class ProtocolsStatsWidget;
