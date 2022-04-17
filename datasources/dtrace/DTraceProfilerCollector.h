@@ -15,95 +15,99 @@ class DTraceProfilerCollector: public BaseProfilerCollector {
     DTrace dTrace;
     FILE* tmp_file;
 
-    void onStart(QString protocol) override {
+    void onStart(QVector<QString> protocols) override {
 
         tmp_file = tmpfile();
 
-        PROFILER("ip_initid")
-        PROFILER("ip_findroute")
-        PROFILER("ip_output_send")
-        PROFILER("ip_ecn_egress")
-        PROFILER("ip_ecn_ingress")
-        PROFILER("ip_checkrouteralert")
-        PROFILER("ip_msource_tree_RB_MINMAX")
-        PROFILER("ip_msource_tree_RB_NEXT")
-        PROFILER("ip_output")
-        PROFILER("ip_fillid")
-        PROFILER("ip_mfilter_alloc")
-        PROFILER("ip_msource_tree_RB_FIND")
-        PROFILER("ip_msource_tree_RB_INSERT")
-        PROFILER("ip_msource_tree_RB_INSERT_COLOR")
-        PROFILER("ip_msource_tree_RB_NFIND")
-        PROFILER("ip_msource_tree_RB_PREV")
-        PROFILER("ip_msource_tree_RB_REINSERT")
-        PROFILER("ip_msource_tree_RB_REMOVE")
-        PROFILER("ip_msource_tree_RB_REMOVE_COLOR")
-        PROFILER("ip_init")
-        PROFILER("ip_fragment")
-        PROFILER("ip_tryforward")
-        PROFILER("ip_next_mtu")
-        PROFILER("ip_srcroute")
-        PROFILER("ip_dooptions")
-        PROFILER("ip_forward")
-        PROFILER("ip_input")
-        PROFILER("ip_reass")
-        PROFILER("ip_rsvp_done")
-        PROFILER("ip_rsvp_init")
-        PROFILER("ip_savecontrol")
-        PROFILER("ip_insertoptions")
-        PROFILER("ip_optcopy")
-        PROFILER("ip_pcbopts")
-        PROFILER("ip_ctloutput")
+        if (protocols.contains("ip")) {
+            PROFILER("ip_initid")
+            PROFILER("ip_findroute")
+            PROFILER("ip_output_send")
+            PROFILER("ip_ecn_egress")
+            PROFILER("ip_ecn_ingress")
+            PROFILER("ip_checkrouteralert")
+            PROFILER("ip_msource_tree_RB_MINMAX")
+            PROFILER("ip_msource_tree_RB_NEXT")
+            PROFILER("ip_output")
+            PROFILER("ip_fillid")
+            PROFILER("ip_mfilter_alloc")
+            PROFILER("ip_msource_tree_RB_FIND")
+            PROFILER("ip_msource_tree_RB_INSERT")
+            PROFILER("ip_msource_tree_RB_INSERT_COLOR")
+            PROFILER("ip_msource_tree_RB_NFIND")
+            PROFILER("ip_msource_tree_RB_PREV")
+            PROFILER("ip_msource_tree_RB_REINSERT")
+            PROFILER("ip_msource_tree_RB_REMOVE")
+            PROFILER("ip_msource_tree_RB_REMOVE_COLOR")
+            PROFILER("ip_init")
+            PROFILER("ip_fragment")
+            PROFILER("ip_tryforward")
+            PROFILER("ip_next_mtu")
+            PROFILER("ip_srcroute")
+            PROFILER("ip_dooptions")
+            PROFILER("ip_forward")
+            PROFILER("ip_input")
+            PROFILER("ip_reass")
+            PROFILER("ip_rsvp_done")
+            PROFILER("ip_rsvp_init")
+            PROFILER("ip_savecontrol")
+            PROFILER("ip_insertoptions")
+            PROFILER("ip_optcopy")
+            PROFILER("ip_pcbopts")
+            PROFILER("ip_ctloutput")
+        }
 
-        PROFILER("ip6_findroute")
-        PROFILER("ip6_output_delayed_csum")
-        PROFILER("ip6_output_send")
-        PROFILER("ip6_setpktopt")
-        PROFILER("ip6_splithdr")
-        PROFILER("ip6_lasthdr")
-        PROFILER("ip6_sprintf")
-        PROFILER("ip6_ecn_egress")
-        PROFILER("ip6_ecn_ingress")
-        PROFILER("ip6_freemoptions")
-        PROFILER("ip6_freepcbopts")
-        PROFILER("ip6_optlen")
-        PROFILER("ip6_output")
-        PROFILER("ip6_copypktopts")
-        PROFILER("ip6_randomflowlabel")
-        PROFILER("ip6_ctloutput")
-        PROFILER("ip6_savecontrol_v4")
-        PROFILER("ip6_unknown_opt")
-        PROFILER("ip6_deletefraghdr")
-        PROFILER("ip6_get_prevhdr")
-        PROFILER("ip6_savecontrol")
-        PROFILER("ip6_getmoptions")
-        PROFILER("ip6_mfilter_alloc")
-        PROFILER("ip6_msource_tree_RB_FIND")
-        PROFILER("ip6_msource_tree_RB_INSERT")
-        PROFILER("ip6_msource_tree_RB_INSERT_COLOR")
-        PROFILER("ip6_msource_tree_RB_MINMAX")
-        PROFILER("ip6_msource_tree_RB_NEXT")
-        PROFILER("ip6_msource_tree_RB_NFIND")
-        PROFILER("ip6_msource_tree_RB_PREV")
-        PROFILER("ip6_msource_tree_RB_REINSERT")
-        PROFILER("ip6_msource_tree_RB_REMOVE")
-        PROFILER("ip6_msource_tree_RB_REMOVE_COLOR")
-        PROFILER("ip6_setmoptions")
-        PROFILER("ip6_notify_pmtu")
-        PROFILER("ip6_init")
-        PROFILER("ip6_tryforward")
-        PROFILER("ip6_forward")
-        PROFILER("ip6_input")
-        PROFILER("ip6_nexthdr")
-        PROFILER("ip6_process_hopopts")
-        PROFILER("ip6_clearpktopts")
-        PROFILER("ip6_fragment")
-        PROFILER("ip6_initpktopts")
-        PROFILER("ip6_mloopback")
-        PROFILER("ip6_raw_ctloutput")
-        PROFILER("ip6_setpktopts")
+        if (protocols.contains("ip6")) {
+            PROFILER("ip6_findroute")
+            PROFILER("ip6_output_delayed_csum")
+            PROFILER("ip6_output_send")
+            PROFILER("ip6_setpktopt")
+            PROFILER("ip6_splithdr")
+            PROFILER("ip6_lasthdr")
+            PROFILER("ip6_sprintf")
+            PROFILER("ip6_ecn_egress")
+            PROFILER("ip6_ecn_ingress")
+            PROFILER("ip6_freemoptions")
+            PROFILER("ip6_freepcbopts")
+            PROFILER("ip6_optlen")
+            PROFILER("ip6_output")
+            PROFILER("ip6_copypktopts")
+            PROFILER("ip6_randomflowlabel")
+            PROFILER("ip6_ctloutput")
+            PROFILER("ip6_savecontrol_v4")
+            PROFILER("ip6_unknown_opt")
+            PROFILER("ip6_deletefraghdr")
+            PROFILER("ip6_get_prevhdr")
+            PROFILER("ip6_savecontrol")
+            PROFILER("ip6_getmoptions")
+            PROFILER("ip6_mfilter_alloc")
+            PROFILER("ip6_msource_tree_RB_FIND")
+            PROFILER("ip6_msource_tree_RB_INSERT")
+            PROFILER("ip6_msource_tree_RB_INSERT_COLOR")
+            PROFILER("ip6_msource_tree_RB_MINMAX")
+            PROFILER("ip6_msource_tree_RB_NEXT")
+            PROFILER("ip6_msource_tree_RB_NFIND")
+            PROFILER("ip6_msource_tree_RB_PREV")
+            PROFILER("ip6_msource_tree_RB_REINSERT")
+            PROFILER("ip6_msource_tree_RB_REMOVE")
+            PROFILER("ip6_msource_tree_RB_REMOVE_COLOR")
+            PROFILER("ip6_setmoptions")
+            PROFILER("ip6_notify_pmtu")
+            PROFILER("ip6_init")
+            PROFILER("ip6_tryforward")
+            PROFILER("ip6_forward")
+            PROFILER("ip6_input")
+            PROFILER("ip6_nexthdr")
+            PROFILER("ip6_process_hopopts")
+            PROFILER("ip6_clearpktopts")
+            PROFILER("ip6_fragment")
+            PROFILER("ip6_initpktopts")
+            PROFILER("ip6_mloopback")
+            PROFILER("ip6_raw_ctloutput")
+            PROFILER("ip6_setpktopts")
+        }
 
-        if (protocol == "tcp") {
+        if (protocols.contains("tcp")) {
             PROFILER("tcp_log_dev_clear_cdevpriv")
             PROFILER("tcp_log_dev_ioctl")
             PROFILER("tcp_log_dev_modevent")
@@ -276,6 +280,110 @@ class DTraceProfilerCollector: public BaseProfilerCollector {
             PROFILER("tcp_tw_2msl_scan")
         }
 
+        if (protocols.contains("tcp6")) {
+            PROFILER("tcp6_getcred");
+            PROFILER("tcp6_connect");
+            PROFILER("tcp6_usr_accept");
+            PROFILER("tcp6_usr_bind");
+            PROFILER("tcp6_usr_connect");
+            PROFILER("tcp6_usr_listen");
+            PROFILER("tcp6_input");
+            PROFILER("tcp6_ctlinput");
+        }
+
+        if (protocols.contains("udp")) {
+            PROFILER("udp_abort");
+            PROFILER("udp_append");
+            PROFILER("udp_attach");
+            PROFILER("udp_bind");
+            PROFILER("udp_close");
+            PROFILER("udp_common_ctlinput");
+            PROFILER("udp_connect");
+            PROFILER("udp_disconnect");
+            PROFILER("udp_getcred");
+            PROFILER("udp_inpcb_init");
+            PROFILER("udp_pcblist");
+            PROFILER("udp_send");
+            PROFILER("udp_ctloutput");
+            PROFILER("udp_input");
+            PROFILER("udp_newudpcb");
+            PROFILER("udp_notify");
+            PROFILER("udp_set_kernel_tunneling");
+            PROFILER("udp_shutdown");
+        }
+
+        if (protocols.contains("sctp")) {
+            PROFILER("sctp_delayed_cksum");
+            PROFILER("sctp_calculate_cksum");
+            PROFILER("sctp_peeloff");
+            PROFILER("sctp_generic_sendmsg");
+            PROFILER("sctp_generic_sendmsg_iov");
+            PROFILER("sctp_generic_recvmsg");
+        }
+
+        if (protocols.contains("udplite")) {
+            PROFILER("udplite_inpcb_init");
+            PROFILER("udplite_init");
+        }
+
+        if (protocols.contains("icmp")) {
+            PROFILER("icmp_bandlimit_init");
+            PROFILER("icmp_reflect");
+            PROFILER("icmp_input");
+            PROFILER("icmp_error");
+        }
+
+        if (protocols.contains("icmp6")) {
+            PROFILER("icmp6_errcount");
+            PROFILER("icmp6_reflect");
+            PROFILER("icmp6_error");
+            PROFILER("icmp6_ctloutput");
+            PROFILER("icmp6_error2");
+            PROFILER("icmp6_input");
+            PROFILER("icmp6_mtudisc_update");
+            PROFILER("icmp6_redirect_input");
+            PROFILER("icmp6_redirect_output");
+        }
+
+        if (protocols.contains("igmp")) {
+            PROFILER("igmp_intr");
+            PROFILER("igmp_modevent");
+            PROFILER("igmp_v1v2_queue_report");
+            PROFILER("igmp_v3_cancel_link_timers");
+            PROFILER("igmp_v3_enqueue_group_record");
+            PROFILER("igmp_change_state");
+            PROFILER("igmp_domifattach");
+            PROFILER("igmp_domifdetach");
+            PROFILER("igmp_fasttimo");
+            PROFILER("igmp_ifdetach");
+            PROFILER("igmp_input");
+        }
+
+        if (protocols.contains("tcp6")) {
+            PROFILER("tcp6_getcred");
+            PROFILER("tcp6_connect");
+            PROFILER("tcp6_usr_accept");
+            PROFILER("tcp6_usr_bind");
+            PROFILER("tcp6_usr_connect");
+            PROFILER("tcp6_usr_listen");
+            PROFILER("tcp6_input");
+            PROFILER("tcp6_ctlinput");
+        }
+
+        if (protocols.contains("udp6")) {
+            PROFILER("udp6_abort");
+            PROFILER("udp6_append");
+            PROFILER("udp6_attach");
+            PROFILER("udp6_bind");
+            PROFILER("udp6_close");
+            PROFILER("udp6_common_ctlinput");
+            PROFILER("udp6_connect");
+            PROFILER("udp6_disconnect");
+            PROFILER("udp6_getcred");
+            PROFILER("udp6_send");
+            PROFILER("udp6_input");
+        }
+
         dTrace.start();
     }
 
@@ -293,11 +401,11 @@ class DTraceProfilerCollector: public BaseProfilerCollector {
         ProfilerParser parser(stream, 0);
 
         ProfilerData res;
-        for (const auto cpu: parser.getAvailableCPUs()) {
-            for (const auto pid: parser.getAvailablePids(cpu)) {
+        for (const auto pid: parser.getAvailablePids()) {
+            for (const auto cpu: parser.getAvailableCPUs(pid)) {
                 auto trees = parser.getProfilerTrees(cpu, pid);
                 if (!trees.empty()) {
-                    res[cpu][pid] << parser.getProfilerTrees(cpu, pid);
+                    res[pid][cpu] << parser.getProfilerTrees(cpu, pid);
                 }
             }
         }
@@ -305,7 +413,7 @@ class DTraceProfilerCollector: public BaseProfilerCollector {
     }
 
     QStringList getSupportedProtocols() override {
-        return {"tcp", "udp"};
+        return {"ip", "ip6", "tcp", "tcp6", "udp", "udp6", "icmp", "icmp6", "sctp", "udplite", "igmp"};
     }
 
 };
