@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>LinuxPktgenWidget</class>
+ <widget class="QWidget" name="LinuxPktgenWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>631</width>
+    <height>331</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout_2">
+   <item>
+    <layout class="QHBoxLayout" name="globalLayout" stretch="1,6">
+     <item>
+      <layout class="QVBoxLayout" name="controlLayout">
+       <item>
+        <layout class="QHBoxLayout" name="protocolLayout">
+         <item>
+          <widget class="QLabel" name="protocolLabel">
+           <property name="text">
+            <string>Protocol:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="protocolComboBox"/>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="interfaceLayout">
+         <item>
+          <widget class="QLabel" name="interfaceLabel">
+           <property name="text">
+            <string>Interface:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="interfaceComboBox"/>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="ipPortLabelLayout">
+         <item>
+          <widget class="QLabel" name="ipPortLabel">
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Ip and port</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="ipPortLayout" stretch="3,1">
+         <item>
+          <widget class="QLineEdit" name="ipLineEdit"/>
+         </item>
+         <item>
+          <widget class="QSpinBox" name="portSpinBox">
+           <property name="maximum">
+            <number>65535</number>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="macLayout">
+         <item>
+          <widget class="QLabel" name="macLabel">
+           <property name="text">
+            <string>Mac:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="macLineEdit"/>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="threadsLayout">
+         <item>
+          <widget class="QLabel" name="threadsLabel">
+           <property name="text">
+            <string>Threads:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSpinBox" name="threadsSpinBox"/>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="dataSizeLayout">
+         <item>
+          <widget class="QLabel" name="dataSizeLabel">
+           <property name="text">
+            <string>Data size:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSpinBox" name="dataSizeSpinBox"/>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="packetsCountLayout">
+         <item>
+          <widget class="QLabel" name="packetsCountLabel">
+           <property name="text">
+            <string>Packets count:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSpinBox" name="packetsCountSpinBox"/>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QVBoxLayout" name="chartLayout"/>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

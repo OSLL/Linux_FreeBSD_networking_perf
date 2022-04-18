@@ -14,6 +14,7 @@
 #include "sendbandwidthwidget.h"
 #include "profilerflamewidget.h"
 #include "dropsinfowidget.h"
+#include "linuxpktgenwidget.h"
 
 #include "../../types/MainTabWidget.h"
 #include "../../datasources/iperf3/iperf3.h"

@@ -27,6 +27,7 @@ MainWindow::MainWindow(QWidget *parent) :
     auto bandwidth_menu = ui->menu->addMenu(tr("Bandwidth"));
     MENU_ACTION(bandwidth_menu, "Receive bandwidth", RecvBandwidthWidget);
     MENU_ACTION(bandwidth_menu, "Send bandwidth", SendBandwidthWidget);
+    MENU_ACTION(bandwidth_menu, "Linux Pkt-Gen", LinuxPktgenWidget);
 
     bandwidth_menu->addAction(tr("Iperf3 Visualize"), Iperf3::openFile(tabWidget));
     bandwidth_menu->addAction(tr("Netmap Pktgen Visualize"), NetmapPktGen::openFile(tabWidget));
