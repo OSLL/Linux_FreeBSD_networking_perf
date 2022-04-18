@@ -102,7 +102,7 @@ int cli_main(int argc, char *argv[]) {
         } else {
             std::cout << "Undefined source" << std::endl;
         }
-    } else if (argc > 1 && args[1] == "get-drops-info") {
+    } else if (argc > 1 && args[1] == "drops") {
         printDropsInfo(ds->getDropsInfo());
     } else if (argc > 1 && args[1] == "pktgen") {
         auto pktgen = LinuxPktgen(protocol, interface, addr, port, mac_addr, threads_count, data_size, packets_count);
