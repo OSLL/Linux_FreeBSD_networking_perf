@@ -19,7 +19,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ACTION("CPU Distribution", CPUDistributionWidget);
     ACTION("Receive timestamps", RecvTimestampWidget);
     ACTION("Send timestamps", SendTimestampWidget);
-    ACTION("Drops info", DropsInfoWidget);
+    TAB_ACTION("Drops info", DropsInfoWidget);
     TAB_ACTION("Sockets list", SocketsListWidget);
     TAB_ACTION("Protocols stats", ProtocolsStatsWidget);
 

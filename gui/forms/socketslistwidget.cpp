@@ -31,6 +31,10 @@ SocketsListWidget::SocketsListWidget(BaseDataSource *ds, MainTabWidget *_tab_wid
     QObject::connect(ui->protocolComboBox, &QComboBox::currentTextChanged, this, &SocketsListWidget::onProtocolChanged);
     QObject::connect(update_timer, &QTimer::timeout, this, &SocketsListWidget::onTimeout);
     menu.addAction("Track in new tab", this,&SocketsListWidget::onTrackInTab);
+    menu.addColumnToFilter(0);
+    menu.addColumnToFilter(1);
+    menu.addColumnToFilter(2);
+    menu.addColumnToFilter(3);
 }
 
 SocketsListWidget::~SocketsListWidget()

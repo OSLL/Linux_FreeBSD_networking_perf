@@ -14,6 +14,7 @@ protected:
 
     QTableView *table_view;
     QModelIndex index;
+    QSet<int> column_filter;
 
 public:
 
@@ -24,13 +25,21 @@ public:
 
     }
 
+    void addColumnToFilter(int column) {
+        column_filter.insert(column);
+    }
+
     QModelIndex getIndex() { return index; }
 
 private:
 
     void onMenuRequested(const QPoint &pos) {
         index = table_view->indexAt(pos);
-        this->popup(table_view->viewport()->mapToGlobal(pos));
+        int column = index.column();
+
+        if (!column_filter.contains(column)) {
+            this->popup(table_view->viewport()->mapToGlobal(pos));
+        }
     }
 
 };

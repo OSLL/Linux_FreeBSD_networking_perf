@@ -8,6 +8,7 @@
 #include <QAbstractListModel>
 #include <QDebug>
 #include <utility>
+#include <optional>
 
 #include "../../types/DropsInfo.h"
 
@@ -55,8 +56,8 @@ public:
             return Qt::AlignmentFlag::AlignCenter;
         } else if (role == Qt::BackgroundRole) {
             auto drops_info_elem = drops_info[index.row()].second;
-            if (drops_info_elem.is_common && drops_info_elem.common_drops
-            || drops_info_elem.rx_drops || drops_info_elem.tx_drops) {
+            if ((drops_info_elem.is_common && drops_info_elem.common_drops)
+            || (drops_info_elem.rx_drops || drops_info_elem.tx_drops)) {
                 return QBrush(Qt::red);
             }
         }
@@ -76,6 +77,19 @@ public:
 
     void setData(QVector<QPair<QString, DropsInfo>> _drops_info) {
         drops_info = std::move(_drops_info);
+    }
+
+    QString sourceAt(int row) {
+        return drops_info[row].first;
+    }
+
+    std::optional<DropsInfo> getDrops(QString source) {
+        for (const auto drops_source: drops_info) {
+            if (drops_source.first == source) {
+                return drops_source.second;
+            }
+        }
+        return std::nullopt;
     }
 
 };
