@@ -74,6 +74,10 @@ public:
         return {0, 0};
     }
 
+    void setData(QVector<QPair<QString, DropsInfo>> _drops_info) {
+        drops_info = std::move(_drops_info);
+    }
+
 };
 
 #endif //LFNP_DROPSINFOMODEL_H

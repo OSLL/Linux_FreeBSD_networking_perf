@@ -9,21 +9,18 @@ DropsInfoWidget::DropsInfoWidget(BaseDataSource *_ds, QWidget *parent) :
 {
     ui->setupUi(this);
 
-    auto o_drops_data = data_source->getDropsInfo();
+    auto drops_data = data_source->getDropsInfo();
+    drops_info_model = new DropsInfoModel(drops_data);
 
-    table_view->setModel(new DropsInfoModel(o_drops_data));
+    table_view->setModel(drops_info_model);
     table_view->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-
-    for (int row = 0; row < table_view->model()->rowCount(); row++) {
-        for (int col = 0; col < table_view->model()->columnCount(); col++) {
-            QSize span = table_view->model()->span(table_view->model()->index(row, col));
-            if (!span.isEmpty()) {
-                table_view->setSpan(row, col, span.height(), span.width());
-            }
-        }
-    }
+    setSpans();
 
     ui->dropsInfoLayout->addWidget(table_view);
+
+    QObject::connect(&timer, &QTimer::timeout, this, &DropsInfoWidget::onTimeout);
+    timer.setInterval(std::chrono::seconds(1));
+    timer.start();
 }
 
 DropsInfoWidget::~DropsInfoWidget()
@@ -41,4 +38,24 @@ void DropsInfoWidget::changeEvent(QEvent *e)
     default:
         break;
     }
+}
+
+void DropsInfoWidget::setSpans() {
+    table_view->clearSpans();
+    for (int row = 0; row < table_view->model()->rowCount(); row++) {
+        for (int col = 0; col < table_view->model()->columnCount(); col++) {
+            QSize span = table_view->model()->span(table_view->model()->index(row, col));
+            if (!span.isEmpty()) {
+                table_view->setSpan(row, col, span.height(), span.width());
+            }
+        }
+    }
+}
+
+void DropsInfoWidget::onTimeout() {
+
+    auto drops_data = data_source->getDropsInfo();
+    drops_info_model->setData(drops_data);
+    setSpans();
+
 }

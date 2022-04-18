@@ -2,6 +2,7 @@
 #define DROPSINFOWIDGET_H
 
 #include <QWidget>
+#include <QTimer>
 #include <QTableView>
 #include <QHeaderView>
 
@@ -22,11 +23,17 @@ public:
 
 protected:
     void changeEvent(QEvent *e);
+    void setSpans();
 
 private:
     Ui::DropsInfoWidget *ui;
     BaseDataSource *data_source;
     QTableView *table_view;
+    DropsInfoModel *drops_info_model;
+    QTimer timer;
+
+protected slots:
+    void onTimeout();
 };
 
 #endif // DROPSINFOWIDGET_H
