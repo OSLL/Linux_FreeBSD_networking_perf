@@ -4,6 +4,10 @@
 #include <QWidget>
 #include "../../datasources/BaseDataSource.h"
 #include "../../types/BandwidthChart.h"
+#include "../../datasources/bandwidth/LinuxPktgen.h"
+#include "../../utils/default_args.h"
+#include "startstopwidget.h"
+#include "../threads/LinuxPktgenThread.h"
 
 namespace Ui {
 class LinuxPktgenWidget;
@@ -20,12 +24,20 @@ public:
 protected:
     void changeEvent(QEvent *e);
 
+protected slots:
+    void onStart();
+    void onStop();
+    void onBandwidthResult(BandwidthResult result);
+    void onThreadFinished();
+
 private:
     Ui::LinuxPktgenWidget *ui;
     BaseDataSource *data_source;
     QChartView chart_view;
     BandwidthSeries *bandwidth_series;
     BandwidthChart *chart;
+    StartStopWidget *start_stop;
+    LinuxPktgenThread *thread;
 };
 
 #endif // LINUXPKTGENWIDGET_H

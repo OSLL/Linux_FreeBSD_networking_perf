@@ -145,6 +145,18 @@ public:
         pgctrl_cmd("reset");
     }
 
+    void setPacketsCount(quint64 packets_count) {
+        for (const auto &device_entry: pktgen_dir.entryList({interface+"@*"})) {
+            QFile file(pktgen_dir.filePath(device_entry));
+            if (!file.open(QIODevice::WriteOnly)) {
+                std::cout << "Can't open " << file.fileName().toStdString() << std::endl;
+                return;
+            }
+
+            pg_set(file, "count " + QString::number(packets_count));
+        }
+    }
+
     std::optional<BandwidthResult> getResult() {
 
         BandwidthResult res;
@@ -159,6 +171,21 @@ public:
 
         res.duration = 1;
         return res;
+    }
+
+    static QStringList getAvailableProtocols() {
+        return {"ip", "ip6"};
+    }
+
+    static QStringList getAvailableInterfaces() {
+        QDir dir("/sys/class/net");
+
+        if (!dir.exists()) {
+            std::cout << "No /sys/class/net folder" << std::endl;
+            return {};
+        }
+
+        return dir.entryList(QDir::NoDotAndDotDot | QDir::AllDirs);
     }
 
 };

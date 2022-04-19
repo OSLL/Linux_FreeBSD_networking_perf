@@ -4,10 +4,21 @@
 LinuxPktgenWidget::LinuxPktgenWidget(BaseDataSource *ds, QWidget *parent) :
     QWidget(parent),
     ui(new Ui::LinuxPktgenWidget),
-    data_source(ds)
+    data_source(ds),
+    thread(nullptr)
 {
     ui->setupUi(this);
     ui->controlLayout->setAlignment(Qt::AlignmentFlag::AlignTop);
+
+    ui->protocolComboBox->addItems(LinuxPktgen::getAvailableProtocols());
+    ui->interfaceComboBox->addItems(LinuxPktgen::getAvailableInterfaces());
+    ui->interfaceComboBox->setCurrentText(default_args["interface"]);
+    ui->ipLineEdit->setText(default_args["address"]);
+    ui->portSpinBox->setValue(default_args["port"].toInt());
+    ui->macLineEdit->setText(default_args["mac"]);
+    ui->threadsSpinBox->setValue(default_args["threads"].toInt());
+    ui->dataSizeSpinBox->setValue(DEFAULT_NOT_ZERO_DATASIZE);
+    ui->packetsCountSpinBox->setValue(default_args["packets-count"].toInt());
 
     chart = new BandwidthChart(GIGA, BITS);
     chart->addSeries(&bandwidth_series);
@@ -16,6 +27,11 @@ LinuxPktgenWidget::LinuxPktgenWidget(BaseDataSource *ds, QWidget *parent) :
     chart_view.setChart(chart);
     chart_view.setRenderHint(QPainter::Antialiasing);
     ui->chartLayout->addWidget(&chart_view);
+
+    start_stop = new StartStopWidget();
+    ui->startStopLayout->addWidget(start_stop);
+    QObject::connect(start_stop, &StartStopWidget::start, this, &LinuxPktgenWidget::onStart);
+    QObject::connect(start_stop, &StartStopWidget::stop, this, &LinuxPktgenWidget::onStop);
 }
 
 LinuxPktgenWidget::~LinuxPktgenWidget() {
@@ -31,4 +47,41 @@ void LinuxPktgenWidget::changeEvent(QEvent *e) {
     default:
         break;
     }
+}
+
+void LinuxPktgenWidget::onStart() {
+
+    QString protocol = ui->protocolComboBox->currentText();
+    QString interface = ui->interfaceComboBox->currentText();
+    QString ip_address = ui->ipLineEdit->text();
+    const unsigned int port = ui->portSpinBox->value();
+    QString mac_address = ui->macLineEdit->text();
+    const quint64 threads = ui->threadsSpinBox->value();
+    const quint64 data_size = ui->dataSizeSpinBox->value();
+    const quint64 packets_count = ui->packetsCountSpinBox->value();
+
+    auto pktgen = LinuxPktgen(protocol, interface, ip_address, port, mac_address, threads, data_size, packets_count);
+    thread = new LinuxPktgenThread(pktgen, packets_count);
+    QObject::connect(thread, &LinuxPktgenThread::onBandwidthResult, this, &LinuxPktgenWidget::onBandwidthResult);
+    QObject::connect(thread, &LinuxPktgenThread::finished, this, &LinuxPktgenWidget::onThreadFinished);
+    thread->start();
+
+}
+
+void LinuxPktgenWidget::onBandwidthResult(BandwidthResult result) {
+    bandwidth_series->append(result);
+}
+
+void LinuxPktgenWidget::onThreadFinished() {
+
+    delete thread;
+    thread = nullptr;
+    start_stop->setStartState();
+
+}
+
+void LinuxPktgenWidget::onStop() {
+
+    thread->requestInterruption();
+
 }

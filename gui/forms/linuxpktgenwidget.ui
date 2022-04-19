@@ -101,7 +101,11 @@
           </widget>
          </item>
          <item>
-          <widget class="QSpinBox" name="threadsSpinBox"/>
+          <widget class="QSpinBox" name="threadsSpinBox">
+           <property name="minimum">
+            <number>1</number>
+           </property>
+          </widget>
          </item>
         </layout>
        </item>
@@ -115,7 +119,11 @@
           </widget>
          </item>
          <item>
-          <widget class="QSpinBox" name="dataSizeSpinBox"/>
+          <widget class="QSpinBox" name="dataSizeSpinBox">
+           <property name="maximum">
+            <number>999999999</number>
+           </property>
+          </widget>
          </item>
         </layout>
        </item>
@@ -129,9 +137,16 @@
           </widget>
          </item>
          <item>
-          <widget class="QSpinBox" name="packetsCountSpinBox"/>
+          <widget class="QSpinBox" name="packetsCountSpinBox">
+           <property name="maximum">
+            <number>999999</number>
+           </property>
+          </widget>
          </item>
         </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="startStopLayout"/>
        </item>
       </layout>
      </item>
