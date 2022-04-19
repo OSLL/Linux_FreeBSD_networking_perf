@@ -17,8 +17,9 @@ LinuxPktgenWidget::LinuxPktgenWidget(BaseDataSource *ds, QWidget *parent) :
     ui->portSpinBox->setValue(default_args["port"].toInt());
     ui->macLineEdit->setText(default_args["mac"]);
     ui->threadsSpinBox->setValue(default_args["threads"].toInt());
-    ui->dataSizeSpinBox->setValue(DEFAULT_NOT_ZERO_DATASIZE);
-    ui->packetsCountSpinBox->setValue(default_args["packets-count"].toInt());
+    ui->dataSizeSpinBox->setValue(100000);
+    ui->packetsCountSpinBox->setValue(5000000);
+    ui->iterPacketsSpinBox->setValue(10000);
 
     chart = new BandwidthChart(GIGA, BITS);
     chart->addSeries(&bandwidth_series);
@@ -51,6 +52,8 @@ void LinuxPktgenWidget::changeEvent(QEvent *e) {
 
 void LinuxPktgenWidget::onStart() {
 
+    chart->clear();
+
     QString protocol = ui->protocolComboBox->currentText();
     QString interface = ui->interfaceComboBox->currentText();
     QString ip_address = ui->ipLineEdit->text();
@@ -59,9 +62,10 @@ void LinuxPktgenWidget::onStart() {
     const quint64 threads = ui->threadsSpinBox->value();
     const quint64 data_size = ui->dataSizeSpinBox->value();
     const quint64 packets_count = ui->packetsCountSpinBox->value();
+    const quint64 iter_packets_count = ui->iterPacketsSpinBox->value();
 
-    auto pktgen = LinuxPktgen(protocol, interface, ip_address, port, mac_address, threads, data_size, packets_count);
-    thread = new LinuxPktgenThread(pktgen, packets_count);
+    auto pktgen = LinuxPktgen(protocol, interface, ip_address, port, mac_address, threads, data_size, iter_packets_count);
+    thread = new LinuxPktgenThread(pktgen, packets_count, iter_packets_count);
     QObject::connect(thread, &LinuxPktgenThread::onBandwidthResult, this, &LinuxPktgenWidget::onBandwidthResult);
     QObject::connect(thread, &LinuxPktgenThread::finished, this, &LinuxPktgenWidget::onThreadFinished);
     thread->start();

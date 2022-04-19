@@ -19,11 +19,14 @@ class LinuxPktgenThread: public QThread {
 private:
     LinuxPktgen pktgen;
     quint64 packets_count;
+    quint64 iter_packets_count;
 
 protected:
     void run() override {
 
-        for (quint64 send_packets_count = 0; send_packets_count < packets_count && !QThread::isInterruptionRequested(); send_packets_count += ITER_PACKETS_COUNT) {
+        for (quint64 sent_packets_count = 0;
+        sent_packets_count < packets_count && !QThread::isInterruptionRequested();
+        sent_packets_count += iter_packets_count) {
             pktgen.start();
             auto bandwidth_result = pktgen.getResult();
             if (bandwidth_result)
@@ -33,9 +36,8 @@ protected:
 
 public:
 
-    LinuxPktgenThread(LinuxPktgen _pktgen, quint64 _packets_count): pktgen(std::move(_pktgen)), packets_count(_packets_count) {
-        pktgen.setPacketsCount(ITER_PACKETS_COUNT);
-    }
+    LinuxPktgenThread(LinuxPktgen _pktgen, quint64 _packets_count, quint64 _iter_packets_count):
+    pktgen(std::move(_pktgen)), packets_count(_packets_count), iter_packets_count(_iter_packets_count) {}
 
     ~LinuxPktgenThread() {
         pktgen.stop();
