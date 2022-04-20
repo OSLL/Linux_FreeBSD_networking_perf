@@ -54,11 +54,11 @@ void ProtocolsStatsWidget::changeEvent(QEvent *e)
     }
 }
 
-void ProtocolsStatsWidget::updateStats() {
+void ProtocolsStatsWidget::updateStats(bool reset) {
 
     auto stats = data_source->getProtocolStats(protocol);
     if (stats) {
-        stats_model->setData(stats.value());
+        stats_model->setData(stats.value(), reset);
     } else {
         QMessageBox::warning(this, tr("LFNP"), tr("Error: can't get protocol stats"));
     }
@@ -68,7 +68,7 @@ void ProtocolsStatsWidget::updateStats() {
 void ProtocolsStatsWidget::onProtocolChanged(const QString &_protocol) {
 
     protocol = _protocol;
-    updateStats();
+    updateStats(true);
 
 }
 

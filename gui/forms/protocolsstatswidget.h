@@ -28,7 +28,7 @@ public:
 
 protected:
     void changeEvent(QEvent *e);
-    void updateStats();
+    void updateStats(bool reset=false);
 
 private:
     Ui::ProtocolsStatsWidget *ui;

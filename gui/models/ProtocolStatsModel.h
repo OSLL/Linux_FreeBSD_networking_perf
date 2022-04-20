@@ -66,11 +66,15 @@ public:
 
     }
 
-    void setData(ProtocolStats _stats) {
-        beginResetModel();
+    void setData(ProtocolStats _stats, bool reset=false) {
+        if (reset)
+            beginResetModel();
+
         stats = std::move(_stats);
         names = stats.keys();
-        endResetModel();
+
+        if (reset)
+            endResetModel();
     }
 
 };
