@@ -73,9 +73,7 @@ void ProtocolsStatsWidget::onProtocolChanged(const QString &_protocol) {
 }
 
 void ProtocolsStatsWidget::onTimeout() {
-
     updateStats();
-
 }
 
 void ProtocolsStatsWidget::onTrackInTab() {

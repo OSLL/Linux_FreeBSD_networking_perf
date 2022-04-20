@@ -372,7 +372,16 @@ QStringList LinuxDataSource::getSupportedSocketsListProtocols() {
 }
 
 QStringList LinuxDataSource::getSupportedStatsProtocols() {
-    return LinuxDataSource::protocol_stats_names.keys();
+
+    auto protocols = LinuxDataSource::protocol_stats_names.keys();
+
+    auto o_ipv6_protocols_stats = parseProtocolsV6StatsFile("/proc/net/snmp6");
+    if (o_ipv6_protocols_stats) {
+        auto ipv6_protocols_stats = o_ipv6_protocols_stats.value();
+        protocols.append(ipv6_protocols_stats.keys());
+    }
+
+    return protocols;
 }
 
 std::unique_ptr<BaseProfilerCollector> LinuxDataSource::getProfilerCollector() {
