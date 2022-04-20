@@ -339,14 +339,29 @@ QVector<QPair<QString, DropsInfo>> LinuxDataSource::getDropsInfo() {
         drops_info.push_back({"ip", DropsInfo(ip_stats->value("InDiscards"), ip_stats->value("OutDiscards"))});
     }
 
+    auto ip6_stats = getProtocolStats("ip6");
+    if (ip6_stats) {
+        drops_info.push_back({"ip6", DropsInfo(ip6_stats->value("InDiscards"), ip6_stats->value("OutDiscards"))});
+    }
+
     auto udp_stats = getProtocolStats("udp");
     if (udp_stats) {
-        drops_info.push_back({"udp", DropsInfo(ip_stats->value("RcvbufErrors"), ip_stats->value("SndbufErrors:"))});
+        drops_info.push_back({"udp", DropsInfo(udp_stats->value("RcvbufErrors"), udp_stats->value("SndbufErrors"))});
+    }
+
+    auto udp6_stats = getProtocolStats("udp6");
+    if (udp6_stats) {
+        drops_info.push_back({"udp6", DropsInfo(udp6_stats->value("RcvbufErrors"), udp6_stats->value("SndbufErrors"))});
     }
 
     auto udplite_stats = getProtocolStats("udplite");
     if (udplite_stats) {
-        drops_info.push_back({"udplite", DropsInfo(ip_stats->value("RcvbufErrors"), ip_stats->value("SndbufErrors:"))});
+        drops_info.push_back({"udplite", DropsInfo(udplite_stats->value("RcvbufErrors"), udplite_stats->value("SndbufErrors"))});
+    }
+
+    auto udplite6_stats = getProtocolStats("udplite6");
+    if (udplite6_stats) {
+        drops_info.push_back({"udplite6", DropsInfo(udplite6_stats->value("RcvbufErrors"), udplite6_stats->value("SndbufErrors"))});
     }
 
     return drops_info;

@@ -25,7 +25,6 @@ public:
 
     FlameGraph(): QOpenGLWidget(), offset(0, 0), scale(1) {
         this->setMouseTracking(true);
-        this->setAttribute(Qt::WA_TranslucentBackground);
     }
 
     FlameGraph(ProfilerParser parser, int cpu, quint64 pid): FlameGraph() {
