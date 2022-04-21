@@ -95,13 +95,12 @@ static int entry_handler(struct kretprobe_instance *ri, struct pt_regs *regs) {
     struct profiler_cpu *cpu_profiler_data = NULL;
     cpu_profiler_data = get_cpu_ptr(&profiler_data);
 
-    pr_info("Entry at %d", cpu_profiler_data->i);
     cpu_profiler_data->list[cpu_profiler_data->i].type = ENTER;
 
-#if LINUX_VERSION_CODE <= KERNEL_VERSION(5,0,0)
+#if LINUX_VERSION_CODE <= KERNEL_VERSION(5,11,0)
     cpu_profiler_data->list[cpu_profiler_data->i].func_name = ri->rp->kp.symbol_name;
 #else
-    cpu_profiler_data->list[cpu_profiler_data->i].func_name = ri->rph->rp->kp.symbol_name;
+    cpu_profiler_data->list[cpu_profiler_data->i].func_name = get_kretprobe(ri)->kp.symbol_name;
 #endif
 
     cpu_profiler_data->list[cpu_profiler_data->i].time = ktime_get_ns();
@@ -128,10 +127,10 @@ static int ret_handler(struct kretprobe_instance *ri, struct pt_regs *regs) {
 
     cpu_profiler_data->list[cpu_profiler_data->i].type = RETURN;
 
-#if LINUX_VERSION_CODE <= KERNEL_VERSION(5,0,0)
+#if LINUX_VERSION_CODE <= KERNEL_VERSION(5,11,0)
     cpu_profiler_data->list[cpu_profiler_data->i].func_name = ri->rp->kp.symbol_name;
 #else
-    cpu_profiler_data->list[cpu_profiler_data->i].func_name = ri->rph->rp->kp.symbol_name;
+    cpu_profiler_data->list[cpu_profiler_data->i].func_name = get_kretprobe(ri)->kp.symbol_name;
 #endif
 
     cpu_profiler_data->list[cpu_profiler_data->i].time = now;
