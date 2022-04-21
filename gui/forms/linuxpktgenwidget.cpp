@@ -54,6 +54,9 @@ void LinuxPktgenWidget::onStart() {
 
     chart->clear();
 
+    auto current = QDateTime::currentDateTime();
+    chart->getXAxis()->setRange(current, current.addSecs(100));
+
     QString protocol = ui->protocolComboBox->currentText();
     QString interface = ui->interfaceComboBox->currentText();
     QString ip_address = ui->ipLineEdit->text();

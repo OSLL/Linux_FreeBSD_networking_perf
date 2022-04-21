@@ -106,7 +106,7 @@ public:
             }
 
             QString add_device_cmd = "add_device " + interface + "@" + QString::number(cpu_i);
-            file.write(add_device_cmd.toLocal8Bit());
+            file.write(add_device_cmd.toLocal8Bit(), add_device_cmd.size()+1);
 
             cpu_i++;
             if (cpu_i == cpu_count) break;

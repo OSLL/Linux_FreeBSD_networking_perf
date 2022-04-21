@@ -150,7 +150,8 @@ public:
         for (auto series: QChart::series()) {
             if (series->type() == QtCharts::QAbstractSeries::SeriesTypeLine) {
                 auto line_series = dynamic_cast<QLineSeries*>(series);
-                line_series->clear();
+                if (line_series)
+                    line_series->clear();
             }
             y_min = start_min;
             y_max = start_max;
