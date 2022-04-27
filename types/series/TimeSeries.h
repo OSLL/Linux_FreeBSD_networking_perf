@@ -16,9 +16,11 @@ class TimeSeries: public BaseSeries<T, qreal>{
 public:
 
     void append(qreal y) {
-
         T::append(QDateTime::currentDateTime().toMSecsSinceEpoch(), y);
+    }
 
+    void append(qreal y, quint64 time) {
+        T::append(time, y);
     }
 
 };

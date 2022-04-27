@@ -32,7 +32,7 @@ MainWindow::MainWindow(QWidget *parent) :
     bandwidth_menu->addAction(tr("Iperf3 Visualize"), Iperf3::openFile(tabWidget));
     bandwidth_menu->addAction(tr("Netmap Pktgen Visualize"), NetmapPktGen::openFile(tabWidget));
 
-    ACTION("Profiler Flame Graph", ProfilerFlameWidget);
+    TAB_ACTION("Profiler Flame Graph", ProfilerFlameWidget);
 
 
 }

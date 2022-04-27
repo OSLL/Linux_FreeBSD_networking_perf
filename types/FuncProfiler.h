@@ -51,6 +51,9 @@ public:
     FuncProfilerTreeNode(QString _func_name, int _cpu_index, quint64 _pid, FuncProfilerTreeNode *_parent):
     func_name(_func_name), cpu_index(_cpu_index), pid(_pid), parent(_parent) {}
 
+    FuncProfilerTreeNode(const FuncProfilerToken &token, FuncProfilerTreeNode *_parent):
+            func_name(token.func_name), cpu_index(token.cpu_index), pid(token.pid), parent(_parent) {}
+
     void setRange(TimeRangeNS time_range) {
         this->time_range = time_range;
     }

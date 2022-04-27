@@ -105,6 +105,13 @@ class LinuxProfilerCollector: public BaseProfilerCollector {
             PROFILER("ip_reply_glue_bits");
             PROFILER("ip_select_ttl");
             PROFILER("ip_setup_cork");
+
+            PROFILER("csum_partial");
+            PROFILER("csum_partial_copy_generic");
+            PROFILER("csum_and_copy_from_user");
+            PROFILER("csum_and_copy_to_user");
+            PROFILER("csum_partial_copy_nocheck");
+
         }
 
         if (protocols.contains("tcp")) {

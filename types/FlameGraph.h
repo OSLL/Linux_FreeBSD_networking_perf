@@ -11,19 +11,21 @@
 #include <QPaintEvent>
 #include <QtMath>
 #include <QToolTip>
+#include <utility>
 
 #include "../datasources/parsers/parsers.h"
 
 #define RECT_HEIGHT 30
 #define NS_IN_PIXEL 300
 
+
 class FlameGraph: public QOpenGLWidget {
 
-//    Q_OBJECT
+    Q_OBJECT
 
 public:
 
-    FlameGraph(): QOpenGLWidget(), offset(0, 0), scale(1) {
+    FlameGraph(): QOpenGLWidget(), offset(0, 0), scale(1), current_node(nullptr) {
         this->setMouseTracking(true);
     }
 
@@ -45,6 +47,7 @@ public:
 private:
 
     QVector<FuncProfilerTreeNode*> nodes;
+    const FuncProfilerTreeNode *current_node;
 
     QPointF last_mouse_pos;
     QPointF offset;
@@ -54,6 +57,7 @@ private:
     int paintNode(QPainter &painter,
                     const FuncProfilerTreeNode *root_node,
                     const FuncProfilerTreeNode *node,
+                    const FuncProfilerTreeNode **pointed_node,
                     int &x_offset, int level) const {
 
         int duration = node->getDuration();
@@ -80,6 +84,7 @@ private:
                         .arg(node->getFuncName(), QString::number(duration),
                              QString::number(of_parent));
             }
+            *pointed_node = node;
             QToolTip::showText(this->mapToGlobal(hover), text);
         }
         painter.drawRect(func_rect);
@@ -91,7 +96,7 @@ private:
 
         for (const auto *child: node->getChildren()) {
             if (child->getDuration()) {
-                paintNode(painter, root_node, child, x_offset, level + 1);
+                paintNode(painter, root_node, child, pointed_node, x_offset, level + 1);
             }
         }
 
@@ -110,14 +115,19 @@ protected:
         painter.translate(offset);
         painter.setPen(Qt::black);
 
+        current_node = nullptr;
         int x_offset = 0;
         for (const auto *node: nodes) {
             if (node->getDuration()) {
-                int width = paintNode(painter, node, node, x_offset, 0);
+                int width = paintNode(painter, node, node, &current_node, x_offset, 0);
                 if (width > 0) {
                     x_offset += width + 10*scale;
                 }
             }
+        }
+
+        if (!current_node) {
+            QToolTip::hideText();
         }
     }
 
@@ -155,6 +165,18 @@ protected:
         update();
     }
 
+    void mouseDoubleClickEvent(QMouseEvent *event) override {
+
+        if (current_node) {
+            emit nodeClick(event, current_node);
+        }
+
+        QWidget::mouseDoubleClickEvent(event);
+    }
+
+signals:
+
+    void nodeClick(QMouseEvent*, const FuncProfilerTreeNode*);
 
 };
 

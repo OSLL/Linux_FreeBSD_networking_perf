@@ -103,9 +103,9 @@ static int entry_handler(struct kretprobe_instance *ri, struct pt_regs *regs) {
     cpu_profiler_data->list[cpu_profiler_data->i].func_name = get_kretprobe(ri)->kp.symbol_name;
 #endif
 
-    cpu_profiler_data->list[cpu_profiler_data->i].time = ktime_get_ns();
     cpu_profiler_data->list[cpu_profiler_data->i].pid = current->pid;
     cpu_profiler_data->list[cpu_profiler_data->i].id = cpu_profiler_data->id;
+    cpu_profiler_data->list[cpu_profiler_data->i].time = ktime_get_ns();
 
     cpu_profiler_data->id++;
     cpu_profiler_data->i++;

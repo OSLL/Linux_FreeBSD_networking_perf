@@ -1,17 +1,18 @@
 #include "profilerflamewidget.h"
 #include "ui_profilerflamewidget.h"
 
-ProfilerFlameWidget::ProfilerFlameWidget(BaseDataSource *ds, QWidget *parent) :
+ProfilerFlameWidget::ProfilerFlameWidget(BaseDataSource *ds, MainTabWidget *_tab_widget, QWidget *parent) :
     QWidget(parent),
     ui(new Ui::ProfilerFlameWidget),
     data_source(ds),
     flame_graph(nullptr),
-    progress_bar(nullptr)
+    progress_bar(nullptr),
+    tab_widget(_tab_widget)
 {
     ui->setupUi(this);
     ui->controlLayout->setAlignment(Qt::AlignmentFlag::AlignTop);
 
-    flame_graph = new FlameGraph(QVector<FuncProfilerTreeNode*>());
+    flame_graph = new FlameGraph();
     ui->flameGraphLayout->addWidget(flame_graph);
 
     ui->durationSpinBox->setValue(default_args["duration"].toInt());
@@ -80,6 +81,7 @@ void ProfilerFlameWidget::onTimer() {
                                              .value(ui->CPUComboBox->currentText().toInt())
                 );
         ui->flameGraphLayout->addWidget(flame_graph);
+        QObject::connect(flame_graph, &FlameGraph::nodeClick, this, &ProfilerFlameWidget::onNodeClick);
     }
 }
 
@@ -131,4 +133,44 @@ void ProfilerFlameWidget::PIDChanged(const QString &s_pid) {
 void ProfilerFlameWidget::onProtocolClicked(int index) {
     protocols_model->check(index);
     ui->protocolComboBox->setEditText(protocols_model->displayText());
+}
+
+void ProfilerFlameWidget::onNodeClick(QMouseEvent *event, const FuncProfilerTreeNode *func_node) {
+
+    QString func_name = func_node->getFuncName();
+    QVector<FuncProfilerTreeNode *> func_nodes;
+    for (const auto &cpu_nodes: profiler_data) {
+        for (const auto &nodes: cpu_nodes) {
+            for (const auto &node: nodes) {
+                filterFuncNodes(node, func_name, func_nodes);
+            }
+        }
+    }
+
+    std::sort(func_nodes.begin(), func_nodes.end(), [](FuncProfilerTreeNode *a, FuncProfilerTreeNode *b) {
+        return a->getRange().from - b->getRange().from;
+    });
+
+
+    timespec up;
+    clock_gettime(CLOCK_BOOTTIME, &up);
+    quint64 unix_up = QDateTime::currentMSecsSinceEpoch() - (up.tv_sec*1000+up.tv_nsec/1000000L);
+
+    QVector<std::pair<quint64, quint64>> func_values;
+    for (const auto &node: func_nodes) {
+        func_values.push_back({node->getDuration(), unix_up+node->getRange().from/1000000L});
+    }
+
+    int tab_index = tab_widget->addTab(new DisplayValueWidget(func_values, func_name), func_name);
+    tab_widget->setCurrentIndex(tab_index);
+}
+
+void ProfilerFlameWidget::filterFuncNodes(FuncProfilerTreeNode *node, QString func_name, QVector<FuncProfilerTreeNode *> &func_nodes) {
+    if (node->getFuncName() == func_name) {
+        func_nodes.push_back(node);
+    }
+
+    for (const auto &child: node->getChildren()) {
+        filterFuncNodes(child, func_name, func_nodes);
+    }
 }

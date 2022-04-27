@@ -46,7 +46,8 @@ add_executable(lfnp main.cpp datasources/BaseDataSource.h utils/utils.h utils/ut
         datasources/dtrace/DTraceProfilerCollector.h gui/models/ProfilerProtocolsModel.h gui/forms/dropsinfowidget.h
         gui/forms/dropsinfowidget.cpp gui/forms/dropsinfowidget.ui gui/models/DropsInfoModel.h
         gui/forms/linuxpktgenwidget.h gui/forms/linuxpktgenwidget.cpp gui/forms/linuxpktgenwidget.ui
-        gui/threads/LinuxPktgenThread.h)
+        gui/threads/LinuxPktgenThread.h gui/forms/displayvaluewidget.h gui/forms/displayvaluewidget.cpp
+        gui/forms/displayvaluewidget.ui)
 
 target_link_libraries(lfnp
         Qt5::Core

@@ -52,6 +52,8 @@ public:
         return std::nullopt;
     }
 
+    QVector<FuncProfilerTreeNode> getFunctionNodes(QString func_name);
+
 };
 
 #endif //LFNP_PROFILER_PARSERS_H

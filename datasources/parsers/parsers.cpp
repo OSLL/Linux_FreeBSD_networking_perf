@@ -106,3 +106,41 @@ QVector<FuncProfilerTreeNode *> ProfilerParser::getProfilerTrees(int cpu, quint6
 
     return root_nodes;
 }
+
+QVector<FuncProfilerTreeNode> ProfilerParser::getFunctionNodes(QString func_name) {
+    QVector<FuncProfilerTreeNode> function_nodes;
+
+    const FuncProfilerToken *enter_token = nullptr;
+    int enter_stack_level = 0;
+
+    for (const auto &cpu_tokens: pid_tokens) {
+        for (const auto &tokens: cpu_tokens) {
+
+            int stack_level = 0;
+            for (const auto &token: tokens) {
+
+                if (token.type == FuncProfilerToken::ENTER) {
+                    stack_level++;
+                } else {
+                    stack_level--;
+                }
+
+                if (token.func_name == func_name) {
+                    if (token.type == FuncProfilerToken::ENTER) {
+                        enter_token = &token;
+                        enter_stack_level = stack_level;
+                    } else if (enter_token) {
+                        if (enter_stack_level == stack_level) {
+                            function_nodes.push_back(FuncProfilerTreeNode(*enter_token, nullptr));
+                            function_nodes.last().setRange(TimeRangeNS(enter_token->timestamp, token.timestamp));
+                        }
+                        enter_token = nullptr;
+                    }
+                }
+
+            }
+        }
+    }
+
+    return function_nodes;
+}
