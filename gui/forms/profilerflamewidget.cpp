@@ -148,7 +148,7 @@ void ProfilerFlameWidget::onNodeClick(QMouseEvent *event, const FuncProfilerTree
     }
 
     std::sort(func_nodes.begin(), func_nodes.end(), [](FuncProfilerTreeNode *a, FuncProfilerTreeNode *b) {
-        return a->getRange().from - b->getRange().from;
+        return a->getRange().from < b->getRange().from;
     });
 
 
