@@ -1,6 +1,12 @@
 #ifndef PROFILERFLAMEWIDGET_H
 #define PROFILERFLAMEWIDGET_H
 
+#include <time.h>
+
+#ifndef __linux__
+#define CLOCK_BOOTTIME CLOCK_UPTIME
+#endif
+
 #include <QWidget>
 #include <QProgressBar>
 #include <QTimer>
