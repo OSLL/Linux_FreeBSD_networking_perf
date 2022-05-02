@@ -8,6 +8,45 @@
 #include <QtCharts>
 #include <QGraphicsItem>
 
+class AverageSeriesData {
+
+protected:
+    qreal data_sum;
+    int length;
+
+    QLineSeries *average_series;
+
+public:
+
+    AverageSeriesData(QLineSeries *_average_series): data_sum(0), length(0), average_series(_average_series) {}
+    explicit AverageSeriesData(const QList<QPointF>& points_list, QLineSeries *_average_series):
+    AverageSeriesData(_average_series) {
+        length = points_list.size();
+        for (const auto &point: points_list) {
+            data_sum += point.y();
+        }
+    }
+
+    void addPoint(QPointF point) {
+        data_sum += point.y();
+        length++;
+    }
+
+    qreal getAverage() const { return data_sum/length; }
+
+    void updateSeries(qreal minX, qreal maxX) {
+        auto next_average = getAverage();
+        QPointF begin_point(minX, next_average), end_point(maxX, next_average);
+
+        average_series->clear();
+        average_series->append(begin_point);
+        average_series->append(end_point);
+    }
+
+    QLineSeries *series() {return  average_series; }
+
+};
+
 //TODO: линии сверху и снизу
 //TODO: выбор отображаемых series в ПКМ
 //TODO: отображение среднего
@@ -22,10 +61,13 @@ private:
     QPointF last_mouse_pos;
 
     bool auto_range, auto_scroll;
+    std::map<QXYSeries*, std::unique_ptr<AverageSeriesData>> average_series;
 
 protected:
 
-    void onPointAdded(const QPointF &point) {
+    void onPointAdded(QXYSeries *series, int index) {
+
+        QPointF point = series->at(index);
 
         if (auto_range) {
 
@@ -75,6 +117,12 @@ protected:
                     }
 
                 }
+            }
+
+            if (average_series.find(series) != average_series.end()) {
+                auto &average_data = average_series[series];
+                average_data->addPoint(point);
+                average_data->updateSeries(current_min, current_max);
             }
         }
     }
@@ -135,14 +183,32 @@ public:
         }
     }
 
-    void addSeries(QXYSeries *series) {
+    void addSeries(QXYSeries *series, bool need_average=false) {
         QChart::addSeries(series);
 
         QObject::connect(series, &QXYSeries::pointAdded, this, [this, series](int index)
-        {onPointAdded(series->at(index));});
+        {onPointAdded(series, index);});
 
         series->attachAxis(y_axis);
         series->attachAxis(x_axis);
+
+        if (need_average) {
+            auto *average_data_series = new QLineSeries;
+            average_data_series->setName("Average " + series->name());
+
+            QColor series_color = series->pen().color();
+            QPen average_pen(series_color);
+            average_pen.setStyle(Qt::DashLine);
+            average_data_series->setPen(average_pen);
+
+            QChart::addSeries(average_data_series);
+            average_data_series->attachAxis(y_axis);
+            average_data_series->attachAxis(x_axis);
+
+            average_series.insert(std::make_pair(series, std::make_unique<AverageSeriesData>(average_data_series)));
+            auto average_series_marker = legend()->markers(average_data_series).first();
+            average_series_marker->setBrush(QBrush(series_color, Qt::Dense2Pattern));
+        }
     }
 
     void clear() {

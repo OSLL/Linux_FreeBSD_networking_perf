@@ -161,7 +161,7 @@ void ProfilerFlameWidget::onNodeClick(QMouseEvent *event, const FuncProfilerTree
         func_values.push_back({node->getDuration(), unix_up+node->getRange().from/1000000L});
     }
 
-    int tab_index = tab_widget->addTab(new DisplayValueWidget(func_values, func_name), func_name);
+    int tab_index = tab_widget->addTab(new DisplayValueWidget(func_values, func_name, true), func_name);
     tab_widget->setCurrentIndex(tab_index);
 }
 

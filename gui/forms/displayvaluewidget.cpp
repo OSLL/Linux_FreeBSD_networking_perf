@@ -1,7 +1,8 @@
 #include "displayvaluewidget.h"
 #include "ui_displayvaluewidget.h"
 
-DisplayValueWidget::DisplayValueWidget(QVector<std::pair<quint64, quint64>> data, QString series_name, QWidget *parent) :
+DisplayValueWidget::DisplayValueWidget(
+        QVector<std::pair<quint64, quint64>> data, QString series_name, bool need_average, QWidget *parent):
     QWidget(parent),
     ui(new Ui::DisplayValueWidget)
 {
@@ -18,7 +19,7 @@ DisplayValueWidget::DisplayValueWidget(QVector<std::pair<quint64, quint64>> data
     chart->getXAxis()->setRange(0, data.size());
     chart->getXAxis()->setTitleText("Number");
     chart->getYAxis()->setTitleText("Time, ns");
-    chart->addSeries(series);
+    chart->addSeries(series, need_average);
     chart_view->setChart(chart);
 
     for (const auto &el: data) {

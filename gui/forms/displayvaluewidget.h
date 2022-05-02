@@ -16,7 +16,8 @@ class DisplayValueWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit DisplayValueWidget(QVector<std::pair<quint64, quint64>> data, QString series_name, QWidget *parent = nullptr);
+    explicit DisplayValueWidget(
+            QVector<std::pair<quint64, quint64>> data, QString series_name, bool need_average, QWidget *parent = nullptr);
     ~DisplayValueWidget();
 
 protected:
