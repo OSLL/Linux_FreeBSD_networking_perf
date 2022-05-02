@@ -62,7 +62,7 @@ public:
 
     void addSeries(TimestampSeries **series) {
         *series = new TimestampSeries(in_us ? to_us : id);
-        AdvancedChart::addSeries(*series);
+        AdvancedChart::addSeries(*series, true);
     }
 
     void clear() {

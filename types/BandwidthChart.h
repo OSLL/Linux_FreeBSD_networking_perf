@@ -90,7 +90,7 @@ public:
     template<class T, typename H, typename V>
     void addSeries(FuncSeries<T, H, V> **series) {
         *series = new FuncSeries<T, H, V>(get_value_func);
-        AdvancedChart::addSeries(*series);
+        AdvancedChart::addSeries(*series, true);
     }
 
 };

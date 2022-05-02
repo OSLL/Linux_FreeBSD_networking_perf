@@ -77,30 +77,30 @@ protected:
             y_axis->setRange(y_min, y_max);
         }
 
-        if (auto_scroll) {
-            qreal current_max = 0;
-            qreal current_min = 0;
-            switch (x_axis->type()) {
+        qreal current_max = 0;
+        qreal current_min = 0;
+        switch (x_axis->type()) {
 
-                case QtCharts::QAbstractAxis::AxisTypeDateTime: {
-                    auto date_axis = dynamic_cast<QDateTimeAxis*>(x_axis);
-                    if (date_axis) {
-                         current_max = date_axis->max().toMSecsSinceEpoch();
-                         current_min = date_axis->min().toMSecsSinceEpoch();;
-                    }
-                    break;
+            case QtCharts::QAbstractAxis::AxisTypeDateTime: {
+                auto date_axis = dynamic_cast<QDateTimeAxis*>(x_axis);
+                if (date_axis) {
+                    current_max = date_axis->max().toMSecsSinceEpoch();
+                    current_min = date_axis->min().toMSecsSinceEpoch();;
                 }
-
-                default: {
-                    auto value_axis = dynamic_cast<QValueAxis*>(x_axis);
-                    if (value_axis) {
-                        current_max = value_axis->max();
-                        current_min = value_axis->min();
-                    }
-                    break;
-                }
+                break;
             }
 
+            default: {
+                auto value_axis = dynamic_cast<QValueAxis*>(x_axis);
+                if (value_axis) {
+                    current_max = value_axis->max();
+                    current_min = value_axis->min();
+                }
+                break;
+            }
+        }
+
+        if (auto_scroll) {
 
             if (point.x() > current_max) {
                 auto delta = point.x() - current_max;
@@ -118,12 +118,12 @@ protected:
 
                 }
             }
+        }
 
-            if (average_series.find(series) != average_series.end()) {
-                auto &average_data = average_series[series];
-                average_data->addPoint(point);
-                average_data->updateSeries(current_min, current_max);
-            }
+        if (average_series.find(series) != average_series.end()) {
+            auto &average_data = average_series[series];
+            average_data->addPoint(point);
+            average_data->updateSeries(current_min, current_max);
         }
     }
 
@@ -161,6 +161,13 @@ protected:
         QChart::mouseMoveEvent(event);
     }
 
+protected slots:
+    void onRangeChanged(qreal min, qreal max) {
+        for (const auto &average_series_it: average_series) {
+            average_series_it.second->updateSeries(min, max);
+        }
+    };
+
 
 public:
 
@@ -174,10 +181,17 @@ public:
             case QtCharts::QAbstractAxis::AxisTypeDateTime: {
                 QDateTime momentInTime = QDateTime::currentDateTime();
                 x_axis->setRange(momentInTime, momentInTime.addSecs(100));
+                auto datetime_x_axis = dynamic_cast<QDateTimeAxis*>(x_axis);
+                QObject::connect(datetime_x_axis, &QDateTimeAxis::rangeChanged, this, [this](QDateTime min, QDateTime max) {
+                    this->onRangeChanged(min.toMSecsSinceEpoch(), max.toMSecsSinceEpoch());
+                });
                 break;
             }
             default: {
                 x_axis->setRange(0, 100);
+                auto value_x_axis = dynamic_cast<QValueAxis*>(x_axis);
+                if (value_x_axis)
+                    QObject::connect(value_x_axis, &QValueAxis::rangeChanged, this, &AdvancedChart::onRangeChanged);
                 break;
             }
         }
@@ -194,7 +208,7 @@ public:
 
         if (need_average) {
             auto *average_data_series = new QLineSeries;
-            average_data_series->setName("Average " + series->name());
+            average_data_series->setName("Average");
 
             QColor series_color = series->pen().color();
             QPen average_pen(series_color);
