@@ -24,6 +24,9 @@ public:
     const int ref;
     const int drops;
 
+    SocketInfo(): local_address(), foreign_address(), local_port(0), foreign_port(0),
+    rx_queue_size(0), tx_queue_size(0), ref(0), drops(0) {}
+
     SocketInfo(QString local_address, QString foreign_address,
                unsigned int local_port, unsigned int foreign_port,
                unsigned int rx_queue_size, unsigned int tx_queue_size,

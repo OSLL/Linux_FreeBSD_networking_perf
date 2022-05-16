@@ -14,7 +14,7 @@ class Enum {
 
 public:
 
-    Enum(QVector<QPair<T, QString>> enum_map) {
+    Enum(std::vector<std::pair<T, QString>> enum_map) {
 
         for (const auto &[enum_val, enum_str]: enum_map) {
             enum_string[enum_val] = enum_str;

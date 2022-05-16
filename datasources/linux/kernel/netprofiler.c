@@ -3,6 +3,7 @@
 #include <linux/kernel.h>
 #include <linux/version.h>
 #include <linux/sched.h>
+#include <linux/uaccess.h>
 
 #include <linux/kprobes.h>
 
@@ -11,7 +12,7 @@
 #include<linux/string.h>
 
 #define DEVICE_NAME "netprofiler"
-#define PROFILER_BUFFER_LEN 150
+#define PROFILER_BUFFER_LEN 50
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("TheShenk");

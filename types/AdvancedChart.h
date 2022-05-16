@@ -32,7 +32,7 @@ public:
         length++;
     }
 
-    qreal getAverage() const { return data_sum/length; }
+    qreal getAverage() const { return length ? data_sum/length : 0; }
 
     void updateSeries(qreal minX, qreal maxX) {
         auto next_average = getAverage();
@@ -43,13 +43,17 @@ public:
         average_series->append(end_point);
     }
 
-    QLineSeries *series() {return  average_series; }
+    QLineSeries *series() { return  average_series; }
+    void clear() {
+        average_series->clear();
+        data_sum = 0;
+        length = 0;
+    }
 
 };
 
 //TODO: линии сверху и снизу
 //TODO: выбор отображаемых series в ПКМ
-//TODO: отображение среднего
 class AdvancedChart: public QChart {
 
 private:
@@ -168,7 +172,6 @@ protected slots:
         }
     };
 
-
 public:
 
     AdvancedChart(qreal min=0, qreal max=1, QAbstractAxis *x=new QValueAxis, QAbstractAxis *y=new QValueAxis ):
@@ -236,6 +239,11 @@ public:
             y_min = start_min;
             y_max = start_max;
             y_axis->setRange(y_min, y_max);
+
+            auto xy_series = dynamic_cast<QXYSeries*>(series);
+            if (xy_series && average_series.find(xy_series) != average_series.end()) {
+                average_series[xy_series]->clear();
+            }
         }
 
         auto_range = true;
